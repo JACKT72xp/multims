@@ -1,0 +1,31 @@
+#!/bin/bash
+
+if [ -z "$KRSYNC_STARTED" ]; then
+    export KRSYNC_STARTED=true
+    exec rsync --blocking-io --rsh "$0" $@
+fi
+
+# Running as --rsh
+namespace=''
+pod=$1
+shift
+
+# If user uses pod@namespace, rsync passes args as: {us} -l pod namespace ...
+if [ "X$pod" = "X-l" ]; then
+    pod=$1
+    shift
+    namespace="-n $1"
+    shift
+fi
+
+# Obtener directorio de origen y destino de los argumentos
+src_dir=$1
+dest_dir=$2
+shift 2
+
+# Utilizar fswatch para monitorear cambios en el directorio fuente
+fswatch -0 -r $src_dir | while read -d "" event; do
+    # Cuando se detecte un cambio, ejecutar rsync con los argumentos proporcionados
+    kubectl $namespace exec -i $pod -- rsync -av --progress --stats $src_dir $dest_dir
+done
+

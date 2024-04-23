@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Bucle infinito
+while true; do
+    # Ejecutar el comando rsync
+    ./krsync -av -r --delete --progress --stats pkg rsync-pod:/home
+    # Esperar 5 segundos antes de la próxima ejecución
+    sleep 5
+done
+

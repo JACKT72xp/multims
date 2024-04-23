@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rsync-pod
+spec:
+  containers:
+  - name: rsync-container
+    image: alpinelinux/rsyncd:latest
+    command:
+      - "/bin/sh"
+      - "-c"
+      - |
+        while true; do
+          rsync -avz --delete /opt/code/ /home/
+          sleep 60
+        done
+    volumeMounts:
+    - name: code-volume
+      mountPath: /opt/code
+  volumes:
+  - name: code-volume
+    hostPath:
+      path: /Volumes/DataJack/Jack/hello_nodejs
+
