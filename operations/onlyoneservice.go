@@ -253,7 +253,11 @@ func OnlyOneServiceHandler() {
 			return
 		}
 		execDir := filepath.Dir(execPath)
-		refreshCmdStr := fmt.Sprintf("%s/refreshv2 \"%s\" \"%s\" \"%s\"", execDir, baseDir, uid, namespace)
+		scriptsPath := filepath.Join(execDir, "../multims/scripts/refreshv2")
+		refreshCmdStr := fmt.Sprintf("%s \"%s\" \"%s\" \"%s\"", scriptsPath, baseDir, uid, namespace)
+
+		//refreshCmdStr := fmt.Sprintf("%s/../scripts/refreshv2 \"%s\" \"%s\" \"%s\"", execDir, baseDir, uid, namespace)
+		//refreshCmdStr := fmt.Sprintf("%s/refreshv2 \"%s\" \"%s\" \"%s\"", execDir, baseDir, uid, namespace)
 		//refreshCmdStr := fmt.Sprintf("/Volumes/DataJack/Jack/multims/refreshv2 \"%s\" \"%s\" \"%s\"", baseDir, uid, namespace)
 		fmt.Println("Executing refreshv2 script at:", baseDir)
 		fmt.Println("Executing refreshv2 script at:", uid)
@@ -342,7 +346,12 @@ func OnlyOneService(multiservices []config.ServiceConfig, namespace string, uid 
 			return
 		}
 		execDir := filepath.Dir(execPath)
-		refreshCmdStr := fmt.Sprintf("%s/refreshv2 \"%s\" \"%s\" \"%s\"", execDir, baseDir, uid, namespace)
+		//refreshCmdStr := fmt.Sprintf("%s/../scripts/refreshv2 \"%s\" \"%s\" \"%s\"", execDir, baseDir, uid, namespace)
+		//execDir := filepath.Dir(execPath)
+		scriptsPath := filepath.Join(execDir, "../multims/scripts/refreshv2")
+		refreshCmdStr := fmt.Sprintf("%s \"%s\" \"%s\" \"%s\"", scriptsPath, baseDir, uid, namespace)
+
+		//		refreshCmdStr := fmt.Sprintf("%s/refreshv2 \"%s\" \"%s\" \"%s\"", execDir, baseDir, uid, namespace)
 		//refreshCmdStr := fmt.Sprintf("/Volumes/DataJack/Jack/multims/refreshv2 \"%s\" \"%s\" \"%s\"", baseDir, uid, namespace)
 		fmt.Println("Executing refreshv2 script at:", baseDir)
 		fmt.Println("Executing refreshv2 script at:", uid)

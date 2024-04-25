@@ -1,5 +1,0 @@
-kubernetesContext: mi-cuenta-publica-context
-registry: AWS ECR
-technology: Node.js
-uid: b31af60b-9d32-4e58-b8e5-bd19236fec85
-namespace: default
