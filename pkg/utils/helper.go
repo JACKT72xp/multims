@@ -54,7 +54,7 @@ func isNodeApp() bool {
 func SelectTechnology() string {
 	prompt := promptui.Select{
 		Label: "Select the technology stack for your project",
-		Items: []string{"Node.js", "Node.js-Typescript", "Cancel"},
+		Items: []string{"Node", "Node-Typescript", "Cancel", "Python"},
 	}
 
 	_, result, err := prompt.Run()

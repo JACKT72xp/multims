@@ -16,20 +16,28 @@ import (
 	"k8s.io/client-go/util/homedir"
 )
 
+type ServiceConfig struct {
+	Name  string // Nombre del servicio
+	Image string // Imagen del contenedor del servicio
+	Port  int    // Puerto del servicio
+}
 type AppInfo struct {
-	StartRun string `yaml:"start_run"` // Este campo es ahora parte de una subestructura
+	StartRun string `yaml:"start_run"`
+	Port     int32  `yaml:"port"` // Este campo es ahora parte de una subestructura
 }
 type Config struct {
-	KubernetesContext    string  `yaml:"kubernetesContext"`
-	RegistryOrDocker     string  `yaml:"registryOrDocker"`
-	RegistryURL          string  `yaml:"registry"`
-	Technology           string  `yaml:"technology"`
-	Namespace            string  `yaml:"namespace"`
-	UseDefaultKubeConfig bool    `yaml:"useDefaultKubeConfig"`
-	KubeConfigPath       string  `yaml:"kubeConfigPath"`
-	UID                  string  `yaml:"uid"`
-	AppName              string  `yaml:"appName"`
-	Application          AppInfo `yaml:"application"` // Cambiado para reflejar la jerarquía
+	KubernetesContext    string          `yaml:"kubernetesContext"`
+	RegistryOrDocker     string          `yaml:"registryOrDocker"`
+	RegistryURL          string          `yaml:"registry"`
+	Technology           string          `yaml:"technology"`
+	Namespace            string          `yaml:"namespace"`
+	UseDefaultKubeConfig bool            `yaml:"useDefaultKubeConfig"`
+	KubeConfigPath       string          `yaml:"kubeConfigPath"`
+	UID                  string          `yaml:"uid"`
+	AppName              string          `yaml:"appName"`
+	Application          AppInfo         `yaml:"application"` // Cambiado para reflejar la jerarquía
+	MultiServices        []ServiceConfig // Slice de servicios
+
 	// Este campo debe comenzar con letra mayúscula
 }
 

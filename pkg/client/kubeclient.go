@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"multims/pkg/config"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -16,6 +17,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
@@ -187,8 +189,75 @@ func filterANSISequences(data []byte) []byte {
 	return re.ReplaceAll(data, nil)
 }
 
-func EnsurePortForwarding(ctx context.Context, namespace, podName string, localPort, remotePort int) {
-	cmdStr := fmt.Sprintf("kubectl port-forward pod/%s %d:%d -n %s", podName, localPort, remotePort, namespace)
+// func EnsurePortForwarding(ctx context.Context, namespace, podName string, localPort, remotePort int) {
+// 	cmdStr := fmt.Sprintf("kubectl port-forward pod/%s %d:%d -n %s", podName, localPort, remotePort, namespace)
+
+//		for {
+//			select {
+//			case <-ctx.Done():
+//				log.Println("Port-forwarding canceled.")
+//				return
+//			default:
+//				if podReady(namespace, podName) {
+//					cmd := exec.Command("bash", "-c", cmdStr)
+//					if err := cmd.Start(); err != nil {
+//						log.Printf("Failed to start port-forwarding: %v", err)
+//					} else {
+//						log.Println("Port-forwarding established successfully.")
+//						// Espera a que el comando termine o sea cancelado
+//						done := make(chan error, 1)
+//						go func() { done <- cmd.Wait() }()
+//						select {
+//						case <-ctx.Done():
+//							if err := cmd.Process.Kill(); err != nil {
+//								log.Printf("Failed to kill port-forward process: %v", err)
+//							}
+//							return
+//						case err := <-done:
+//							if err != nil {
+//								log.Printf("Port-forwarding stopped unexpectedly: %v", err)
+//								log.Println("Retrying in 10 seconds...")
+//								time.Sleep(5 * time.Second)
+//								continue
+//							}
+//						}
+//					}
+//				} else {
+//					log.Println("Pod is not ready for port-forwarding. Retrying in 10 seconds...")
+//					time.Sleep(5 * time.Second)
+//				}
+//			}
+//		}
+//	}
+
+func serviceReady(clientset *kubernetes.Clientset, namespace, serviceName string) bool {
+	// Verificar la existencia del servicio (no necesitamos usar la variable 'service' directamente)
+	if _, err := clientset.CoreV1().Services(namespace).Get(context.TODO(), serviceName, v1.GetOptions{}); err != nil {
+		log.Printf("Error retrieving service: %v", err)
+		return false
+	}
+
+	// Verificar la presencia de endpoints asociados al servicio
+	endpoints, err := clientset.CoreV1().Endpoints(namespace).Get(context.TODO(), serviceName, v1.GetOptions{})
+	if err != nil {
+		log.Printf("Error retrieving endpoints for service: %v", err)
+		return false
+	}
+
+	if len(endpoints.Subsets) > 0 {
+		for _, subset := range endpoints.Subsets {
+			if len(subset.Addresses) > 0 {
+				return true // Hay al menos una dirección IP asociada al endpoint
+			}
+		}
+	}
+
+	log.Println("Service has no active endpoints.")
+	return false
+}
+
+func EnsurePortForwarding(clientset *kubernetes.Clientset, ctx context.Context, namespace, serviceName string, localPort, remotePort int) {
+	cmdStr := fmt.Sprintf("kubectl port-forward service/%s %d:%d -n %s", serviceName, localPort, remotePort, namespace)
 
 	for {
 		select {
@@ -196,7 +265,7 @@ func EnsurePortForwarding(ctx context.Context, namespace, podName string, localP
 			log.Println("Port-forwarding canceled.")
 			return
 		default:
-			if podReady(namespace, podName) {
+			if serviceReady(clientset, namespace, serviceName) {
 				cmd := exec.Command("bash", "-c", cmdStr)
 				if err := cmd.Start(); err != nil {
 					log.Printf("Failed to start port-forwarding: %v", err)
@@ -215,14 +284,14 @@ func EnsurePortForwarding(ctx context.Context, namespace, podName string, localP
 						if err != nil {
 							log.Printf("Port-forwarding stopped unexpectedly: %v", err)
 							log.Println("Retrying in 10 seconds...")
-							time.Sleep(5 * time.Second)
+							time.Sleep(10 * time.Second)
 							continue
 						}
 					}
 				}
 			} else {
-				log.Println("Pod is not ready for port-forwarding. Retrying in 10 seconds...")
-				time.Sleep(5 * time.Second)
+				log.Println("Service is not ready for port-forwarding. Retrying in 10 seconds...")
+				time.Sleep(10 * time.Second)
 			}
 		}
 	}
@@ -256,7 +325,7 @@ func podReady(namespace, podName string) bool {
 }
 
 // ExecIntoPod ejecuta un comando en un pod y maneja la salida.
-func ExecIntoPod(clientset *kubernetes.Clientset, config *rest.Config, podName, namespace string, input string, directory string) error {
+func ExecIntoPod(clientset *kubernetes.Clientset, config *rest.Config, podName, namespace string, input string, directory string, languaje string, servicesKong []config.ServiceConfig) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -267,11 +336,25 @@ func ExecIntoPod(clientset *kubernetes.Clientset, config *rest.Config, podName, 
 		sig := <-sigs // Espera a recibir una señal.
 		fmt.Println("Signal received:", sig)
 		fmt.Println("Termination or interrupt signal received, cleaning up...")
-		cancel()                                 // Cancela el contexto completo
-		deletePod(clientset, podName, namespace) // Eliminar el pod
-		os.Exit(0)                               // Salir del programa completamente
+		cancel()                                      // Cancela el contexto completo
+		deletePod(clientset, podName, namespace, nil) // Eliminar el pod
+		os.Exit(0)                                    // Salir del programa completamente
 	}()
-	lastCommand := fmt.Sprintf("sleep 30 && cd /home/%s && rm -rf package-lock.json && rm -rf node_modules/ && npm i nodemon -g && npm install --save && %s ", directory, input)
+	//lastCommand := "sleep 30 && tail -f /dev/null"
+
+	lastCommand := ""
+
+	switch languaje {
+	case "Node":
+		lastCommand = fmt.Sprintf("sleep 10 && cd /home/%s && rm -rf package-lock.json && rm -rf node_modules/ && npm i nodemon -g && npm install --save && %s ", directory, input)
+
+	case "Node-Typescript":
+		lastCommand = fmt.Sprintf("sleep 10 && cd /home/%s && rm -rf package-lock.json && rm -rf node_modules/ && npm i nodemon -g && npm install --save && %s ", directory, input)
+
+	case "Python":
+		lastCommand = fmt.Sprintf("sleep 10 && cd /home/%s && pip install -r requirements.txt && %s ", directory, input)
+	}
+	// lastCommand := fmt.Sprintf("sleep 60 && cd /home/%s && rm -rf package-lock.json && rm -rf node_modules/ && npm i nodemon -g && npm install --save && %s ", directory, input)
 	fmt.Println("Commands to apply", lastCommand)
 	//command := []string{"/bin/sh", "-c", "sleep 30 && cd /home/cmi-ms-users-sims-01 && rm -rf package-lock.json && rm -rf node_modules/ && npm install --save && npm run start:dev"}
 	command := []string{
@@ -294,7 +377,7 @@ func ExecIntoPod(clientset *kubernetes.Clientset, config *rest.Config, podName, 
 
 	executor, err := remotecommand.NewSPDYExecutor(config, "POST", req.URL())
 	if err != nil {
-		deletePod(clientset, podName, namespace) // Eliminar el pod
+		deletePod(clientset, podName, namespace, nil) // Eliminar el pod
 		return fmt.Errorf("error creating SPDY executor: %v", err)
 	}
 
@@ -306,7 +389,8 @@ func ExecIntoPod(clientset *kubernetes.Clientset, config *rest.Config, podName, 
 	}
 
 	if err := executor.StreamWithContext(ctx, streamOptions); err != nil {
-		deletePod(clientset, podName, namespace) // Eliminar el pod
+		deleteResources(clientset, podName, namespace, servicesKong) // Eliminar el pod
+
 		fmt.Printf("Error in streaming: %v\n", err)
 		return err
 	}
@@ -315,7 +399,58 @@ func ExecIntoPod(clientset *kubernetes.Clientset, config *rest.Config, podName, 
 	return nil
 }
 
-func deletePod(clientset *kubernetes.Clientset, podName, namespace string) {
+func deleteResources(clientset *kubernetes.Clientset, podName, namespace string, services []config.ServiceConfig) {
+	fmt.Printf("Deleting pod %s in namespace %s...\n", podName, namespace)
+
+	// Opciones de eliminación para los recursos
+	deletePolicy := v1.DeletePropagationForeground
+	deleteOptions := &v1.DeleteOptions{
+		PropagationPolicy: &deletePolicy,
+	}
+
+	// Elimina el pod
+	if err := clientset.CoreV1().Pods(namespace).Delete(context.Background(), podName, *deleteOptions); err != nil {
+		fmt.Printf("Failed to delete pod: %v\n", err)
+	} else {
+		fmt.Println("Pod deletion initiated successfully.")
+		// Implementar waitForPodDeletion si es necesario
+	}
+	for _, pod := range services {
+		// Ajustar el nombre del servicio si es necesario
+		podName := pod.Name + "-pod"
+		fmt.Printf("Deleting pods %s in namespace %s...\n", podName, namespace)
+		if err := clientset.CoreV1().Pods(namespace).Delete(context.Background(), podName, *deleteOptions); err != nil {
+			fmt.Printf("Failed to delete pod: %v\n", err)
+		} else {
+			fmt.Printf("Pod deletion initiated successfully: %s\n", podName)
+		}
+	}
+
+	// Eliminar todos los servicios asociados listados en services
+	for _, service := range services {
+		// Ajustar el nombre del servicio si es necesario
+		serviceName := service.Name
+		fmt.Printf("Deleting service %s in namespace %s...\n", serviceName, namespace)
+		if err := clientset.CoreV1().Services(namespace).Delete(context.Background(), serviceName, *deleteOptions); err != nil {
+			fmt.Printf("Failed to delete service: %v\n", err)
+		} else {
+			fmt.Printf("Service deletion initiated successfully: %s\n", serviceName)
+		}
+	}
+
+	// Eliminar específicamente kong-admin y kong-proxy
+	specialServices := []string{"kong-admin", "kong-proxy"}
+	for _, s := range specialServices {
+		fmt.Printf("Deleting service %s in namespace %s...\n", s, namespace)
+		if err := clientset.CoreV1().Services(namespace).Delete(context.Background(), s, *deleteOptions); err != nil {
+			fmt.Printf("Failed to delete special service %s: %v\n", s, err)
+		} else {
+			fmt.Printf("Special service deletion initiated successfully: %s\n", s)
+		}
+	}
+}
+
+func deletePod(clientset *kubernetes.Clientset, podName, namespace string, services []config.ServiceConfig) {
 	fmt.Printf("Deleting pod %s in namespace %s...\n", podName, namespace)
 	deletePolicy := v1.DeletePropagationForeground
 	deleteOptions := &v1.DeleteOptions{
@@ -350,65 +485,104 @@ func waitForPodDeletion(clientset *kubernetes.Clientset, podName, namespace stri
 // 	return nil
 // }
 
-func DeployPod(clientset *kubernetes.Clientset, name string, namespace string, image string) error {
-	// Intenta obtener el pod por su nombre para verificar si ya existe
-	_, err := clientset.CoreV1().Pods(namespace).Get(context.TODO(), name, v1.GetOptions{})
+func DeployPod(clientset *kubernetes.Clientset, name string, namespace string, image string, uid string, port int32) error {
+	podName := fmt.Sprintf("%s", name)
+	serviceName := fmt.Sprintf("service-%s", name)
+
+	// Verificar si el pod ya existe
+	_, err := clientset.CoreV1().Pods(namespace).Get(context.TODO(), podName, v1.GetOptions{})
 	if err == nil {
-		// Si no hay error, significa que el pod ya existe
-		fmt.Println("Pod already created and ready.")
+		fmt.Println("Pod already exists:", podName)
+	} else {
+		// Si el pod no existe, crea uno nuevo
+		pod := &corev1.Pod{
+			ObjectMeta: v1.ObjectMeta{
+				Name:      podName,
+				Namespace: namespace,
+				Labels: map[string]string{
+					"app": name, // Usando el nombre base como etiqueta para agrupación
+				},
+			},
+			Spec: corev1.PodSpec{
+				RestartPolicy: "Never",
+				Containers: []corev1.Container{
+					{
+						Name:  name,
+						Image: image,
+						Command: []string{
+							"/bin/sh",
+							"-c",
+							"apk update && apk add rsync && apk add --no-cache bash && sleep infinity",
+						},
+						Ports: []corev1.ContainerPort{
+							{
+								ContainerPort: port,
+								Protocol:      "TCP",
+								HostPort:      port,
+							},
+						},
+						VolumeMounts: []corev1.VolumeMount{
+							{
+								Name:      "code-volume",
+								MountPath: "/opt/code",
+							},
+						},
+					},
+				},
+				Volumes: []corev1.Volume{
+					{
+						Name: "code-volume",
+						VolumeSource: corev1.VolumeSource{
+							EmptyDir: &corev1.EmptyDirVolumeSource{},
+						},
+					},
+				},
+			},
+		}
+
+		_, err = clientset.CoreV1().Pods(namespace).Create(context.TODO(), pod, v1.CreateOptions{})
+		if err != nil {
+			return fmt.Errorf("failed to create pod: %v", err)
+		}
+		fmt.Println("Pod created successfully:", podName)
+	}
+
+	// Verificar si el servicio ya existe
+	_, err = clientset.CoreV1().Services(namespace).Get(context.TODO(), serviceName, v1.GetOptions{})
+	if err == nil {
+		fmt.Println("Service already exists:", serviceName)
 		return nil
 	}
 
-	// Si el pod no existe, crea uno nuevo
-	pod := &corev1.Pod{
+	// Si el servicio no existe, crea uno nuevo
+	service := &corev1.Service{
 		ObjectMeta: v1.ObjectMeta{
-			Name:      name,
+			Name:      serviceName,
 			Namespace: namespace,
 		},
-		Spec: corev1.PodSpec{
-			RestartPolicy: "Never",
-			Containers: []corev1.Container{
+		Spec: corev1.ServiceSpec{
+			Selector: map[string]string{
+				"app": name, // Selector basado en la etiqueta del pod
+			},
+			Ports: []corev1.ServicePort{
 				{
-					Name:  name,
-					Image: "node:lts-alpine3.19", // Usa la variable 'image' pasada a la función
-					Command: []string{
-						"/bin/sh",
-						"-c",
-						"apk update && apk add rsync && apk add --no-cache bash	&& sleep infinity",
-					},
-					Ports: []corev1.ContainerPort{
-						{
-							ContainerPort: 3000, // Especifica que el puerto 3000 está siendo usado por el contenedor
-							Protocol:      "TCP",
-						},
-					},
-					VolumeMounts: []corev1.VolumeMount{
-						{
-							Name:      "code-volume",
-							MountPath: "/opt/code",
-						},
-					},
+					Port:       port,
+					TargetPort: intstr.FromInt32(port),
+					Protocol:   "TCP",
 				},
 			},
-			Volumes: []corev1.Volume{
-				{
-					Name: "code-volume",
-					VolumeSource: corev1.VolumeSource{
-						EmptyDir: &corev1.EmptyDirVolumeSource{},
-					},
-				},
-			},
+			Type: corev1.ServiceTypeClusterIP, // Ajusta según necesidad
 		},
 	}
 
-	_, err = clientset.CoreV1().Pods(namespace).Create(context.TODO(), pod, v1.CreateOptions{})
+	_, err = clientset.CoreV1().Services(namespace).Create(context.TODO(), service, v1.CreateOptions{})
 	if err != nil {
-		return fmt.Errorf("failed to deploy pod: %v", err)
+		return fmt.Errorf("failed to create service: %v", err)
 	}
-	fmt.Println("Pod deployed successfully.")
+	fmt.Println("Service created successfully:", serviceName)
+
 	return nil
 }
-
 func continuousSync(localPath string, remotePath string) {
 	for {
 		// Ejecutar rsync para sincronizar los archivos

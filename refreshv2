@@ -1,17 +1,30 @@
 #!/bin/bash
 
-# Comprobar si se proporcionó un directorio como argumento
-if [ $# -ne 1 ]; then
-    echo "Usage: $0 <directory>"
+# Comprobar si se proporcionaron suficientes argumentos
+if [ $# -ne 3 ]; then
+    echo "Usage: $0 <directory> <podname>"
     exit 1
 fi
 
-# Directorio a monitorear
+# Asignar argumentos a variables claras
 directory="$1"
+podname="$2"
+namespace="$3"
 
-echo "Monitoring directory: $directory"
+#/Volumes/DataJack/Jack/multims/krsync -av -r --delete --progress --stats "$directory" "${podname}@${namespace}:/home"
 
-/Volumes/DataJack/Jack/multims/krsync -av -r --delete --progress --stats "$directory" ssh-pod:/home
+# Obtener el directorio donde reside el script
+script_dir=$(dirname "$0")
+script_dir_abs=$(cd "$script_dir" && pwd)
+
+echo "Monitoring directory: $directory and synchronizing with pod: $podname"
+
+# Utilizar ruta relativa para krsync
+krsync_path="$script_dir_abs/krsync"
+
+$krsync_path -av -r --delete --progress --stats "$directory" "${podname}@${namespace}:/home"
+
+
 
 # Definir la función para refrescar la sincronización
 function refresh {
@@ -28,9 +41,9 @@ function refresh {
         fswatch -0 -r "$directory" | while read -d "" event; do
             echo "Change detected: $event"
             # Cuando se detecte un cambio, ejecutar rsync
-            echo "Synchronizing $directory with ssh-pod:/home..."
-            if ! /Volumes/DataJack/Jack/multims/krsync -av -r --delete --progress --stats "$directory" ssh-pod:/home; then
-                echo "Error: Failed to synchronize $directory with ssh-pod:/home."
+            echo "Synchronizing $directory with ${podname}:/home..."
+            if ! $krsync_path -av -r --delete --progress --stats "$directory" "${podname}@${namespace}:/home"; then
+                echo "Error: Failed to synchronize $directory with ${podname}:/home."
             else
                 echo "Synchronization completed."
             fi

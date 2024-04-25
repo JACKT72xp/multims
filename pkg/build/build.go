@@ -17,21 +17,35 @@ import (
 //go:embed templates/nodejs/*
 var templatesFS embed.FS
 
+// Define una nueva estructura para representar un servicio
+type ServiceConfig struct {
+	Name  string // Nombre del servicio
+	Image string // Imagen del contenedor del servicio
+	Port  int    // Puerto del servicio
+}
+
+// Define la estructura Config con la propiedad MultiServices
+// type Config struct {
+// 	KubernetesContext string          // Otros campos existentes
+// }
+
 type AppInfo struct {
-	StartRun string `yaml:"start_run"` // Este campo es ahora parte de una subestructura
+	StartRun string `yaml:"start_run"`
+	Port     int    `yaml:"port"`
+	// Este campo es ahora parte de una subestructura
 }
 type Config struct {
-	KubernetesContext    string  `yaml:"kubernetesContext"`
-	RegistryOrDocker     string  `yaml:"registryOrDocker"`
-	RegistryURL          string  `yaml:"registry"`
-	Technology           string  `yaml:"technology"`
-	Namespace            string  `yaml:"namespace"`
-	UseDefaultKubeConfig bool    `yaml:"useDefaultKubeConfig"`
-	KubeConfigPath       string  `yaml:"kubeConfigPath"`
-	UID                  string  `yaml:"uid"`
-	AppName              string  `yaml:"appName"`
-	Application          AppInfo `yaml:"application"` // Cambiado para reflejar la jerarquía
-	// Este campo debe comenzar con letra mayúscula
+	KubernetesContext    string          `yaml:"kubernetesContext"`
+	RegistryOrDocker     string          `yaml:"registryOrDocker"`
+	RegistryURL          string          `yaml:"registry"`
+	Technology           string          `yaml:"technology"`
+	Namespace            string          `yaml:"namespace"`
+	UseDefaultKubeConfig bool            `yaml:"useDefaultKubeConfig"`
+	KubeConfigPath       string          `yaml:"kubeConfigPath"`
+	UID                  string          `yaml:"uid"`
+	AppName              string          `yaml:"appName"`
+	Application          AppInfo         `yaml:"application"` // Cambiado para reflejar la jerarquía
+	MultiServices        []ServiceConfig // Slice de servicios
 }
 
 func getCurrentDirectory() string {
@@ -52,7 +66,7 @@ func CreateMultimsDirectory() error {
 	return nil
 }
 
-func SaveConfigToFile(technology, registry, context, namespace string, useDefault bool, kubeConfigPath, appName string, ecr_docker string, input string) error {
+func SaveConfigToFile(technology, registry, context, namespace string, useDefault bool, kubeConfigPath, appName string, ecr_docker string, input string, port int) error {
 	uid := uuid.New().String()
 	config := Config{
 		KubernetesContext:    context,
@@ -65,9 +79,10 @@ func SaveConfigToFile(technology, registry, context, namespace string, useDefaul
 		UID:                  uid,
 		AppName:              appName,
 		Application: AppInfo{
-			StartRun: input, // Aquí va el comando de inicio
-		}, // Asegúrate de que este campo esté correctamente capitalizado
-
+			StartRun: input,
+			Port:     port,
+		},
+		MultiServices: []ServiceConfig{},
 	}
 	configData, err := yaml.Marshal(config)
 	if err != nil {

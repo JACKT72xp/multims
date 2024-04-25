@@ -1,10 +1,50 @@
 #!/bin/bash
 
-# Bucle infinito
+# Function to synchronize directory with pod
+function sync_directory() {
+    local directory="$1"
+    local podname="$2"
+    local namespace="$3"
+
+    echo "Synchronizing $directory with ${podname}:/home..."
+
+    if ! kubectl -n "$namespace" exec -it "$podname" -- rsync -avz --delete --progress --stats "$directory" /home; then
+        echo "Error: Failed to synchronize $directory with ${podname}:/home."
+    else
+        echo "Synchronization completed."
+    fi
+}
+
+# Check for required arguments
+if [ $# -ne 3 ]; then
+    echo "Usage: $0 <directory> <podname> <namespace>"
+    exit 1
+fi
+
+# Assign arguments to variables
+directory="$1"
+podname="$2"
+namespace="$3"
+
+echo "Monitoring directory: $directory and synchronizing with pod: $podname (namespace: $namespace)"
+
+# Continuously monitor directory for changes
 while true; do
-    # Ejecutar el comando rsync
-    ./krsync -av -r --delete --progress --stats pkg rsync-pod:/home
-    # Esperar 5 segundos antes de la próxima ejecución
+    echo "Waiting for changes in $directory..."
+
+    # Check if fswatch is installed
+    if ! command -v fswatch &> /dev/null; then
+        echo "Error: fswatch is not installed. Please install it to continue."
+        exit 1
+    fi
+
+    # Monitor directory changes with fswatch
+    fswatch -0 -r "$directory" | while read -d "" event; do
+        echo "Change detected: $event"
+        sync_directory "$directory" "$podname" "$namespace"
+    done
+
+    # Wait before next check
+    echo "Waiting for 5 seconds before the next check..."
     sleep 5
 done
-

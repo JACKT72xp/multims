@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kong-config
+data:
+  kong.yml: |
+    _format_version: "1.1"
+    services:
+    - name: demo1-service
+      url: http://demo1.local.svc.cluster.local:80
+      routes:
+      - name: demo1-route
+        paths:
+        - "/demo1"
+    - name: demo2-service
+      url: http://demo2.local.svc.cluster.local:80
+      routes:
+      - name: demo2-route
+        paths:
+        - "/demo2"
+    - name: service-6e4a7113-d1fd-4571-8c28-a5e7d57b4abc-service
+      url: http://service-6e4a7113-d1fd-4571-8c28-a5e7d57b4abc.local.svc.cluster.local:8080
+      routes:
+      - name: service-6e4a7113-d1fd-4571-8c28-a5e7d57b4abc-route
+        paths:
+        - "/service-6e4a7113-d1fd-4571-8c28-a5e7d57b4abc"
