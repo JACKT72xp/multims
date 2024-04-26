@@ -86,10 +86,8 @@ var initCmd = &cobra.Command{
 		}
 		dirName := filepath.Base(currentDir) // Esto da el nombre del directorio actual
 		fmt.Printf("You appName : %s\n", dirName)
-		fmt.Printf("You llega aqui-1 : %s\n", "______________________________")
 
 		build.CreateMultimsDirectory()
-		fmt.Printf("You llega aqui0 : %s\n", "______________________________")
 
 		ecrEndpoint := ""
 		if registry == "DockerHub" {
@@ -101,13 +99,9 @@ var initCmd = &cobra.Command{
 				return
 			}
 			ecrEndpoint = fmt.Sprintf("%s.dkr.ecr.%s.amazonaws.com", accountID, region)
-			fmt.Printf("You llega aqui2 : %s\n", "______________________________")
 		}
 
 		// Obtener el ID de la cuenta de AWS y la región
-		fmt.Printf("You llega aqui0.05 : %s\n", "______________________________")
-
-		fmt.Printf("You llega aqui0.1 : %s\n", "______________________________")
 
 		intValue, err := strconv.Atoi(strings.TrimSuffix(input2, "\n"))
 
@@ -115,12 +109,9 @@ var initCmd = &cobra.Command{
 			fmt.Printf("You llega aqui : %s\n", err)
 			return
 		}
-		fmt.Printf("You llega aqui : %s\n", "______________________________")
 
 		formattedStr := fmt.Sprintf("%08d", intValue)
 		fmt.Println(formattedStr)
-
-		fmt.Printf("You llega aqui3 : %s\n", "______________________________")
 
 		build.SaveConfigToFile(technology, ecrEndpoint, ctx, namespace, useDefaultKubeConfig, kubeConfigPath, dirName, registry, input, intValue)
 

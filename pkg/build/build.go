@@ -110,13 +110,27 @@ func SaveConfigToFile(technology, registry, context, namespace string, useDefaul
 	return nil
 }
 
+func readTemplateFile(filePath string) error {
+	// Intentar leer el archivo en la ruta especificada
+	data, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return fmt.Errorf("failed to read file at %s: %v", filePath, err)
+	}
+
+	// Procesar los datos del archivo como necesites
+	fmt.Println("Data read from file:", string(data))
+	return nil
+}
+
 func processTemplates(dir string, config Config) error {
 	// Utiliza el sistema de archivos embebido para cargar las plantillas
-	dockerfileTemplate, err := templatesFS.ReadFile("/opt/homebrew/etc/multims/templates/nodejs/Dockerfile.template")
+	dockerfileTemplate, err := os.ReadFile("/opt/homebrew/etc/multims/templates/nodejs/Dockerfile.template")
 	if err != nil {
 		return fmt.Errorf("failed to read Dockerfile template: %v", err)
 	}
-	deploymentTemplate, err := templatesFS.ReadFile("/opt/homebrew/etc/multims/templates/nodejs/Deployment.yaml.template")
+
+	deploymentTemplate, err := os.ReadFile("/opt/homebrew/etc/multims/templates/nodejs/Deployment.yaml.template")
+
 	if err != nil {
 		return fmt.Errorf("failed to read Deployment template: %v", err)
 	}
