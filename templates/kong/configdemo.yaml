@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kong-config
+data:
+  kong.yml: |
+    _format_version: "1.1"
+    services:
+    - name: httpbin-service
+      url: http://httpbin.kong.svc.cluster.local:80
+      routes:
+      - name: httpbin-route
+        paths:
+        - "/httpbin"
+    - name: web-service
+      url: http://hello-world-service.kong.svc.cluster.local:80
+      routes:
+      - name: hello-world-route
+        paths:
+        - "/hello-world"

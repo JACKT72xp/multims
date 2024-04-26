@@ -84,6 +84,7 @@ func WriteToFile(content, filePath string) error {
 }
 func DeployKong(clientset *kubernetes.Clientset, namespace string, services []config.ServiceConfig) error {
 	// Obtén la ruta absoluta del ejecutable actual
+
 	exePath, err := os.Executable()
 	if err != nil {
 		return fmt.Errorf("failed to get the executable path: %v", err)
@@ -91,12 +92,12 @@ func DeployKong(clientset *kubernetes.Clientset, namespace string, services []co
 	dir := filepath.Dir(exePath)
 
 	// Asume que los archivos YAML están en la misma ubicación que el ejecutable de tu CLI
-	deployYAMLFile := filepath.Join(dir, "pkg/build/templates/kong/deploy.yaml")
-	svcYAMLFile := filepath.Join(dir, "pkg/build/templates/kong/svc.yaml")
+	deployYAMLFile := filepath.Join(dir, "../multims/templates/kong/deploy.yaml")
+	svcYAMLFile := filepath.Join(dir, "../multims/templates/kong/svc.yaml")
 
 	configContent, err := GenerateKongConfig(services, namespace)
 	// Define la ruta completa del archivo configdemo.yaml
-	configFilePath := filepath.Join(dir, "pkg/build/templates/kong/config.yaml")
+	configFilePath := filepath.Join(dir, "../multims/templates/kong/config.yaml")
 
 	// Escribe el contenido generado en el archivo configdemo.yaml
 	if err := WriteToFile(configContent, configFilePath); err != nil {
