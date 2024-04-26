@@ -152,7 +152,7 @@ func OnlyOneServiceHandler() {
 	directory := conf.AppName
 	port := conf.Application.Port
 
-	if dockerOrECR == "DockerHub" {
+	if dockerOrECR == "AWS ECR" {
 		loginCmdStr := fmt.Sprintf("aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin %s", conf.RegistryURL)
 		loginCmd := exec.Command("bash", "-c", loginCmdStr)
 		loginOutput, err := loginCmd.CombinedOutput()
