@@ -23,13 +23,19 @@ builds:
   - windows
   - darwin
 
-# Configuración de los archivos de salida
 archives:
+- format: tar.gz
+  # this name template makes the OS and Arch compatible with the results of `uname`.
+  name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}.tar.gz"
+  # use zip for windows archives
+  format_overrides:
+  - goos: windows
+    format: zip
+
 - name_template: "{{ .Binary }}_{{ .Arch }}.tar.gz"
   files:
   - scripts/**
   - templates/**
-  id: default
 changelog:
   sort: asc
   filters:
