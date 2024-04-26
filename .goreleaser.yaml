@@ -31,3 +31,15 @@ changelog:
     exclude:
     - "^docs:"
     - "^test:"
+
+brews:
+- name: name
+  description: How engineers learn about CLIs
+  homepage: https://github.com/JACKT72xp/cli
+  tap:
+    owner: JACKT72xp
+    name: homebrew-cli
+  commit_author:
+    name: github_handle
+    email: jackt72xp@gmail.com
+  folder: Formula
