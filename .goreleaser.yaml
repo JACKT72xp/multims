@@ -33,7 +33,7 @@ changelog:
     - "^test:"
 
 brews:
-- name: name
+- name: multims
   description: How engineers learn about CLIs
   homepage: https://github.com/JACKT72xp/cli
   tap:
@@ -42,4 +42,4 @@ brews:
   commit_author:
     name: JACKT72xp
     email: jackt72xp@gmail.com
-  folder: Formula
+  folder: Multims
