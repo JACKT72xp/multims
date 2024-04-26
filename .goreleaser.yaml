@@ -12,19 +12,15 @@ builds:
   - linux
   - windows
   - darwin
-  goarch:
-  - amd64
-  - arm64
-  binary: multims # Specifies the name of the generated binary
 
 archives:
 - id: binaries
   format: tar.gz
   name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
   files:
-  - multims # Ensure this matches the output binary name from the builds section
   - scripts/**
   - templates/**
+
 
 changelog:
   sort: asc
@@ -35,8 +31,8 @@ changelog:
 
 brews:
 - name: multims
-  description: "How engineers learn about CLIs"
-  homepage: "https://github.com/JACKT72xp/cli"
+  description: How engineers learn about CLIs
+  homepage: https://github.com/JACKT72xp/cli
   tap:
     owner: JACKT72xp
     name: homebrew-cli
@@ -44,7 +40,3 @@ brews:
     name: JACKT72xp
     email: jackt72xp@gmail.com
   folder: Formula
-  install: |
-    bin.install "multims"
-  caveats: |
-    Thanks for installing multims! Additional configuration might be required.
