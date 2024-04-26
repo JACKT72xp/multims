@@ -13,15 +13,12 @@ builds:
   - windows
 
 archives:
-- id: tar
+- id: binaries
   format: tar.gz
   name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
   format_overrides:
   - goos: windows
     format: zip
-
-- id: custom
-  name_template: "{{ .Binary }}_{{ .Arch }}"
   files:
   - scripts/**
   - templates/**
