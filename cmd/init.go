@@ -91,13 +91,22 @@ var initCmd = &cobra.Command{
 		build.CreateMultimsDirectory()
 		fmt.Printf("You llega aqui0 : %s\n", "______________________________")
 
+		ecrEndpoint := ""
+		if registry == "DockerHub" {
+			fmt.Printf("You appName ")
+		} else if registry == "AWS ECR" {
+			accountID, region, err := config.GetAWSAccountInfo()
+			if err != nil {
+				fmt.Printf("You llega aqui : %s\n", err)
+				return
+			}
+			ecrEndpoint = fmt.Sprintf("%s.dkr.ecr.%s.amazonaws.com", accountID, region)
+			fmt.Printf("You llega aqui2 : %s\n", "______________________________")
+		}
+
 		// Obtener el ID de la cuenta de AWS y la región
-		accountID, region, err := config.GetAWSAccountInfo()
 		fmt.Printf("You llega aqui0.05 : %s\n", "______________________________")
 
-		if err != nil {
-			log.Fatalf("Failed to retrieve AWS account info: %v", err)
-		}
 		fmt.Printf("You llega aqui0.1 : %s\n", "______________________________")
 
 		intValue, err := strconv.Atoi(strings.TrimSuffix(input2, "\n"))
@@ -107,9 +116,6 @@ var initCmd = &cobra.Command{
 			return
 		}
 		fmt.Printf("You llega aqui : %s\n", "______________________________")
-
-		ecrEndpoint := fmt.Sprintf("%s.dkr.ecr.%s.amazonaws.com", accountID, region)
-		fmt.Printf("You llega aqui2 : %s\n", "______________________________")
 
 		formattedStr := fmt.Sprintf("%08d", intValue)
 		fmt.Println(formattedStr)
