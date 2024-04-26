@@ -16,7 +16,6 @@ builds:
   - amd64
   - arm64
   binary: multims # Specifies the name of the generated binary
-  main: ./cmd/multims/main.go
 
 archives:
 - id: binaries
