@@ -133,73 +133,77 @@ func OnlyOneServiceHandler() {
 
 	configPath := filepath.Join(".", "multims.yml")
 	conf, err := config.LoadConfigFromFile(configPath)
+
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
 	}
 
 	// Login to ECR
-	loginCmdStr := fmt.Sprintf("aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin %s", conf.RegistryURL)
-	loginCmd := exec.Command("bash", "-c", loginCmdStr)
-	loginOutput, err := loginCmd.CombinedOutput()
-	if err != nil {
-		log.Fatalf("Failed to login to Docker: %s, %v", string(loginOutput), err)
-	}
-	fmt.Println("Logged into Docker with ECR successfully.")
-
+	dockerOrECR := conf.RegistryOrDocker
 	// Asegurar que el repositorio exista
 	repoName := fmt.Sprintf("%s", conf.AppName)
 	uid := conf.UID
-	exist := container.CheckRepository(repoName)
 	languaje := conf.Technology
-
-	fmt.Println("Logged into Docker with ECR successfully.", exist)
-
-	if !exist {
-		err := container.CreateRepository(repoName)
-		if err != nil {
-			log.Fatalf("Failed to create repository: %v", err)
-		}
-		fmt.Println("Repository created successfully:", repoName)
-	} else {
-		fmt.Println("Repository already exists:", repoName)
-	}
-
-	// Construcción de la imagen Docker
-	appImage := fmt.Sprintf("%s/%s:latest", conf.RegistryURL, conf.AppName)
-	// dockerfilePath := filepath.Join(".", ".multims", "Dockerfile")
-	dockerfilePath := filepath.Join(baseDir, ".multims", "Dockerfile")
-
-	buildCmd := exec.Command("docker", "build", "--platform=linux/amd64", "-t", appImage, "-f", dockerfilePath, ".")
-	buildOutput, err := buildCmd.CombinedOutput()
-	if err != nil {
-		log.Fatalf("Failed to build Docker image: %s, %v", string(buildOutput), err)
-	}
-	fmt.Println("Docker image built successfully:", appImage)
-
-	// Etiquetado de la imagen Docker
-	taggedImage := fmt.Sprintf("%s/%s:%s", conf.RegistryURL, conf.AppName, conf.UID)
-	tagCmd := exec.Command("docker", "tag", appImage, taggedImage)
-	tagOutput, err := tagCmd.CombinedOutput()
-	if err != nil {
-		log.Fatalf("Failed to tag Docker image: %s, %v", string(tagOutput), err)
-	}
-	fmt.Println("Docker image tagged successfully:", taggedImage)
-
-	// Empuje de la imagen Docker
-	pushCmd := exec.Command("docker", "push", taggedImage)
-	pushOutput, err := pushCmd.CombinedOutput()
-	if err != nil {
-		log.Fatalf("Failed to push Docker image: %s, %v", string(pushOutput), err)
-	}
-	fmt.Println("Docker image pushed successfully to ECR:", taggedImage)
 	// Configuración de Kubernetes
-
 	kubeConfigPath := conf.KubeConfigPath
 	contextName := conf.KubernetesContext
 	namespace := conf.Namespace
 	input := conf.Application.StartRun
 	directory := conf.AppName
 	port := conf.Application.Port
+
+	if dockerOrECR == "DockerHub" {
+		loginCmdStr := fmt.Sprintf("aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin %s", conf.RegistryURL)
+		loginCmd := exec.Command("bash", "-c", loginCmdStr)
+		loginOutput, err := loginCmd.CombinedOutput()
+		if err != nil {
+			log.Fatalf("Failed to login to Docker: %s, %v", string(loginOutput), err)
+		}
+		exist := container.CheckRepository(repoName)
+		fmt.Println("Logged into Docker with ECR successfully.", exist)
+
+		if !exist {
+			err := container.CreateRepository(repoName)
+			if err != nil {
+				log.Fatalf("Failed to create repository: %v", err)
+			}
+			fmt.Println("Repository created successfully:", repoName)
+		} else {
+			fmt.Println("Repository already exists:", repoName)
+		}
+
+		// Construcción de la imagen Docker
+		appImage := fmt.Sprintf("%s/%s:latest", conf.RegistryURL, conf.AppName)
+		// dockerfilePath := filepath.Join(".", ".multims", "Dockerfile")
+		dockerfilePath := filepath.Join(baseDir, ".multims", "Dockerfile")
+
+		buildCmd := exec.Command("docker", "build", "--platform=linux/amd64", "-t", appImage, "-f", dockerfilePath, ".")
+		buildOutput, err := buildCmd.CombinedOutput()
+		if err != nil {
+			log.Fatalf("Failed to build Docker image: %s, %v", string(buildOutput), err)
+		}
+		fmt.Println("Docker image built successfully:", appImage)
+
+		// Etiquetado de la imagen Docker
+		taggedImage := fmt.Sprintf("%s/%s:%s", conf.RegistryURL, conf.AppName, conf.UID)
+		tagCmd := exec.Command("docker", "tag", appImage, taggedImage)
+		tagOutput, err := tagCmd.CombinedOutput()
+		if err != nil {
+			log.Fatalf("Failed to tag Docker image: %s, %v", string(tagOutput), err)
+		}
+		fmt.Println("Docker image tagged successfully:", taggedImage)
+
+		// Empuje de la imagen Docker
+		pushCmd := exec.Command("docker", "push", taggedImage)
+		pushOutput, err := pushCmd.CombinedOutput()
+		if err != nil {
+			log.Fatalf("Failed to push Docker image: %s, %v", string(pushOutput), err)
+		}
+		fmt.Println("Docker image pushed successfully to ECR:", taggedImage)
+
+	} else {
+		fmt.Println("Use Dockerhub Local.")
+	}
 
 	// Ejemplo de nombre de contexto
 
