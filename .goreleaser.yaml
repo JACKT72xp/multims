@@ -31,8 +31,8 @@ changelog:
 
 brews:
 - name: multims
-  description: How engineers learn about CLIs
-  homepage: https://github.com/JACKT72xp/cli
+  description: "How engineers learn about CLIs"
+  homepage: "https://github.com/JACKT72xp/cli"
   tap:
     owner: JACKT72xp
     name: homebrew-cli
@@ -40,3 +40,10 @@ brews:
     name: JACKT72xp
     email: jackt72xp@gmail.com
   folder: Formula
+  install: |
+    bin.install "multims"
+    (etc/"multims").install "templates"
+    (pkgshare/"scripts").install Dir["scripts/*"]
+  caveats: |
+    Templates are located in #{etc/"multims/templates"}.
+    Scripts are located in #{pkgshare/"scripts"}.
