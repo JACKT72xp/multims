@@ -27,6 +27,7 @@ archives:
   - scripts/**
   - templates/**
 
+
 changelog:
   sort: asc
   filters:
