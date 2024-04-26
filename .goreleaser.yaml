@@ -40,6 +40,6 @@ brews:
     owner: JACKT72xp
     name: homebrew-cli
   commit_author:
-    name: github_handle
+    name: JACKT72xp
     email: jackt72xp@gmail.com
   folder: Formula
