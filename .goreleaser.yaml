@@ -24,18 +24,19 @@ builds:
   - darwin
 
 archives:
-- format: tar.gz
-  # this name template makes the OS and Arch compatible with the results of `uname`.
+- id: tar
+  format: tar.gz
   name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}.tar.gz"
-  # use zip for windows archives
   format_overrides:
   - goos: windows
     format: zip
 
-- name_template: "{{ .Binary }}_{{ .Arch }}.tar.gz"
+- id: custom
+  name_template: "{{ .Binary }}_{{ .Arch }}.tar.gz"
   files:
   - scripts/**
   - templates/**
+
 changelog:
   sort: asc
   filters:
