@@ -253,7 +253,7 @@ func OnlyOneServiceHandler() {
 			return
 		}
 		execDir := filepath.Dir(execPath)
-		scriptsPath := filepath.Join(execDir, "../multims/scripts/refreshv2")
+		scriptsPath := filepath.Join(execDir, "/opt/homebrew/etc/multims/scripts/refreshv2")
 		refreshCmdStr := fmt.Sprintf("%s \"%s\" \"%s\" \"%s\"", scriptsPath, baseDir, uid, namespace)
 
 		//refreshCmdStr := fmt.Sprintf("%s/../scripts/refreshv2 \"%s\" \"%s\" \"%s\"", execDir, baseDir, uid, namespace)
