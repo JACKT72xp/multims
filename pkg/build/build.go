@@ -112,11 +112,11 @@ func SaveConfigToFile(technology, registry, context, namespace string, useDefaul
 
 func processTemplates(dir string, config Config) error {
 	// Utiliza el sistema de archivos embebido para cargar las plantillas
-	dockerfileTemplate, err := templatesFS.ReadFile("../multims/templates/nodejs/Dockerfile.template")
+	dockerfileTemplate, err := templatesFS.ReadFile("/opt/homebrew/etc/multims/templates/nodejs/Dockerfile.template")
 	if err != nil {
 		return fmt.Errorf("failed to read Dockerfile template: %v", err)
 	}
-	deploymentTemplate, err := templatesFS.ReadFile("../multims/templates/nodejs/Deployment.yaml.template")
+	deploymentTemplate, err := templatesFS.ReadFile("/opt/homebrew/etc/multims/templates/nodejs/Deployment.yaml.template")
 	if err != nil {
 		return fmt.Errorf("failed to read Deployment template: %v", err)
 	}

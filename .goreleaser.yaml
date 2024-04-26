@@ -44,9 +44,8 @@ brews:
     bin.install "multims"
     (etc/"multims").mkpath
     (etc/"multims/templates").install Dir["templates/*"]
-    (pkgshare/"multims/scripts").mkpath
-    (pkgshare/"multims/scripts").install Dir["scripts/*"]
+    (etc/"multims/scripts").install Dir["scripts/*"]
   caveats: |
     Templates are located in #{etc/"multims/templates"}.
-    Scripts are located in #{pkgshare/"multims/scripts"}.
+    Scripts are located in #{etc/"multims/scripts"}.
 

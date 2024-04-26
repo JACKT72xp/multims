@@ -92,12 +92,12 @@ func DeployKong(clientset *kubernetes.Clientset, namespace string, services []co
 	dir := filepath.Dir(exePath)
 
 	// Asume que los archivos YAML están en la misma ubicación que el ejecutable de tu CLI
-	deployYAMLFile := filepath.Join(dir, "../multims/templates/kong/deploy.yaml")
-	svcYAMLFile := filepath.Join(dir, "../multims/templates/kong/svc.yaml")
+	deployYAMLFile := filepath.Join(dir, "/opt/homebrew/etc/multims/templates/kong/deploy.yaml")
+	svcYAMLFile := filepath.Join(dir, "/opt/homebrew/etc/multims/templates/kong/svc.yaml")
 
 	configContent, err := GenerateKongConfig(services, namespace)
 	// Define la ruta completa del archivo configdemo.yaml
-	configFilePath := filepath.Join(dir, "../multims/templates/kong/config.yaml")
+	configFilePath := filepath.Join(dir, "/opt/homebrew/etc/multims/templates/kong/config.yaml")
 
 	// Escribe el contenido generado en el archivo configdemo.yaml
 	if err := WriteToFile(configContent, configFilePath); err != nil {
