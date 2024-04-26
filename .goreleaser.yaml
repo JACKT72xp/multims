@@ -42,8 +42,11 @@ brews:
   folder: Formula
   install: |
     bin.install "multims"
-    (etc/"multims").install "templates"
-    (pkgshare/"scripts").install Dir["scripts/*"]
+    (etc/"multims").mkpath
+    (etc/"multims/templates").install Dir["templates/*"]
+    (pkgshare/"multims/scripts").mkpath
+    (pkgshare/"multims/scripts").install Dir["scripts/*"]
   caveats: |
     Templates are located in #{etc/"multims/templates"}.
-    Scripts are located in #{pkgshare/"scripts"}.
+    Scripts are located in #{pkgshare/"multims/scripts"}.
+
