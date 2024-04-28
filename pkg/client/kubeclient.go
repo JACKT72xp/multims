@@ -16,6 +16,7 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 
+	"k8s.io/apimachinery/pkg/api/errors"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
@@ -257,8 +258,8 @@ func serviceReady(clientset *kubernetes.Clientset, namespace, serviceName string
 }
 
 func EnsurePortForwarding(clientset *kubernetes.Clientset, ctx context.Context, namespace, serviceName string, localPort, remotePort int) {
-	cmdStr := fmt.Sprintf("kubectl port-forward service/%s %d:%d -n %s", serviceName, localPort, remotePort, namespace)
-
+	cmdStr := fmt.Sprintf("kubectl port-forward service/%s %d:%d -n %s", serviceName, localPort, 80, namespace)
+	fmt.Print(cmdStr)
 	for {
 		select {
 		case <-ctx.Done():
@@ -324,43 +325,48 @@ func podReady(namespace, podName string) bool {
 	return strings.TrimSpace(string(output)) == "Running"
 }
 
-// ExecIntoPod ejecuta un comando en un pod y maneja la salida.
-func ExecIntoPod(clientset *kubernetes.Clientset, config *rest.Config, podName, namespace string, input string, directory string, languaje string, servicesKong []config.ServiceConfig) error {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+// buildCommand constructs the command string based on language and other parameters.
+// buildCommand constructs the command string based on language and other parameters.
+// buildCommand constructs the command string based on language and other parameters.
+func buildCommand(language, directory, input string) string {
+	bashSetup := `echo "PS1='\[\033[35m\]\u@\h \[\033[33m\]\w\[\033[0m\] \$ '" >> ~/.bashrc && echo "alias ll='ls -lha --color=auto'" >> ~/.bashrc && source ~/.bashrc`
 
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGINT)
-
-	go func() {
-		sig := <-sigs // Espera a recibir una señal.
-		fmt.Println("Signal received:", sig)
-		fmt.Println("Termination or interrupt signal received, cleaning up...")
-		cancel()                                      // Cancela el contexto completo
-		deletePod(clientset, podName, namespace, nil) // Eliminar el pod
-		os.Exit(0)                                    // Salir del programa completamente
-	}()
-	//lastCommand := "sleep 30 && tail -f /dev/null"
-
-	lastCommand := ""
-
-	switch languaje {
-	case "Node":
-		lastCommand = fmt.Sprintf("sleep 10 && cd /home/%s && rm -rf package-lock.json && rm -rf node_modules/ && npm i nodemon -g && npm install --save && %s ", directory, input)
-
-	case "Node-Typescript":
-		lastCommand = fmt.Sprintf("sleep 10 && cd /home/%s && rm -rf package-lock.json && rm -rf node_modules/ && npm i nodemon -g && npm install --save && %s ", directory, input)
-
+	switch language {
+	case "Node", "Node-Typescript":
+		return fmt.Sprintf("%s && sleep 10 && cd /home/%s && rm -rf package-lock.json && rm -rf node_modules/ && npm i nodemon -g && npm install --save && echo 'Ready to run your Node.js application. Type: npm start' && exec /bin/bash", bashSetup, directory)
 	case "Python":
-		lastCommand = fmt.Sprintf("sleep 10 && cd /home/%s && pip install -r requirements.txt && %s ", directory, input)
+		return fmt.Sprintf("%s && sleep 10 && cd /home/%s && pip install -r requirements.txt && echo 'Ready to run your Python application. Type: python main.py' && exec /bin/bash", bashSetup, directory)
+	default:
+		return bashSetup
 	}
-	// lastCommand := fmt.Sprintf("sleep 60 && cd /home/%s && rm -rf package-lock.json && rm -rf node_modules/ && npm i nodemon -g && npm install --save && %s ", directory, input)
-	fmt.Println("Commands to apply", lastCommand)
-	//command := []string{"/bin/sh", "-c", "sleep 30 && cd /home/cmi-ms-users-sims-01 && rm -rf package-lock.json && rm -rf node_modules/ && npm install --save && npm run start:dev"}
-	command := []string{
-		"/bin/sh", "-c",
-		lastCommand,
-	}
+}
+
+func ExecIntoPod(clientset *kubernetes.Clientset, config *rest.Config, podName, namespace string, input string, directory string, language string, servicesKong []config.ServiceConfig) error {
+	// Contexto principal que no se cancela automáticamente
+	ctx := context.Background()
+
+	// Canal para manejar la señal de interrupción
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, os.Interrupt, syscall.SIGTERM)
+
+	// Goroutine para manejar la interrupción y limpieza
+	go func() {
+		<-sigs
+		fmt.Println("\033[31mCTRL+C received, cleaning up...\033[0m")
+
+		// Contexto específico para la limpieza para asegurar que se complete
+		cleanupCtx, cancelCleanup := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancelCleanup()
+
+		cleanup(clientset, podName, namespace, servicesKong, cleanupCtx) // Modificado para pasar contexto de limpieza
+
+		os.Exit(0) // Salir del programa después de la limpieza
+	}()
+
+	lastCommand := buildCommand(language, directory, input)
+	fmt.Printf("\033[34mCommands to apply: \033[1;34m%s\033[0m\n", lastCommand)
+
+	command := []string{"/bin/bash", "-c", lastCommand}
 	req := clientset.CoreV1().RESTClient().
 		Post().
 		Resource("pods").
@@ -368,17 +374,18 @@ func ExecIntoPod(clientset *kubernetes.Clientset, config *rest.Config, podName, 
 		Namespace(namespace).
 		SubResource("exec").
 		VersionedParams(&corev1.PodExecOptions{
-			Command: command,
-			Stdin:   true,
-			Stdout:  true,
-			Stderr:  true,
-			TTY:     true,
+			Command:   command,
+			Container: podName,
+			Stdin:     true,
+			Stdout:    true,
+			Stderr:    true,
+			TTY:       true,
 		}, scheme.ParameterCodec)
 
 	executor, err := remotecommand.NewSPDYExecutor(config, "POST", req.URL())
 	if err != nil {
-		deletePod(clientset, podName, namespace, nil) // Eliminar el pod
-		return fmt.Errorf("error creating SPDY executor: %v", err)
+		fmt.Printf("\033[31mFailed to create executor: %v\033[0m\n", err)
+		return err
 	}
 
 	streamOptions := remotecommand.StreamOptions{
@@ -389,17 +396,23 @@ func ExecIntoPod(clientset *kubernetes.Clientset, config *rest.Config, podName, 
 	}
 
 	if err := executor.StreamWithContext(ctx, streamOptions); err != nil {
-		deleteResources(clientset, podName, namespace, servicesKong) // Eliminar el pod
-
-		fmt.Printf("Error in streaming: %v\n", err)
+		fmt.Printf("\033[31mError in streaming: %v\033[0m\n", err)
 		return err
 	}
 
-	fmt.Fprint(os.Stdout, "\033c") // Restablecer el estado del TTY
+	fmt.Fprint(os.Stdout, "\033[2J\033[H") // Limpia la pantalla
 	return nil
 }
 
-func deleteResources(clientset *kubernetes.Clientset, podName, namespace string, services []config.ServiceConfig) {
+// cleanup maneja la eliminación del pod y cualquier otro recurso
+func cleanup(clientset *kubernetes.Clientset, podName, namespace string, services []config.ServiceConfig, ctx context.Context) {
+	fmt.Println("Cleaning up resources...", services)
+	if err := deleteResources(clientset, podName, namespace, services, ctx); err != nil {
+		fmt.Printf("Failed to clean up resources: %v\n", err)
+	}
+	// Aquí puedes agregar más llamadas para limpiar otros recursos si es necesario
+}
+func deleteResources(clientset *kubernetes.Clientset, podName, namespace string, services []config.ServiceConfig, ctx context.Context) error {
 	fmt.Printf("Deleting pod %s in namespace %s...\n", podName, namespace)
 
 	// Opciones de eliminación para los recursos
@@ -408,46 +421,27 @@ func deleteResources(clientset *kubernetes.Clientset, podName, namespace string,
 		PropagationPolicy: &deletePolicy,
 	}
 
-	// Elimina el pod
-	if err := clientset.CoreV1().Pods(namespace).Delete(context.Background(), podName, *deleteOptions); err != nil {
+	// Elimina el pod utilizando el contexto para permitir cancelación y timeout
+	if err := clientset.CoreV1().Pods(namespace).Delete(ctx, podName, *deleteOptions); err != nil {
 		fmt.Printf("Failed to delete pod: %v\n", err)
+		return err
 	} else {
 		fmt.Println("Pod deletion initiated successfully.")
-		// Implementar waitForPodDeletion si es necesario
-	}
-	for _, pod := range services {
-		// Ajustar el nombre del servicio si es necesario
-		podName := pod.Name + "-pod"
-		fmt.Printf("Deleting pods %s in namespace %s...\n", podName, namespace)
-		if err := clientset.CoreV1().Pods(namespace).Delete(context.Background(), podName, *deleteOptions); err != nil {
-			fmt.Printf("Failed to delete pod: %v\n", err)
-		} else {
-			fmt.Printf("Pod deletion initiated successfully: %s\n", podName)
-		}
 	}
 
 	// Eliminar todos los servicios asociados listados en services
 	for _, service := range services {
-		// Ajustar el nombre del servicio si es necesario
 		serviceName := service.Name
 		fmt.Printf("Deleting service %s in namespace %s...\n", serviceName, namespace)
-		if err := clientset.CoreV1().Services(namespace).Delete(context.Background(), serviceName, *deleteOptions); err != nil {
+		if err := clientset.CoreV1().Services(namespace).Delete(ctx, serviceName, *deleteOptions); err != nil {
 			fmt.Printf("Failed to delete service: %v\n", err)
+			return err
 		} else {
 			fmt.Printf("Service deletion initiated successfully: %s\n", serviceName)
 		}
 	}
 
-	// Eliminar específicamente kong-admin y kong-proxy
-	specialServices := []string{"kong-admin", "kong-proxy"}
-	for _, s := range specialServices {
-		fmt.Printf("Deleting service %s in namespace %s...\n", s, namespace)
-		if err := clientset.CoreV1().Services(namespace).Delete(context.Background(), s, *deleteOptions); err != nil {
-			fmt.Printf("Failed to delete special service %s: %v\n", s, err)
-		} else {
-			fmt.Printf("Special service deletion initiated successfully: %s\n", s)
-		}
-	}
+	return nil
 }
 
 func deletePod(clientset *kubernetes.Clientset, podName, namespace string, services []config.ServiceConfig) {
@@ -482,16 +476,61 @@ func waitForPodDeletion(clientset *kubernetes.Clientset, podName, namespace stri
 // 		return err
 // 	}
 
-// 	return nil
-// }
+//		return nil
+//	}
+func ensureNginxConfigMap(clientset *kubernetes.Clientset, namespace, name, nginxConfig string) error {
+	configMap, err := clientset.CoreV1().ConfigMaps(namespace).Get(context.TODO(), name, v1.GetOptions{})
+	if err != nil {
+		if errors.IsNotFound(err) {
+			// Create a new ConfigMap if not exists
+			configMap = &corev1.ConfigMap{
+				ObjectMeta: v1.ObjectMeta{
+					Name:      name,
+					Namespace: namespace,
+				},
+				Data: map[string]string{"nginx.conf": nginxConfig},
+			}
+			_, err = clientset.CoreV1().ConfigMaps(namespace).Create(context.TODO(), configMap, v1.CreateOptions{})
+			if err != nil {
+				return fmt.Errorf("failed to create configmap for nginx config: %v", err)
+			}
+			fmt.Println("ConfigMap created successfully")
+		} else {
+			return fmt.Errorf("failed to get configmap: %v", err)
+		}
+	} else {
+		// Update existing ConfigMap
+		configMap.Data["nginx.conf"] = nginxConfig
+		_, err = clientset.CoreV1().ConfigMaps(namespace).Update(context.TODO(), configMap, v1.UpdateOptions{})
+		if err != nil {
+			return fmt.Errorf("failed to update configmap: %v", err)
+		}
+		fmt.Println("ConfigMap updated successfully")
+	}
+	return nil
+}
 
 func DeployPod(clientset *kubernetes.Clientset, name string, namespace string, image string, uid string, port int32) error {
+
+	// Load the nginx.conf template
+	nginxConfFile, err := os.ReadFile("/opt/homebrew/etc/multims/templates/onservice/nginx.conf")
+	if err != nil {
+		return fmt.Errorf("failed to read nginx config file: %v", err)
+	}
+	nginxConfig := strings.Replace(string(nginxConfFile), "{app_port}", fmt.Sprintf("%d", port), -1)
+
+	// Ensure the Nginx ConfigMap is created or updated
+	err = ensureNginxConfigMap(clientset, namespace, "nginx-config", nginxConfig)
+	if err != nil {
+		return err
+	}
+
 	podName := fmt.Sprintf("%s", name)
 	serviceName := fmt.Sprintf("service-%s", name)
 
 	// Verificar si el pod ya existe
-	_, err := clientset.CoreV1().Pods(namespace).Get(context.TODO(), podName, v1.GetOptions{})
-	if err == nil {
+	_, err2 := clientset.CoreV1().Pods(namespace).Get(context.TODO(), podName, v1.GetOptions{})
+	if err2 == nil {
 		fmt.Println("Pod already exists:", podName)
 	} else {
 		// Si el pod no existe, crea uno nuevo
@@ -528,14 +567,16 @@ func DeployPod(clientset *kubernetes.Clientset, name string, namespace string, i
 							},
 						},
 					},
+					{
+						Name:         "nginx",
+						Image:        "nginx:latest",
+						Ports:        []corev1.ContainerPort{{ContainerPort: 80, Protocol: "TCP"}},
+						VolumeMounts: []corev1.VolumeMount{{Name: "nginx-config", MountPath: "/etc/nginx/nginx.conf", SubPath: "nginx.conf"}},
+					},
 				},
 				Volumes: []corev1.Volume{
-					{
-						Name: "code-volume",
-						VolumeSource: corev1.VolumeSource{
-							EmptyDir: &corev1.EmptyDirVolumeSource{},
-						},
-					},
+					{Name: "code-volume", VolumeSource: corev1.VolumeSource{EmptyDir: &corev1.EmptyDirVolumeSource{}}},
+					{Name: "nginx-config", VolumeSource: corev1.VolumeSource{ConfigMap: &corev1.ConfigMapVolumeSource{LocalObjectReference: corev1.LocalObjectReference{Name: "nginx-config"}}}},
 				},
 			},
 		}
@@ -566,8 +607,8 @@ func DeployPod(clientset *kubernetes.Clientset, name string, namespace string, i
 			},
 			Ports: []corev1.ServicePort{
 				{
-					Port:       port,
-					TargetPort: intstr.FromInt32(port),
+					Port:       80,
+					TargetPort: intstr.FromInt(80),
 					Protocol:   "TCP",
 				},
 			},

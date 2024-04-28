@@ -123,24 +123,34 @@ func readTemplateFile(filePath string) error {
 }
 
 func processTemplates(dir string, config Config) error {
-	// Utiliza el sistema de archivos embebido para cargar las plantillas
-	dockerfileTemplate, err := os.ReadFile("/opt/homebrew/etc/multims/templates/nodejs/Dockerfile.template")
-	if err != nil {
-		return fmt.Errorf("failed to read Dockerfile template: %v", err)
+	// Definir las rutas de las plantillas en un mapa
+	templatesPaths := map[string]map[string]string{
+		"nodejs": {
+			"Dockerfile": "/opt/homebrew/etc/multims/templates/nodejs/Dockerfile.template",
+			"Deployment": "/opt/homebrew/etc/multims/templates/nodejs/Deployment.yaml.template",
+		},
+		"python": {
+			"Dockerfile": "/opt/homebrew/etc/multims/templates/python/Dockerfile.template",
+			"Deployment": "/opt/homebrew/etc/multims/templates/python/Deployment.yaml.template", // Aquí parece haber un error, debería ser `python/Deployment.yaml.template`
+		},
 	}
 
-	deploymentTemplate, err := os.ReadFile("/opt/homebrew/etc/multims/templates/nodejs/Deployment.yaml.template")
-
-	if err != nil {
-		return fmt.Errorf("failed to read Deployment template: %v", err)
+	// Verificar si la tecnología está soportada
+	paths, ok := templatesPaths[config.Technology]
+	if !ok {
+		return fmt.Errorf("technology %s not supported", config.Technology)
 	}
 
-	// Procesar cada template
-	if err := processTemplate(string(dockerfileTemplate), filepath.Join(dir, ".multims", "Dockerfile"), config); err != nil {
-		return err
-	}
-	if err := processTemplate(string(deploymentTemplate), filepath.Join(dir, ".multims", "Deployment.yaml"), config); err != nil {
-		return err
+	// Procesar cada template definido para la tecnología
+	for key, path := range paths {
+		templateContent, err := os.ReadFile(path)
+		if err != nil {
+			return fmt.Errorf("failed to read %s template: %v", key, err)
+		}
+		outputFile := filepath.Join(dir, ".multims", key+".yaml")
+		if err := processTemplate(string(templateContent), outputFile, config); err != nil {
+			return err
+		}
 	}
 
 	return nil

@@ -1,0 +1,21 @@
+# Deployment.yaml.template
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .UID }}-nodejs-app
+  namespace: {{ .Namespace }}
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nodejs-app
+  template:
+    metadata:
+      labels:
+        app: nodejs-app
+    spec:
+      containers:
+      - name: nodejs
+        image: {{ .RegistryURL }}/nodejs-image:latest
+        ports:
+        - containerPort: 3000

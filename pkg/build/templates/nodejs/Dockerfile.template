@@ -1,5 +1,5 @@
-# Dockerfile.template
-FROM node:14
+# Usar una imagen base más ligera
+FROM node:16-alpine
 
 # Crea directorio de trabajo
 WORKDIR /app
@@ -14,5 +14,5 @@ COPY . .
 # Expone el puerto en el que tu app corre
 EXPOSE 3000
 
-# Comando para ejecutar la aplicación
-CMD ["node", "index.js"]
+# CMD comentado para no ejecutar la aplicación automáticamente
+# CMD ["node", "index.js"]

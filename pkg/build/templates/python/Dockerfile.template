@@ -1,0 +1,18 @@
+# Imagen base Python con Alpine
+FROM python:3.8-alpine
+
+# Crea directorio de trabajo
+WORKDIR /app
+
+# Instala dependencias de la aplicación
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copia los archivos de la aplicación
+COPY . .
+
+# Expone el puerto en el que tu app corre (ajustar según necesidad)
+EXPOSE 8000
+
+# CMD comentado para no ejecutar la aplicación automáticamente
+# CMD ["python", "main.py"]

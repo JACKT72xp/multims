@@ -242,13 +242,11 @@ func OnlyOneServiceHandler() {
 	// Esperar que el pod esté listo
 	client.WaitForPod(clientset, uid, namespace)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel() // Ensure context is canceled when main returns or upon cancellation signal
-
 	// Tarea 1: Port-forwarding en una goroutine
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()                                // Ensure context is canceled when main returns or upon cancellation signal
 	serviceName := fmt.Sprintf("service-%s", uid) // Por ejemplo, ajusta según cómo nombras tus servicios.
 
-	go client.EnsurePortForwarding(clientset, ctx, namespace, serviceName, int(port), int(port))
 	// Tarea 2: Ejecutar el script refreshv2 en una goroutine
 	go func() {
 		scriptsPath := "/opt/homebrew/etc/multims/scripts/refreshv2"
@@ -266,6 +264,7 @@ func OnlyOneServiceHandler() {
 			log.Printf("Successfully executed refreshv2 script. Output:\n%s", string(output))
 		}
 	}()
+	go client.EnsurePortForwarding(clientset, ctx, namespace, serviceName, int(port), int(port))
 
 	// Ejecutar el comando principal para interactuar con el pod
 	if err := client.ExecIntoPod(clientset, config, uid, namespace, input, directory, languaje, nil); err != nil {
@@ -273,7 +272,6 @@ func OnlyOneServiceHandler() {
 	}
 
 	// Cancelar el contexto para terminar todas las goroutines al salir de ExecIntoPod
-	cancel()
 
 	// Esperar una señal para terminar la ejecución completamente
 	c := make(chan os.Signal, 1)
