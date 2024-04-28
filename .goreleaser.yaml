@@ -48,4 +48,5 @@ brews:
   caveats: |
     Templates are located in #{etc/"multims/templates"}.
     Scripts are located in #{etc/"multims/scripts"}.
+    Make sure fswatch is installed by running `brew install fswatch`.
 
