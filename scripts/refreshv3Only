@@ -19,7 +19,6 @@ script_dir=$(dirname "$0")
 excluded_dirs="--exclude='node_modules' --exclude='.multims'"
 script_dir_abs=$(cd "$script_dir" && pwd)
 
-
 echo "Monitoring directory: $directory and synchronizing with pod: $podname"
 
 # Utilizar ruta relativa para krsync
