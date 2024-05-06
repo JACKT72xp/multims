@@ -1263,7 +1263,7 @@ func continuousSync(localPath string, remotePath string) {
 
 func syncLocalToRemote(localDir string, remoteDir string) error {
 	// Ejecutar rsync como un proceso separado en segundo plano
-	cmd := exec.Command("rsync", "-avz", "--delete", localDir, remoteDir)
+	cmd := exec.Command("/usr/bin/rsync", "-avz", "--delete", localDir, remoteDir)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()

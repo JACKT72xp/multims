@@ -16,13 +16,13 @@ namespace="$3"
 # Obtener el directorio donde reside el script
 script_dir=$(dirname "$0")
 # Excluir directorios específicos del proceso de sincronización
-excluded_dirs="--exclude='node_modules' --exclude='.multims'"
+excluded_dirs="--exclude='node_modules' --exclude='.multims' --exclude='iac'"
 script_dir_abs=$(cd "$script_dir" && pwd)
 
 echo "Monitoring directory: $directory and synchronizing with pod: $podname"
 
 # Utilizar ruta relativa para krsync
 krsync_path="/opt/homebrew/etc/multims/scripts/krsync"
-echo '$krsync_path -av -r --delete --progress --stats "$directory" "${podname}@${namespace}:/home"'
+echo "$krsync_path -av -r --delete --progress --stats \"$directory\" \"${podname}@${namespace}:/home\""
 $krsync_path -av -r --delete --progress --stats $excluded_dirs  "$directory" "${podname}@${namespace}:/home"
 

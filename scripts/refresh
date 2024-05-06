@@ -8,7 +8,7 @@ function sync_directory() {
 
     echo "Synchronizing $directory with ${podname}:/home..."
 
-    if ! kubectl -n "$namespace" exec -it "$podname" -- rsync -avz --delete --progress --stats "$directory" /home; then
+    if ! kubectl -n "$namespace" exec -it "$podname" -- /usr/bin/rsync -avz --delete --progress --stats "$directory" /home; then
         echo "Error: Failed to synchronize $directory with ${podname}:/home."
     else
         echo "Synchronization completed."
