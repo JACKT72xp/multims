@@ -4,14 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"log"
-	"multims/pkg/auth"
-	"multims/pkg/build"
+	"multims/operations"
 	"multims/pkg/client"
 	"multims/pkg/config"
-	"multims/pkg/utils"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -23,100 +20,83 @@ var initCmd = &cobra.Command{
 	Long:  `Welcome to MULTIMS by JT. A CLI tool to interact with Kubernetes.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Welcome to MULTIMS by JT. Manage your Kubernetes clusters effectively.")
-		//kubeconfig := config.LoadConfig()
-		useDefaultKubeConfig, kubeConfigPath := config.ChooseKubeConfig()
 
+		// Load kubeconfig
+		useDefaultKubeConfig, kubeConfigPath := config.ChooseKubeConfig()
 		ctx, err := config.ChooseContext(kubeConfigPath)
 		if err != nil {
 			log.Fatalf("Error choosing context: %v", err)
 		}
 
-		namespace, err := utils.SelectNamespace(kubeConfigPath, ctx)
-		if err != nil {
-			log.Fatalf("Error selecting namespace: %v", err)
-		}
-
+		// Select namespace
+		namespace := operations.SelectNamespace(kubeConfigPath, ctx)
 		fmt.Printf("Selected namespace: '%s'\n", namespace)
 
-		technology := utils.SelectTechnology()
+		// Select technology
+		technology := operations.SelectTechnology()
 		if technology == "Cancel" {
 			fmt.Println("Operation cancelled by the user.")
 			return
 		}
-
 		fmt.Printf("You have selected: %s\n", technology)
-		registry := utils.SlectRegistry()
-		if registry == "DockerHub" {
-			auth.HandleDockerLogin()
-		} else if registry == "AWS ECR" {
-			auth.HandleECRLogin()
-		}
 
-		reader := bufio.NewReader(os.Stdin)
-		defaultCommand := "node index.js"
-		fmt.Printf("Please enter the command to start your application (default: %s): ", defaultCommand)
+		// Handle registry login
+		registry := operations.SelectRegistry()
+		operations.HandleRegistryLogin(registry)
 
-		// Read the input from user
-		input, err := reader.ReadString('\n')
+		// Get command and port
+		command := operations.GetCommand("node index.js")
+		port, err := operations.GetPort("3000")
 		if err != nil {
-			fmt.Println("Error reading input:", err)
+			fmt.Println("Error:", err)
+			// handle the error, possibly using the default port or returning
+			// from the function
 			return
 		}
+		// Continue with port value
+		fmt.Println("Port:", port)
 
-		// Trim space and check if the input is empty
-		input = strings.TrimSpace(input)
-		if input == "" {
-			input = defaultCommand
-		}
-
-		reader2 := bufio.NewReader(os.Stdin)
-		defaultCommandPort := "3000"
-		fmt.Printf("Please enter the number of port to start your application (default: %s): ", defaultCommandPort)
-		// Read the input from user
-		input2, err2 := reader2.ReadString('\n')
-		if err != nil {
-			fmt.Println("Error reading input:", err2, input2)
-			return
-		}
-
-		// Obtener el nombre del directorio actual
-		currentDir, err := os.Getwd()
+		dirName, err := os.Getwd()
 		if err != nil {
 			log.Fatalf("Error getting current directory: %v", err)
 		}
-		dirName := filepath.Base(currentDir) // Esto da el nombre del directorio actual
-		fmt.Printf("You appName : %s\n", dirName)
 
-		build.CreateMultimsDirectory()
+		dirName2 := filepath.Base(dirName)
+		// Get current directory name
+		fmt.Printf("You appName: %s\n", dirName2)
 
-		ecrEndpoint := ""
-		if registry == "DockerHub" {
-			fmt.Printf("You appName ")
-		} else if registry == "AWS ECR" {
-			accountID, region, err := config.GetAWSAccountInfo()
-			if err != nil {
-				fmt.Printf("You llega aqui : %s\n", err)
+		// Create MULTIMS directory
+		operations.CreateMultimsDirectory()
+
+		// Handle AWS ECR endpoint
+		ecrEndpoint := operations.HandleAWSECREndpoint(registry)
+
+		// Database configuration
+		dbConfig := operations.ConfigureDatabase()
+
+		installationCommands := operations.AskForInstallationCommands()
+
+		configFilePath := filepath.Join(dirName, "multims.yml")
+
+		// Check if multims.yml already exists
+		if _, err := os.Stat(configFilePath); err == nil {
+			// File exists, ask user if they want to overwrite
+			fmt.Println("A multims.yml file already exists in this directory.")
+			fmt.Print("Do you want to overwrite the existing configuration? (yes/no): ")
+			reader := bufio.NewReader(os.Stdin)
+			answer, _ := reader.ReadString('\n')
+			answer = strings.TrimSpace(answer)
+			if strings.ToLower(answer) != "yes" {
+				fmt.Println("Operation cancelled by the user.")
 				return
 			}
-			ecrEndpoint = fmt.Sprintf("%s.dkr.ecr.%s.amazonaws.com", accountID, region)
 		}
 
-		// Obtener el ID de la cuenta de AWS y la región
-
-		intValue, err := strconv.Atoi(strings.TrimSuffix(input2, "\n"))
-
-		if err != nil {
-			fmt.Printf("You llega aqui : %s\n", err)
-			return
-		}
-
-		formattedStr := fmt.Sprintf("%08d", intValue)
-		fmt.Println(formattedStr)
-
-		build.SaveConfigToFile(technology, ecrEndpoint, ctx, namespace, useDefaultKubeConfig, kubeConfigPath, dirName, registry, input, intValue)
-
+		// Save configuration to file
+		operations.SaveConfigurationToFile(technology, ecrEndpoint, ctx, namespace, useDefaultKubeConfig, kubeConfigPath, dirName2, registry, command, port, dbConfig, installationCommands, dirName)
 		fmt.Println("Files generated")
 
+		// Setup Kubernetes connection
 		client.SetupKubernetesConnection(kubeConfigPath, ctx)
 	},
 }

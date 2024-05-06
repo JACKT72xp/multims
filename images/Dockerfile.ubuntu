@@ -1,0 +1,23 @@
+# Usar una imagen base que incluya bash, como Ubuntu
+FROM ubuntu:latest
+
+# Evitar preguntas al instalar paquetes
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Instalar bash-completion, utilidades de red y otras herramientas básicas
+RUN apt-get update && apt-get install -y \
+    bash-completion \
+    curl \
+    vim \
+    net-tools \
+    procps \
+    && rm -rf /var/lib/apt/lists/*
+
+# Habilitar bash completion al iniciar bash
+RUN echo 'if [ -f /etc/bash_completion ]; then . /etc/bash_completion; fi' >> /etc/bash.bashrc
+
+# Configuraciones adicionales para una mejor experiencia en terminal
+RUN echo "set -o vi" >> /etc/bash.bashrc
+
+# Definir el trabajo por defecto al iniciar el contenedor
+CMD ["bash"]

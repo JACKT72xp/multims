@@ -4,7 +4,7 @@ package build
 import (
 	"embed"
 	"fmt"
-	"io/ioutil"
+	"multims/pkg/config"
 	"os"
 	"path/filepath"
 	"text/template"
@@ -46,6 +46,8 @@ type Config struct {
 	AppName              string          `yaml:"appName"`
 	Application          AppInfo         `yaml:"application"` // Cambiado para reflejar la jerarquía
 	MultiServices        []ServiceConfig // Slice de servicios
+	Database             config.DatabaseConfig
+	InstallationCommands []string
 }
 
 func getCurrentDirectory() string {
@@ -65,8 +67,7 @@ func CreateMultimsDirectory() error {
 	}
 	return nil
 }
-
-func SaveConfigToFile(technology, registry, context, namespace string, useDefault bool, kubeConfigPath, appName string, ecr_docker string, input string, port int) error {
+func SaveConfigToFile(technology, registry, context, namespace string, useDefault bool, kubeConfigPath, appName string, ecr_docker string, input string, port int, dbConfig config.DatabaseConfig, installationCommands []string, dir string) error {
 	uid := uuid.New().String()
 	config := Config{
 		KubernetesContext:    context,
@@ -82,7 +83,9 @@ func SaveConfigToFile(technology, registry, context, namespace string, useDefaul
 			StartRun: input,
 			Port:     port,
 		},
-		MultiServices: []ServiceConfig{},
+		MultiServices:        []ServiceConfig{},
+		Database:             dbConfig,
+		InstallationCommands: installationCommands,
 	}
 	configData, err := yaml.Marshal(config)
 	if err != nil {
@@ -90,29 +93,27 @@ func SaveConfigToFile(technology, registry, context, namespace string, useDefaul
 		return fmt.Errorf("failed to marshal config data: %v", err)
 	}
 
-	currentDir, err := os.Getwd()
-	if err != nil {
-		fmt.Printf("Error getting current directory: %v\n", err)
-		return fmt.Errorf("failed to get current directory: %v", err)
-	}
+	// Obtener el directorio donde se está ejecutando el comando
+	executableDir := dir
+	fmt.Print("Executable directory: ", executableDir)
 
-	configFile := filepath.Join(currentDir, "multims.yml")
-	if err := ioutil.WriteFile(configFile, configData, 0644); err != nil {
+	// Guardar el archivo en el directorio del comando
+	configFile := filepath.Join(executableDir, "multims.yml")
+	if err := os.WriteFile(configFile, configData, 0644); err != nil {
 		fmt.Printf("Error writing config file: %v\n", err)
 		return fmt.Errorf("failed to write config file: %v", err)
 	}
 
-	if err := processTemplates(currentDir, config); err != nil {
+	if err := processTemplates(executableDir, config); err != nil {
 		fmt.Printf("Error processing templates: %v\n", err)
 		return fmt.Errorf("failed to process templates: %v", err)
 	}
 
 	return nil
 }
-
 func readTemplateFile(filePath string) error {
 	// Intentar leer el archivo en la ruta especificada
-	data, err := ioutil.ReadFile(filePath)
+	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return fmt.Errorf("failed to read file at %s: %v", filePath, err)
 	}
@@ -125,11 +126,11 @@ func readTemplateFile(filePath string) error {
 func processTemplates(dir string, config Config) error {
 	// Definir las rutas de las plantillas en un mapa
 	templatesPaths := map[string]map[string]string{
-		"nodejs": {
+		"Node": {
 			"Dockerfile": "/opt/homebrew/etc/multims/templates/nodejs/Dockerfile.template",
 			"Deployment": "/opt/homebrew/etc/multims/templates/nodejs/Deployment.yaml.template",
 		},
-		"python": {
+		"Python": {
 			"Dockerfile": "/opt/homebrew/etc/multims/templates/python/Dockerfile.template",
 			"Deployment": "/opt/homebrew/etc/multims/templates/python/Deployment.yaml.template", // Aquí parece haber un error, debería ser `python/Deployment.yaml.template`
 		},

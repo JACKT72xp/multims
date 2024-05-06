@@ -21,10 +21,11 @@ script_dir_abs=$(cd "$script_dir" && pwd)
 echo "Monitoring directory: $directory and synchronizing with pod: $podname"
 
 # Utilizar ruta relativa para krsync
-krsync_path="/opt/homebrew/etc/multims/scripts/krsync"
+krsync_path="/Volumes/DataJack/Jack/multims/scripts/krsync"
+echo '$krsync_path -av -r --delete --progress --stats "$directory" "${podname}@${namespace}:/home"'
 $krsync_path -av -r --delete --progress --stats "$directory" "${podname}@${namespace}:/home"
 
-
+echo '$krsync_path -av -r --delete --progress --stats "$directory" "${podname}@${namespace}:/home"'
 
 # Definir la función para refrescar la sincronización
 function refresh {

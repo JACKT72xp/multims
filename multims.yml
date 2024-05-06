@@ -1,0 +1,23 @@
+kubernetesContext: mi-cuenta-publica-context
+registryOrDocker: DockerHub
+registry: ""
+technology: Python
+namespace: local
+useDefaultKubeConfig: true
+kubeConfigPath: /Users/jacktorpoco/.kube/config
+uid: 4bc1dce6-ba2e-49e8-83f8-ee3175b73bbb
+appName: /Volumes/DataJack/Bifrost/ms-0022-orchestatorv3
+application:
+  start_run: python main.py
+  port: 8080
+multiservices: []
+database:
+  type: postgres
+  active: true
+  db: postgres
+  user: postgres
+  password: password
+  name: mydb
+  external: true
+installationcommands:
+- ""

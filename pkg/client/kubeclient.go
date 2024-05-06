@@ -14,6 +14,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/creack/pty"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
+
 	corev1 "k8s.io/api/core/v1"
 
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -258,7 +261,7 @@ func serviceReady(clientset *kubernetes.Clientset, namespace, serviceName string
 }
 
 func EnsurePortForwarding(clientset *kubernetes.Clientset, ctx context.Context, namespace, serviceName string, localPort, remotePort int) {
-	cmdStr := fmt.Sprintf("kubectl port-forward service/%s %d:%d -n %s", serviceName, localPort, 80, namespace)
+	cmdStr := fmt.Sprintf("kubectl port-forward service/%s %d:%d -n %s", serviceName, localPort, remotePort, namespace)
 	fmt.Print(cmdStr)
 	for {
 		select {
@@ -341,6 +344,56 @@ func buildCommand(language, directory, input string) string {
 	}
 }
 
+// Function to execute a command in a pod with interactive terminal
+func ExecIntoPodV2(clientset *kubernetes.Clientset, config *rest.Config, podName, namespace string) error {
+	cmd := []string{"/bin/sh"} // Use /bin/bash if bash is available in the container
+
+	req := clientset.CoreV1().RESTClient().
+		Post().
+		Resource("pods").
+		Name(podName).
+		Namespace(namespace).
+		SubResource("exec").
+		VersionedParams(&corev1.PodExecOptions{
+			Command:   cmd,
+			Container: podName,
+			Stdin:     true,
+			Stdout:    true,
+			Stderr:    true,
+			TTY:       true,
+		}, scheme.ParameterCodec)
+
+	executor, err := remotecommand.NewSPDYExecutor(config, "POST", req.URL())
+	if err != nil {
+		return fmt.Errorf("failed to create executor: %v", err, executor)
+	}
+
+	// Create a pty
+	ptmx, err := pty.Start(exec.Command("kubectl", "attach", "-it", podName, "-n", namespace, "--container", podName))
+	if err != nil {
+		return err
+	}
+	defer ptmx.Close()
+
+	// Handle pty size.
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, syscall.SIGWINCH)
+	go func() {
+		for range ch {
+			if err := pty.InheritSize(os.Stdin, ptmx); err != nil {
+				fmt.Fprintf(os.Stderr, "error resizing pty: %s", err)
+			}
+		}
+	}()
+	ch <- syscall.SIGWINCH // Initial resize.
+
+	// Redirect input and output
+	go func() { _, _ = io.Copy(ptmx, os.Stdin) }()
+	_, err = io.Copy(os.Stdout, ptmx)
+
+	return err
+}
+
 func ExecIntoPod(clientset *kubernetes.Clientset, config *rest.Config, podName, namespace string, input string, directory string, language string, servicesKong []config.ServiceConfig) error {
 	// Contexto principal que no se cancela automáticamente
 	ctx := context.Background()
@@ -366,7 +419,7 @@ func ExecIntoPod(clientset *kubernetes.Clientset, config *rest.Config, podName, 
 	lastCommand := buildCommand(language, directory, input)
 	fmt.Printf("\033[34mCommands to apply: \033[1;34m%s\033[0m\n", lastCommand)
 
-	command := []string{"/bin/bash", "-c", lastCommand}
+	command := []string{"/bin/sh", "-c", lastCommand}
 	req := clientset.CoreV1().RESTClient().
 		Post().
 		Resource("pods").
@@ -510,101 +563,224 @@ func ensureNginxConfigMap(clientset *kubernetes.Clientset, namespace, name, ngin
 	return nil
 }
 
-func DeployPod(clientset *kubernetes.Clientset, name string, namespace string, image string, uid string, port int32) error {
+// func DeployPod(clientset *kubernetes.Clientset, name string, namespace string, image string, uid string, port int32) error {
 
-	// Load the nginx.conf template
+// 	// Load the nginx.conf template
+// 	nginxConfFile, err := os.ReadFile("/opt/homebrew/etc/multims/templates/onservice/nginx.conf")
+// 	if err != nil {
+// 		return fmt.Errorf("failed to read nginx config file: %v", err)
+// 	}
+// 	nginxConfig := strings.Replace(string(nginxConfFile), "{app_port}", fmt.Sprintf("%d", port), -1)
+
+// 	// Ensure the Nginx ConfigMap is created or updated
+// 	err = ensureNginxConfigMap(clientset, namespace, "nginx-config", nginxConfig)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	podName := fmt.Sprintf("%s", name)
+// 	serviceName := fmt.Sprintf("service-%s", name)
+
+// 	// Verificar si el pod ya existe
+// 	_, err2 := clientset.CoreV1().Pods(namespace).Get(context.TODO(), podName, v1.GetOptions{})
+// 	if err2 == nil {
+// 		fmt.Println("Pod already exists:", podName)
+// 	} else {
+// 		// Si el pod no existe, crea uno nuevo
+// 		pod := &corev1.Pod{
+// 			ObjectMeta: v1.ObjectMeta{
+// 				Name:      podName,
+// 				Namespace: namespace,
+// 				Labels: map[string]string{
+// 					"app": name, // Usando el nombre base como etiqueta para agrupación
+// 				},
+// 			},
+// 			Spec: corev1.PodSpec{
+// 				RestartPolicy: "Never",
+// 				Containers: []corev1.Container{
+// 					{
+// 						Name:  name,
+// 						Image: image,
+// 						Command: []string{
+// 							"/bin/sh",
+// 							"-c",
+// 							"apk update && apk add bash && apk add rsync && sleep infinity",
+// 						},
+// 						Ports: []corev1.ContainerPort{
+// 							{
+// 								ContainerPort: port,
+// 								Protocol:      "TCP",
+// 								HostPort:      port,
+// 							},
+// 						},
+// 						VolumeMounts: []corev1.VolumeMount{
+// 							{
+// 								Name:      "code-volume",
+// 								MountPath: "/opt/code",
+// 							},
+// 						},
+// 					},
+// 					{
+// 						Name:         "nginx",
+// 						Image:        "nginx:latest",
+// 						Ports:        []corev1.ContainerPort{{ContainerPort: 80, Protocol: "TCP"}},
+// 						VolumeMounts: []corev1.VolumeMount{{Name: "nginx-config", MountPath: "/etc/nginx/nginx.conf", SubPath: "nginx.conf"}},
+// 					},
+// 				},
+// 				Volumes: []corev1.Volume{
+// 					{Name: "code-volume", VolumeSource: corev1.VolumeSource{EmptyDir: &corev1.EmptyDirVolumeSource{}}},
+// 					{Name: "nginx-config", VolumeSource: corev1.VolumeSource{ConfigMap: &corev1.ConfigMapVolumeSource{LocalObjectReference: corev1.LocalObjectReference{Name: "nginx-config"}}}},
+// 				},
+// 			},
+// 		}
+
+// 		_, err = clientset.CoreV1().Pods(namespace).Create(context.TODO(), pod, v1.CreateOptions{})
+// 		if err != nil {
+// 			return fmt.Errorf("failed to create pod: %v", err)
+// 		}
+// 		fmt.Println("Pod created successfully:", podName)
+// 	}
+
+// 	// Verificar si el servicio ya existe
+// 	_, err = clientset.CoreV1().Services(namespace).Get(context.TODO(), serviceName, v1.GetOptions{})
+// 	if err == nil {
+// 		fmt.Println("Service already exists:", serviceName)
+// 		return nil
+// 	}
+
+// 	// Si el servicio no existe, crea uno nuevo
+// 	service := &corev1.Service{
+// 		ObjectMeta: v1.ObjectMeta{
+// 			Name:      serviceName,
+// 			Namespace: namespace,
+// 		},
+// 		Spec: corev1.ServiceSpec{
+// 			Selector: map[string]string{
+// 				"app": name, // Selector basado en la etiqueta del pod
+// 			},
+// 			Ports: []corev1.ServicePort{
+// 				{
+// 					Port:       80,
+// 					TargetPort: intstr.FromInt(80),
+// 					Protocol:   "TCP",
+// 				},
+// 			},
+// 			Type: corev1.ServiceTypeClusterIP, // Ajusta según necesidad
+// 		},
+// 	}
+
+// 	_, err = clientset.CoreV1().Services(namespace).Create(context.TODO(), service, v1.CreateOptions{})
+// 	if err != nil {
+// 		return fmt.Errorf("failed to create service: %v", err)
+// 	}
+// 	fmt.Println("Service created successfully:", serviceName)
+
+// 	return nil
+// }
+
+func DeployPod(clientset *kubernetes.Clientset, name string, namespace string, image string, uid string, port int32, installationCommands []string) error {
+	// Verificar si el pod ya existe
+	_, err := clientset.CoreV1().Pods(namespace).Get(context.TODO(), name, v1.GetOptions{})
+	if err == nil {
+		// Si el pod existe, borrarlo
+		if err := clientset.CoreV1().Pods(namespace).Delete(context.TODO(), name, v1.DeleteOptions{}); err != nil {
+			return fmt.Errorf("failed to delete existing pod: %v", err)
+		}
+		fmt.Println("Pod deleted:", name)
+	} else if !k8serrors.IsNotFound(err) {
+		// Si ocurre un error diferente a "not found", retornar el error
+		return fmt.Errorf("failed to get pod: %v", err)
+	}
+
+	// Verificar si el servicio ya existe
+	serviceName := fmt.Sprintf("service-%s", name)
+	_, err = clientset.CoreV1().Services(namespace).Get(context.TODO(), serviceName, v1.GetOptions{})
+	if err == nil {
+		// Si el servicio existe, borrarlo
+		if err := clientset.CoreV1().Services(namespace).Delete(context.TODO(), serviceName, v1.DeleteOptions{}); err != nil {
+			return fmt.Errorf("failed to delete existing service: %v", err)
+		}
+		fmt.Println("Service deleted:", serviceName)
+	} else if !k8serrors.IsNotFound(err) {
+		// Si ocurre un error diferente a "not found", retornar el error
+		return fmt.Errorf("failed to get service: %v", err)
+	}
+
+	// Cargar el archivo de configuración de nginx
 	nginxConfFile, err := os.ReadFile("/opt/homebrew/etc/multims/templates/onservice/nginx.conf")
 	if err != nil {
 		return fmt.Errorf("failed to read nginx config file: %v", err)
 	}
 	nginxConfig := strings.Replace(string(nginxConfFile), "{app_port}", fmt.Sprintf("%d", port), -1)
 
-	// Ensure the Nginx ConfigMap is created or updated
+	// Asegurar que el ConfigMap de Nginx se cree o actualice
 	err = ensureNginxConfigMap(clientset, namespace, "nginx-config", nginxConfig)
 	if err != nil {
 		return err
 	}
 
-	podName := fmt.Sprintf("%s", name)
-	serviceName := fmt.Sprintf("service-%s", name)
-
-	// Verificar si el pod ya existe
-	_, err2 := clientset.CoreV1().Pods(namespace).Get(context.TODO(), podName, v1.GetOptions{})
-	if err2 == nil {
-		fmt.Println("Pod already exists:", podName)
-	} else {
-		// Si el pod no existe, crea uno nuevo
-		pod := &corev1.Pod{
-			ObjectMeta: v1.ObjectMeta{
-				Name:      podName,
-				Namespace: namespace,
-				Labels: map[string]string{
-					"app": name, // Usando el nombre base como etiqueta para agrupación
-				},
+	// Crear el pod
+	pod := &corev1.Pod{
+		ObjectMeta: v1.ObjectMeta{
+			Name:      name,
+			Namespace: namespace,
+			Labels: map[string]string{
+				"app": name, // Usando el nombre base como etiqueta para agrupación
 			},
-			Spec: corev1.PodSpec{
-				RestartPolicy: "Never",
-				Containers: []corev1.Container{
-					{
-						Name:  name,
-						Image: image,
-						Command: []string{
-							"/bin/sh",
-							"-c",
-							"apk update && apk add rsync && apk add --no-cache bash && sleep infinity",
-						},
-						Ports: []corev1.ContainerPort{
-							{
-								ContainerPort: port,
-								Protocol:      "TCP",
-								HostPort:      port,
-							},
-						},
-						VolumeMounts: []corev1.VolumeMount{
-							{
-								Name:      "code-volume",
-								MountPath: "/opt/code",
-							},
+		},
+		Spec: corev1.PodSpec{
+			RestartPolicy: "Never",
+			Containers: []corev1.Container{
+				{
+					Name:  name,
+					Image: image,
+					Command: []string{
+						"/bin/sh",
+						"-c",
+						"apk update && apk add rsync && apk add --no-cache bash && sleep infinity",
+					},
+					Ports: []corev1.ContainerPort{
+						{
+							ContainerPort: port,
+							Protocol:      "TCP",
+							HostPort:      port,
 						},
 					},
-					{
-						Name:         "nginx",
-						Image:        "nginx:latest",
-						Ports:        []corev1.ContainerPort{{ContainerPort: 80, Protocol: "TCP"}},
-						VolumeMounts: []corev1.VolumeMount{{Name: "nginx-config", MountPath: "/etc/nginx/nginx.conf", SubPath: "nginx.conf"}},
+					VolumeMounts: []corev1.VolumeMount{
+						{
+							Name:      "code-volume",
+							MountPath: "/opt/code",
+						},
 					},
 				},
-				Volumes: []corev1.Volume{
-					{Name: "code-volume", VolumeSource: corev1.VolumeSource{EmptyDir: &corev1.EmptyDirVolumeSource{}}},
-					{Name: "nginx-config", VolumeSource: corev1.VolumeSource{ConfigMap: &corev1.ConfigMapVolumeSource{LocalObjectReference: corev1.LocalObjectReference{Name: "nginx-config"}}}},
+				{
+					Name:         "nginx",
+					Image:        "nginx:latest",
+					Ports:        []corev1.ContainerPort{{ContainerPort: 80, Protocol: "TCP"}},
+					VolumeMounts: []corev1.VolumeMount{{Name: "nginx-config", MountPath: "/etc/nginx/nginx.conf", SubPath: "nginx.conf"}},
 				},
 			},
-		}
-
-		_, err = clientset.CoreV1().Pods(namespace).Create(context.TODO(), pod, v1.CreateOptions{})
-		if err != nil {
-			return fmt.Errorf("failed to create pod: %v", err)
-		}
-		fmt.Println("Pod created successfully:", podName)
+			Volumes: []corev1.Volume{
+				{Name: "code-volume", VolumeSource: corev1.VolumeSource{EmptyDir: &corev1.EmptyDirVolumeSource{}}},
+				{Name: "nginx-config", VolumeSource: corev1.VolumeSource{ConfigMap: &corev1.ConfigMapVolumeSource{LocalObjectReference: corev1.LocalObjectReference{Name: "nginx-config"}}}},
+			},
+		},
 	}
 
-	// Verificar si el servicio ya existe
-	_, err = clientset.CoreV1().Services(namespace).Get(context.TODO(), serviceName, v1.GetOptions{})
-	if err == nil {
-		fmt.Println("Service already exists:", serviceName)
-		return nil
+	_, err = clientset.CoreV1().Pods(namespace).Create(context.TODO(), pod, v1.CreateOptions{})
+	if err != nil {
+		return fmt.Errorf("failed to create pod: %v", err)
 	}
+	fmt.Println("Pod created successfully:", name)
 
-	// Si el servicio no existe, crea uno nuevo
+	// Crear el servicio
 	service := &corev1.Service{
 		ObjectMeta: v1.ObjectMeta{
 			Name:      serviceName,
 			Namespace: namespace,
 		},
 		Spec: corev1.ServiceSpec{
-			Selector: map[string]string{
-				"app": name, // Selector basado en la etiqueta del pod
-			},
+			Selector: map[string]string{"app": name}, // Selector basado en la etiqueta del pod
 			Ports: []corev1.ServicePort{
 				{
 					Port:       80,
@@ -624,6 +800,456 @@ func DeployPod(clientset *kubernetes.Clientset, name string, namespace string, i
 
 	return nil
 }
+
+func DeployPodV2(clientset *kubernetes.Clientset, conf *config.Config, baseDir string, image string) error {
+
+	namespace := conf.Namespace
+	name := conf.UID
+	port := conf.Application.Port
+
+	// Verificar si el pod ya existe
+	_, err := clientset.CoreV1().Pods(namespace).Get(context.TODO(), name, v1.GetOptions{})
+	if err == nil {
+		// Si el pod existe, borrarlo
+		if err := clientset.CoreV1().Pods(namespace).Delete(context.TODO(), name, v1.DeleteOptions{}); err != nil {
+			return fmt.Errorf("failed to delete existing pod: %v", err)
+		}
+		fmt.Println("Pod deleted:", name)
+	} else if !k8serrors.IsNotFound(err) {
+		// Si ocurre un error diferente a "not found", retornar el error
+		return fmt.Errorf("failed to get pod: %v", err)
+	}
+	// Verificar si el servicio ya existe
+	serviceName := fmt.Sprintf("service-%s", name)
+	_, err = clientset.CoreV1().Services(namespace).Get(context.TODO(), serviceName, v1.GetOptions{})
+	if err == nil {
+		// Si el servicio existe, borrarlo
+		if err := clientset.CoreV1().Services(namespace).Delete(context.TODO(), serviceName, v1.DeleteOptions{}); err != nil {
+			return fmt.Errorf("failed to delete existing service: %v", err)
+		}
+		fmt.Println("Service deleted:", serviceName)
+	} else if !k8serrors.IsNotFound(err) {
+		// Si ocurre un error diferente a "not found", retornar el error
+		return fmt.Errorf("failed to get service: %v", err)
+	}
+	// Cargar el archivo de configuración de nginx
+	nginxConfFile, err := os.ReadFile("/opt/homebrew/etc/multims/templates/onservice/nginx.conf")
+	if err != nil {
+		return fmt.Errorf("failed to read nginx config file: %v", err)
+	}
+	nginxConfig := strings.Replace(string(nginxConfFile), "{app_port}", fmt.Sprintf("%d", port), -1)
+
+	// Asegurar que el ConfigMap de Nginx se cree o actualice
+	err = ensureNginxConfigMap(clientset, namespace, "nginx-config", nginxConfig)
+	if err != nil {
+		return err
+	}
+
+	dbConfig := conf.Database
+
+	db_image := ""
+	configMapName := ""
+	db_port := 5432
+
+	if conf.Database.Active {
+		configMapName = "postgres-config"
+		if dbConfig.Type == "mysql" {
+			db_image = "mysql:latest"
+			configMapName = "mysql-config"
+		} else if dbConfig.Type == "postgres" {
+			db_port = 5432
+			db_image = "postgres:latest"
+		} else {
+			return fmt.Errorf("unsupported database type: %s", dbConfig.Type)
+		}
+
+		// ConfigMap para las configuraciones de PostgreSQL
+		configMapData := map[string]string{
+			"POSTGRES_DB":       dbConfig.Name,
+			"POSTGRES_USER":     dbConfig.User,
+			"POSTGRES_PASSWORD": dbConfig.Password,
+		}
+		configMap := &corev1.ConfigMap{
+			ObjectMeta: v1.ObjectMeta{
+				Name:      configMapName,
+				Namespace: namespace,
+			},
+			Data: configMapData,
+		}
+
+		// Actualiza o crea el ConfigMap
+		if err := ensureConfigMap(clientset, namespace, configMap, configMapName); err != nil {
+			return err
+		}
+	}
+	fmt.Print("=====================================")
+	fmt.Println("Pod created successfully:", configMapName)
+	// Crear el pod
+	pod := &corev1.Pod{
+		ObjectMeta: v1.ObjectMeta{
+			Name:      name,
+			Namespace: namespace,
+			Labels: map[string]string{
+				"app": name, // Usando el nombre base como etiqueta para agrupación
+			},
+		},
+		Spec: corev1.PodSpec{
+			RestartPolicy: "Never",
+			Containers: []corev1.Container{
+				{
+					Name:  name,
+					Image: image,
+					Command: []string{
+						"/bin/sh",
+						"-c",
+						"apk update && apk add rsync && apk add --no-cache bash && sleep infinity",
+					},
+					Ports: []corev1.ContainerPort{
+						{
+							ContainerPort: port,
+							Protocol:      "TCP",
+							HostPort:      port,
+						},
+					},
+					VolumeMounts: []corev1.VolumeMount{
+						{
+							Name:      "code-volume",
+							MountPath: "/opt/code",
+						},
+					},
+				},
+				// Contenedor de base de datos, agregado si conf.Database.Active es verdadero
+				func() corev1.Container {
+					if conf.Database.Active {
+						return corev1.Container{
+							Name:  "database",
+							Image: db_image,
+							EnvFrom: []corev1.EnvFromSource{
+								{
+									ConfigMapRef: &corev1.ConfigMapEnvSource{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: configMapName,
+										},
+									},
+								},
+							},
+							Ports: []corev1.ContainerPort{
+								{
+									ContainerPort: int32(db_port),
+									Protocol:      corev1.ProtocolTCP,
+								},
+							},
+						}
+					}
+					return corev1.Container{} // Si conf.Database.Active es falso, no se agrega ningún contenedor de base de datos.
+				}(),
+				{
+					Name:         "nginx",
+					Image:        "nginx:latest",
+					Ports:        []corev1.ContainerPort{{ContainerPort: 80, Protocol: "TCP"}},
+					VolumeMounts: []corev1.VolumeMount{{Name: "nginx-config", MountPath: "/etc/nginx/nginx.conf", SubPath: "nginx.conf"}},
+				},
+			},
+			Volumes: []corev1.Volume{
+				{Name: "code-volume", VolumeSource: corev1.VolumeSource{EmptyDir: &corev1.EmptyDirVolumeSource{}}},
+				{Name: "nginx-config", VolumeSource: corev1.VolumeSource{ConfigMap: &corev1.ConfigMapVolumeSource{LocalObjectReference: corev1.LocalObjectReference{Name: "nginx-config"}}}},
+			},
+		},
+	}
+
+	_, err = clientset.CoreV1().Pods(namespace).Create(context.TODO(), pod, v1.CreateOptions{})
+	if err != nil {
+		return fmt.Errorf("failed to create pod: %v", err)
+	}
+	fmt.Print("=====================================")
+	fmt.Println("Pod created successfully:", name)
+
+	// Crear el servicio
+	service := &corev1.Service{
+		ObjectMeta: v1.ObjectMeta{
+			Name:      serviceName,
+			Namespace: namespace,
+		},
+		Spec: corev1.ServiceSpec{
+			Selector: map[string]string{"app": name}, // Selector basado en la etiqueta del pod
+			Ports: []corev1.ServicePort{
+				{
+					Port:       80,
+					TargetPort: intstr.FromInt(80),
+					Protocol:   "TCP",
+				},
+			},
+			Type: corev1.ServiceTypeClusterIP, // Ajusta según necesidad
+		},
+	}
+
+	_, err = clientset.CoreV1().Services(namespace).Create(context.TODO(), service, v1.CreateOptions{})
+	if err != nil {
+		return fmt.Errorf("failed to create service: %v", err)
+	}
+	fmt.Println("Service created successfully:", serviceName)
+
+	return nil
+}
+
+func ensureConfigMap(clientset *kubernetes.Clientset, namespace string, configMap *corev1.ConfigMap, name string) error {
+	existingConfigMap, err := clientset.CoreV1().ConfigMaps(namespace).Get(context.TODO(), configMap.Name, v1.GetOptions{})
+	if err == nil {
+		configMap.ResourceVersion = existingConfigMap.ResourceVersion
+		_, err = clientset.CoreV1().ConfigMaps(namespace).Update(context.TODO(), configMap, v1.UpdateOptions{})
+		return err
+	} else if errors.IsNotFound(err) {
+		_, err = clientset.CoreV1().ConfigMaps(namespace).Create(context.TODO(), configMap, v1.CreateOptions{})
+		return err
+	}
+	return err
+}
+
+func deleteResourceIfExists(clientset *kubernetes.Clientset, resourceName string, namespace string) error {
+	_, err := clientset.CoreV1().Pods(namespace).Get(context.TODO(), resourceName, v1.GetOptions{})
+	if err == nil {
+		return clientset.CoreV1().Pods(namespace).Delete(context.TODO(), resourceName, v1.DeleteOptions{})
+	} else if errors.IsNotFound(err) {
+		return nil
+	}
+	return err
+}
+
+// func DeployPodDatabase(clientset *kubernetes.Clientset, namespace, name string, dbConfig config.DatabaseConfig) error {
+// 	podName := dbConfig.Name + "-pod"         // Nombre del pod
+// 	serviceName := dbConfig.Name + "-service" // Nombre del servicio
+// 	configMapName := "postgres-config"
+
+// 	// ConfigMap para las configuraciones de PostgreSQL
+// 	configMapData := map[string]string{
+// 		"POSTGRES_DB":       dbConfig.Name,
+// 		"POSTGRES_USER":     dbConfig.User,
+// 		"POSTGRES_PASSWORD": dbConfig.Password,
+// 	}
+// 	configMap := &corev1.ConfigMap{
+// 		ObjectMeta: v1.ObjectMeta{
+// 			Name:      configMapName,
+// 			Namespace: namespace,
+// 		},
+// 		Data: configMapData,
+// 	}
+
+// 	// Actualiza o crea el ConfigMap
+// 	if err := ensureConfigMap(clientset, namespace, configMap); err != nil {
+// 		return err
+// 	}
+
+// 	// Verificar si el pod ya existe
+// 	_, err := clientset.CoreV1().Pods(namespace).Get(context.TODO(), podName, v1.GetOptions{})
+// 	if err == nil {
+// 		// El pod ya existe, no es necesario crear uno nuevo
+// 		log.Printf("El pod '%s' ya existe. No se creará un nuevo pod.\n", podName)
+// 	} else if errors.IsNotFound(err) {
+// 		// El pod no existe, crear uno nuevo
+// 		if err := createPostgresPod(clientset, namespace, podName, configMapName); err != nil {
+// 			return err
+// 		}
+// 	} else {
+// 		// Se produjo un error al intentar obtener el pod existente
+// 		return fmt.Errorf("error al verificar si el pod '%s' ya existe: %v", podName, err)
+// 	}
+
+// 	// Verificar si el servicio ya existe
+// 	_, err = clientset.CoreV1().Services(namespace).Get(context.TODO(), serviceName, v1.GetOptions{})
+// 	if err == nil {
+// 		// El servicio ya existe, no es necesario crear uno nuevo
+// 		log.Printf("El servicio '%s' ya existe. No se creará un nuevo servicio.\n", serviceName)
+// 	} else if errors.IsNotFound(err) {
+// 		// El servicio no existe, crear uno nuevo
+// 		if err := createPostgresService(clientset, namespace, serviceName); err != nil {
+// 			return err
+// 		}
+// 	} else {
+// 		// Se produjo un error al intentar obtener el servicio existente
+// 		return fmt.Errorf("error al verificar si el servicio '%s' ya existe: %v", serviceName, err)
+// 	}
+
+// 	return nil
+// }
+
+func createPostgresService(clientset *kubernetes.Clientset, namespace, serviceName string) error {
+	service := &corev1.Service{
+		ObjectMeta: v1.ObjectMeta{
+			Name:      serviceName,
+			Namespace: namespace,
+			Labels: map[string]string{
+				"app": serviceName,
+			},
+		},
+		Spec: corev1.ServiceSpec{
+			Selector: map[string]string{
+				"app": serviceName,
+			},
+			Ports: []corev1.ServicePort{
+				{
+					Port:       5432,
+					TargetPort: intstr.FromInt(5432),
+					Protocol:   corev1.ProtocolTCP,
+				},
+			},
+			Type: corev1.ServiceTypeClusterIP,
+		},
+	}
+
+	_, err := clientset.CoreV1().Services(namespace).Create(context.TODO(), service, v1.CreateOptions{})
+	return err
+}
+
+func createPostgresPod(clientset *kubernetes.Clientset, namespace, podName, configMapName string) error {
+	pod := &corev1.Pod{
+		ObjectMeta: v1.ObjectMeta{
+			Name:      podName,
+			Namespace: namespace,
+			Labels: map[string]string{
+				"app": podName,
+			},
+		},
+		Spec: corev1.PodSpec{
+			Containers: []corev1.Container{
+				{
+					Name:  "postgres",
+					Image: "postgres:latest",
+					EnvFrom: []corev1.EnvFromSource{
+						{
+							ConfigMapRef: &corev1.ConfigMapEnvSource{
+								LocalObjectReference: corev1.LocalObjectReference{
+									Name: configMapName,
+								},
+							},
+						},
+					},
+					Ports: []corev1.ContainerPort{
+						{
+							ContainerPort: 5432,
+							Protocol:      corev1.ProtocolTCP,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	_, err := clientset.CoreV1().Pods(namespace).Create(context.TODO(), pod, v1.CreateOptions{})
+	return err
+}
+
+// func DeployPodDatabase(clientset *kubernetes.Clientset, namespace, name string, dbConfig config.DatabaseConfig) error {
+// 	podName := dbConfig.Name
+// 	serviceName := dbConfig.Name
+// 	configMapName := "postgres-config"
+
+// 	// ConfigMap para las configuraciones de PostgreSQL
+// 	configMapData := map[string]string{
+// 		"POSTGRES_DB":       dbConfig.Name,
+// 		"POSTGRES_USER":     dbConfig.User,
+// 		"POSTGRES_PASSWORD": dbConfig.Password,
+// 	}
+// 	configMap := &corev1.ConfigMap{
+// 		ObjectMeta: v1.ObjectMeta{
+// 			Name:      configMapName,
+// 			Namespace: namespace,
+// 		},
+// 		Data: configMapData,
+// 	}
+
+// 	// Verificar y actualizar/crear ConfigMap
+// 	existingConfigMap, err := clientset.CoreV1().ConfigMaps(namespace).Get(context.TODO(), configMapName, v1.GetOptions{})
+// 	if err == nil {
+// 		configMap.ResourceVersion = existingConfigMap.ResourceVersion // Importante para actualizar
+// 		if _, err := clientset.CoreV1().ConfigMaps(namespace).Update(context.TODO(), configMap, v1.UpdateOptions{}); err != nil {
+// 			return fmt.Errorf("failed to update configmap: %v", err)
+// 		}
+// 	} else if errors.IsNotFound(err) {
+// 		if _, err := clientset.CoreV1().ConfigMaps(namespace).Create(context.TODO(), configMap, v1.CreateOptions{}); err != nil {
+// 			return fmt.Errorf("failed to create configmap: %v", err)
+// 		}
+// 	}
+
+// 	// Definición del pod de PostgreSQL
+// 	pod := &corev1.Pod{
+// 		ObjectMeta: v1.ObjectMeta{
+// 			Name:      podName,
+// 			Namespace: namespace,
+// 			Labels: map[string]string{
+// 				"app":  name,
+// 				"role": "database",
+// 			},
+// 		},
+// 		Spec: corev1.PodSpec{
+// 			Containers: []corev1.Container{
+// 				{
+// 					Name:  "postgres",
+// 					Image: "postgres:latest",
+// 					EnvFrom: []corev1.EnvFromSource{
+// 						{
+// 							ConfigMapRef: &corev1.ConfigMapEnvSource{
+// 								LocalObjectReference: corev1.LocalObjectReference{
+// 									Name: configMapName,
+// 								},
+// 							},
+// 						},
+// 					},
+// 					Ports: []corev1.ContainerPort{
+// 						{
+// 							ContainerPort: 5432,
+// 							Protocol:      "TCP",
+// 						},
+// 					},
+// 				},
+// 			},
+// 		},
+// 	}
+
+// 	// Manejo del pod existente
+// 	if _, err := clientset.CoreV1().Pods(namespace).Get(context.TODO(), podName, v1.GetOptions{}); err == nil {
+// 		if err := clientset.CoreV1().Pods(namespace).Delete(context.TODO(), podName, v1.DeleteOptions{}); err != nil {
+// 			return fmt.Errorf("failed to delete existing PostgreSQL pod: %v", err)
+// 		}
+// 	}
+// 	if _, err := clientset.CoreV1().Pods(namespace).Create(context.TODO(), pod, v1.CreateOptions{}); err != nil {
+// 		return fmt.Errorf("failed to create PostgreSQL pod: %v", err)
+// 	}
+
+// 	// Definición y manejo del servicio
+// 	service := &corev1.Service{
+// 		ObjectMeta: v1.ObjectMeta{
+// 			Name:      serviceName,
+// 			Namespace: namespace,
+// 		},
+// 		Spec: corev1.ServiceSpec{
+// 			Selector: map[string]string{
+// 				"app":  name,
+// 				"role": "database",
+// 			},
+// 			Ports: []corev1.ServicePort{
+// 				{
+// 					Port:       5432,
+// 					TargetPort: intstr.FromInt(5432),
+// 					Protocol:   "TCP",
+// 				},
+// 			},
+// 			Type: corev1.ServiceTypeClusterIP,
+// 		},
+// 	}
+
+// 	// Manejo del servicio existente
+// 	if _, err := clientset.CoreV1().Services(namespace).Get(context.TODO(), serviceName, v1.GetOptions{}); err == nil {
+// 		if err := clientset.CoreV1().Services(namespace).Delete(context.TODO(), serviceName, v1.DeleteOptions{}); err != nil {
+// 			return fmt.Errorf("failed to delete existing service for PostgreSQL: %v", err)
+// 		}
+// 	}
+// 	if _, err := clientset.CoreV1().Services(namespace).Create(context.TODO(), service, v1.CreateOptions{}); err != nil {
+// 		return fmt.Errorf("failed to create service for PostgreSQL: %v", err)
+// 	}
+
+// 	return nil
+// }
+
 func continuousSync(localPath string, remotePath string) {
 	for {
 		// Ejecutar rsync para sincronizar los archivos

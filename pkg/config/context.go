@@ -37,8 +37,19 @@ type Config struct {
 	AppName              string          `yaml:"appName"`
 	Application          AppInfo         `yaml:"application"` // Cambiado para reflejar la jerarquía
 	MultiServices        []ServiceConfig // Slice de servicios
+	Database             DatabaseConfig
+	InstallationCommands []string
 
 	// Este campo debe comenzar con letra mayúscula
+}
+type DatabaseConfig struct {
+	Type     string `yaml:"type"`
+	Active   bool   `yaml:"active"`
+	DB       string `yaml:"db"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	Name     string `yaml:"name"`
+	External bool   `yaml:"external"`
 }
 
 // ChooseAndReturnContext prompts the user to choose a Kubernetes context from the kubeconfig and returns it
