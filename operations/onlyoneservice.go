@@ -369,6 +369,11 @@ func executeRefreshScriptRefresh(baseDir, uid, namespace string) {
 // executeRefreshScript ejecuta el script refreshv2 en el entorno especificado
 func executeRefreshScript(baseDir, uid, namespace string) {
 	scriptsPath := "/opt/homebrew/etc/multims/scripts/refreshv3Only"
+	fmt.Print("====================================")
+	fmt.Println("Executing refreshv3 script at:", scriptsPath)
+	fmt.Println("Executing refreshv3 script at:", baseDir)
+	fmt.Println("Executing refreshv3 script at:", uid)
+	fmt.Println("Executing refreshv3 script at:", namespace)
 	refreshCmdStr := fmt.Sprintf("%s \"%s\" \"%s\" \"%s\"", scriptsPath, baseDir, uid, namespace)
 	fmt.Printf("Executing refreshv3 script at: %s, %s, %s\n", baseDir, uid, namespace)
 
