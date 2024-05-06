@@ -10,7 +10,6 @@ RUN npm install
 
 # Copia los archivos de la aplicación
 COPY . .
-
 # Expone el puerto en el que tu app corre
 EXPOSE 3000
 
