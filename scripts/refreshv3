@@ -11,8 +11,6 @@ directory="$1"
 podname="$2"
 namespace="$3"
 
-#/Volumes/DataJack/Jack/multims/krsync -av -r --delete --progress --stats "$directory" "${podname}@${namespace}:/home"
-
 # Obtener el directorio donde reside el script
 script_dir=$(dirname "$0")
 script_dir_abs=$(cd "$script_dir" && pwd)
@@ -23,8 +21,9 @@ krsync_path="/opt/homebrew/etc/multims/scripts/krsync"
 # Excluir directorios específicos del proceso de sincronización
 excluded_dirs="--exclude='node_modules' --exclude='.multims'"
 
+# Imprimir el comando krsync
+echo "$krsync_path -av -r --delete --progress --stats $excluded_dirs \"$directory\" \"${podname}@${namespace}:/home\""
 
-echo '$krsync_path -av -r --delete --progress --stats \"$excluded_dirs" \"$directory\" \"${podname}@${namespace}:/home"'
 # Definir la función para refrescar la sincronización
 function refresh {
     echo "Starting synchronization loop..."
