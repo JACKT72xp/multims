@@ -336,7 +336,7 @@ func buildCommand(language, directory, input string) string {
 
 	switch language {
 	case "Node", "Node-Typescript":
-		return fmt.Sprintf("%s && sleep 10 && cd /home/%s && rm -rf package-lock.json && rm -rf node_modules/ && npm i nodemon -g && npm install --save && echo 'Ready to run your Node.js application. Type: npm start' && exec /bin/bash", bashSetup, directory)
+		return fmt.Sprintf("%s && sleep 10 && cd /home/%s && rm -rf package-lock.json && rm -rf node_modules/ && npm i nodemon -g && npm install -g --save && echo 'Ready to run your Node.js application. Type: npm start' && exec /bin/bash", bashSetup, directory)
 	case "Python":
 		return fmt.Sprintf("%s && sleep 10 && cd /home/%s && pip install -r requirements.txt && echo 'Ready to run your Python application. Type: python main.py' && exec /bin/bash", bashSetup, directory)
 	default:

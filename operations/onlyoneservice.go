@@ -260,11 +260,8 @@ func managePortForwarding(clientset *kubernetes.Clientset, conf *config.Config) 
 	defer cancel()
 
 	serviceName := fmt.Sprintf("service-%s", conf.UID)
-	serviceDBName := conf.Database.Name
-	portDB := determineDatabasePort(conf.Database.Type)
 
 	go ensurePortForwarding(clientset, ctx, conf.Namespace, serviceName, int(conf.Application.Port), 80)
-	go ensurePortForwarding(clientset, ctx, conf.Namespace, serviceDBName, portDB, portDB)
 }
 
 // Espera una señal de interrupción para terminar el programa.
