@@ -365,7 +365,7 @@ func ExecIntoPodV2(clientset *kubernetes.Clientset, config *rest.Config, podName
 
 	executor, err := remotecommand.NewSPDYExecutor(config, "POST", req.URL())
 	if err != nil {
-		return fmt.Errorf("failed to create executor: %v", err, executor)
+		return fmt.Errorf("failed to create executor: %v", executor)
 	}
 
 	// Create a pty
