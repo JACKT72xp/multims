@@ -355,7 +355,7 @@ func configureKubernetesClient(conf *config.Config) (*kubernetes.Clientset, *res
 
 // executeRefreshScript ejecuta el script refreshv2 en el entorno especificado
 func executeRefreshScriptRefresh(baseDir, uid, namespace string) {
-	scriptsPath := "/Volumes/DataJack/Jack/multims/scripts/refreshv3"
+	scriptsPath := "/opt/homebrew/etc/multims/scripts/refreshv3"
 	refreshCmdStr := fmt.Sprintf("%s \"%s\" \"%s\" \"%s\"", scriptsPath, baseDir, uid, namespace)
 	fmt.Printf("Executing refreshv3 script at: %s, %s, %s\n", baseDir, uid, namespace)
 
@@ -368,7 +368,7 @@ func executeRefreshScriptRefresh(baseDir, uid, namespace string) {
 
 // executeRefreshScript ejecuta el script refreshv2 en el entorno especificado
 func executeRefreshScript(baseDir, uid, namespace string) {
-	scriptsPath := "/Volumes/DataJack/Jack/multims/scripts/refreshv3Only"
+	scriptsPath := "/opt/homebrew/etc/multims/scripts/refreshv3Only"
 	refreshCmdStr := fmt.Sprintf("%s \"%s\" \"%s\" \"%s\"", scriptsPath, baseDir, uid, namespace)
 	fmt.Printf("Executing refreshv3 script at: %s, %s, %s\n", baseDir, uid, namespace)
 
