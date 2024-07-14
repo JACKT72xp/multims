@@ -23,5 +23,6 @@ func init() {
 	// Aquí añadirías tus subcomandos, por ejemplo:
 	rootCmd.AddCommand(initCmd)
 	rootCmd.AddCommand(runCmd)
+	rootCmd.AddCommand(uiCmd)
 	// Etc...
 }

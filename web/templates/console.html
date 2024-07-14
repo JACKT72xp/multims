@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multims Console</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <header class="navbar navbar-dark bg-primary">
+        <button class="navbar-toggler" type="button" onclick="toggleMenu()">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <span class="navbar-brand">Multims Console</span>
+    </header>
+
+    <nav id="menu">
+        <ul>
+            <li><a href="#" onclick="loadPage('home')">Home</a></li>
+            <li><a href="#" onclick="loadPage('port-forward')">Port-Forward</a></li>
+            <li><a href="#" onclick="loadPage('settings')">Settings</a></li>
+            <li><a href="#" onclick="loadPage('about')">About</a></li>
+            <li><a href="index.html" id="close-console">Close Console</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <div id="content">
+            <div id="terminal-container">
+                <textarea id="terminal" readonly></textarea>
+                <div id="input-container">
+                    <input type="text" id="input" placeholder="Enter command here">
+                    <button id="sendButton">Send</button>
+                </div>
+                <div id="history-container">
+                    <h3>Command History</h3>
+                    <ul id="command-history"></ul>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script>
+        function toggleMenu() {
+            var menu = document.getElementById('menu');
+            menu.classList.toggle('active');
+        }
+
+        document.addEventListener("click", function(event) {
+            var menu = document.getElementById('menu');
+            var menuToggle = document.querySelector(".navbar-toggler");
+
+            if (menu.classList.contains('active') && !menu.contains(event.target) && !menuToggle.contains(event.target)) {
+                menu.classList.remove('active');
+            }
+        });
+
+        function loadPage(page) {
+            var content = document.getElementById('main-content');
+            switch (page) {
+                case 'home':
+                    content.innerHTML = `
+                        <div class="hero">
+                            <h1>Welcome to Multims Console</h1>
+                            <p>The ultimate CLI tool for Kubernetes developers</p>
+                        </div>
+                        <div class="container features">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Easy Initialization</h5>
+                                            <p class="card-text">Quickly set up your project with <code>multims init</code>.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Live Development</h5>
+                                            <p class="card-text">Use <code>multims run</code> to develop in real-time.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Seamless Integration</h5>
+                                            <p class="card-text">Easily integrates with your existing Kubernetes setup.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cta">
+                            <a href="/console" class="btn btn-primary">Open Console</a>
+                            <a href="#" onclick="loadPage('port-forward')" class="btn btn-secondary">Port-Forward</a>
+                        </div>
+                        <div class="container">
+                            <div class="alert alert-info" role="alert">
+                                Multims is a CLI tool for developers working with Kubernetes. It helps you manage your applications more efficiently.
+                            </div>
+                        </div>
+                    `;
+                    checkConfig();
+                    break;
+                case 'port-forward':
+                    content.innerHTML = `
+                        <div class="hero">
+                            <h1>Port-Forward</h1>
+                            <p>Manage your port forwarding settings.</p>
+                        </div>
+                        <div class="container">
+                            <p>Configure your port forwarding rules here.</p>
+                        </div>
+                    `;
+                    break;
+                case 'settings':
+                    content.innerHTML = '<h2>Settings</h2><p>Manage your settings here.</p>';
+                    break;
+                case 'about':
+                    content.innerHTML = '<h2>About</h2><p>Learn more about this application.</p>';
+                    break;
+                default:
+                    content.innerHTML = '<h2>Welcome to Multims Console</h2>';
+                    break;
+            }
+            toggleMenu();
+        }
+
+        function checkConfig() {
+            fetch('/check-config')
+                .then(response => response.json())
+                .then(data => {
+                    var content = document.getElementById('main-content');
+                    if (!data.exists) {
+                        content.innerHTML += `
+                            <div class="alert alert-warning" role="alert">
+                                <strong>Multims configuration file not found!</strong> Please initialize your project by running <code>multims init</code>.
+                            </div>
+                        `;
+                    } else {
+                        content.innerHTML += `
+                            <div class="alert alert-success" role="alert">
+                                <strong>Multims configuration file found!</strong> You're ready to go.
+                            </div>
+                        `;
+                    }
+                });
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            loadPage('home');
+        });
+    </script>
+    <script src="/static/js/console.js"></script>
+</body>
+</html>

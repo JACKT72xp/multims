@@ -1,0 +1,117 @@
+// package cmd
+
+// import (
+// 	"fmt"
+// 	"html/template"
+// 	"log"
+// 	"net/http"
+// 	"os/exec"
+// 	"path/filepath"
+// 	"strings"
+
+// 	"github.com/gorilla/websocket"
+// )
+
+// func StartUIServer() {
+// 	staticDir := http.FileServer(http.Dir("./web/static"))
+// 	http.Handle("/static/", http.StripPrefix("/static/", staticDir))
+
+// 	nodeModulesDir := http.FileServer(http.Dir("./node_modules"))
+// 	http.Handle("/node_modules/", http.StripPrefix("/node_modules/", nodeModulesDir))
+
+// 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+// 		renderTemplate(w, "index.html")
+// 	})
+
+// 	http.HandleFunc("/console", func(w http.ResponseWriter, r *http.Request) {
+// 		renderTemplate(w, "console.html")
+// 	})
+
+// 	http.HandleFunc("/port-forward", func(w http.ResponseWriter, r *http.Request) {
+// 		renderTemplate(w, "port-forward.html")
+// 	})
+
+// 	http.HandleFunc("/ws", handleWebSocket)
+
+// 	port := "9000"
+// 	fmt.Printf("Starting UI server on port %s...\n", port)
+// 	if err := http.ListenAndServe(":"+port, nil); err != nil {
+// 		log.Fatalf("Failed to start UI server: %v", err)
+// 	}
+// }
+
+// func renderTemplate(w http.ResponseWriter, tmpl string) {
+// 	lp := filepath.Join("web", "templates", tmpl)
+// 	tmplParsed, err := template.ParseFiles(lp)
+// 	if err != nil {
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		return
+// 	}
+// 	if err := tmplParsed.Execute(w, nil); err != nil {
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 	}
+// }
+
+// var upgrader = websocket.Upgrader{
+// 	ReadBufferSize:  1024,
+// 	WriteBufferSize: 1024,
+// 	CheckOrigin:     func(r *http.Request) bool { return true },
+// }
+
+// func handleWebSocket(w http.ResponseWriter, r *http.Request) {
+// 	conn, err := upgrader.Upgrade(w, r, nil)
+// 	if err != nil {
+// 		log.Printf("Failed to upgrade WebSocket connection: %v", err)
+// 		return
+// 	}
+// 	defer conn.Close()
+
+// 	currentDir := ""
+
+// 	for {
+// 		_, msg, err := conn.ReadMessage()
+// 		if err != nil {
+// 			log.Printf("Error reading WebSocket message: %v", err)
+// 			break
+// 		}
+
+// 		command := strings.TrimSpace(string(msg))
+// 		if command == "" {
+// 			continue
+// 		}
+// 		log.Printf("Received command: %s", command)
+
+// 		go func(command string) {
+// 			if strings.HasPrefix(command, "cd ") {
+// 				newDir := strings.TrimSpace(command[3:])
+// 				if newDir == ".." {
+// 					currentDir = filepath.Dir(currentDir)
+// 				} else {
+// 					currentDir = filepath.Join(currentDir, newDir)
+// 				}
+// 				conn.WriteMessage(websocket.TextMessage, []byte(""))
+// 				return
+// 			}
+
+// 			output, err := executeCommand(command, currentDir)
+// 			if err != nil {
+// 				output = fmt.Sprintf("Failed to execute command: %v\n", err)
+// 			}
+
+// 			output = strings.TrimSpace(output)
+// 			conn.WriteMessage(websocket.TextMessage, []byte(output+"\n"))
+// 		}(command)
+// 	}
+// }
+
+// func executeCommand(command, dir string) (string, error) {
+// 	cmd := exec.Command("sh", "-c", command)
+// 	if dir != "" {
+// 		cmd.Dir = dir
+// 	}
+// 	output, err := cmd.CombinedOutput()
+// 	if err != nil {
+// 		return "", fmt.Errorf("%s: %s", err, output)
+// 	}
+// 	return string(output), nil
+// }

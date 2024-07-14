@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #0A84FF;
+  --color-secondary: #FF9500;
+  --color-dark: #1C1C1E;
+  --color-light: #F2F2F7;
+  --background-gradient: linear-gradient(135deg, #1f2937, #111827);
+}
+
+body {
+  background: var(--background-gradient);
+  color: var(--color-light);
+  font-family: 'Inter', sans-serif;
+}
+
+.navbar, .nav-link {
+  transition: all 0.3s ease-in-out;
+}
