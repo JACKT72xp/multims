@@ -10,12 +10,18 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/gorilla/websocket"
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
 	"sigs.k8s.io/yaml"
+)
+
+var (
+	portForwardCmds  = make(map[string]*exec.Cmd)
+	portForwardMutex sync.Mutex
 )
 
 var uiCmd = &cobra.Command{
@@ -44,7 +50,10 @@ func StartUIServer() {
 	http.HandleFunc("/api/load-kube-config", loadKubeConfigHandler)
 	http.HandleFunc("/api/clusters", getClustersHandler)
 	http.HandleFunc("/api/start-port-forward", startPortForwardHandler)
+	http.HandleFunc("/api/stop-port-forward", stopPortForwardHandler) // New endpoint to stop port forwarding
 	http.HandleFunc("/api/start-external-port-forward", startExternalPortForwardHandler)
+	http.HandleFunc("/api/namespaces", getNamespacesHandler) // New endpoint
+	http.HandleFunc("/api/services", getServicesHandler)     // New endpoint
 	http.HandleFunc("/ws", handleWebSocket)
 
 	// Catch-all handler to serve index.html for any non-asset route
@@ -117,7 +126,71 @@ func startPortForwardHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	// Logic to start port forwarding
+
+	// Fetch the target port of the service
+	cmdGetPort := exec.Command("kubectl", "--kubeconfig", filepath.Join(os.Getenv("HOME"), ".kube", "config"), "get", "svc", req.Service, "-n", req.Namespace, "-o", "jsonpath='{.spec.ports[0].port}'")
+	portOutput, err := cmdGetPort.CombinedOutput()
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to get service port: %v - %s", err, string(portOutput)), http.StatusInternalServerError)
+		return
+	}
+
+	// Remove surrounding single quotes from portOutput
+	targetPort := strings.Trim(string(portOutput), "'")
+
+	cmd := exec.Command("kubectl", "--kubeconfig", filepath.Join(os.Getenv("HOME"), ".kube", "config"), "port-forward", fmt.Sprintf("svc/%s", req.Service), fmt.Sprintf("%d:%s", req.LocalPort, targetPort), "-n", req.Namespace)
+	err = cmd.Start()
+	if err != nil {
+		stdoutStderr, _ := cmd.CombinedOutput()
+		log.Printf("Failed to start port forward: %v - %s", err, string(stdoutStderr))
+		http.Error(w, fmt.Sprintf("Failed to start port forward: %v - %s", err, string(stdoutStderr)), http.StatusInternalServerError)
+		return
+	}
+
+	log.Printf("Port forward command: %s", strings.Join(cmd.Args, " "))
+
+	// Store the command in the map
+	portForwardMutex.Lock()
+	portForwardCmds[fmt.Sprintf("%s-%s-%d", req.Namespace, req.Service, req.LocalPort)] = cmd
+	portForwardMutex.Unlock()
+
+	go cmd.Wait() // Run command in the background
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func stopPortForwardHandler(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Namespace string `json:"namespace"`
+		Service   string `json:"service"`
+		LocalPort int    `json:"localPort"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	key := fmt.Sprintf("%s-%s-%d", req.Namespace, req.Service, req.LocalPort)
+	portForwardMutex.Lock()
+	cmd, exists := portForwardCmds[key]
+	portForwardMutex.Unlock()
+
+	if !exists {
+		http.Error(w, "Port forward not found", http.StatusNotFound)
+		return
+	}
+
+	if err := cmd.Process.Kill(); err != nil {
+		http.Error(w, fmt.Sprintf("Failed to stop port forward: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	portForwardMutex.Lock()
+	delete(portForwardCmds, key)
+	portForwardMutex.Unlock()
+
+	log.Printf("Port forward stopped: %s", key)
+
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -247,4 +320,89 @@ func handleKubeConfig(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonData)
+}
+
+func getNamespacesHandler(w http.ResponseWriter, r *http.Request) {
+	if cachedConfig == nil {
+		http.Error(w, "Kube config not loaded", http.StatusBadRequest)
+		return
+	}
+
+	kubeconfigPath := filepath.Join(os.Getenv("HOME"), ".kube", "config")
+	cmd := exec.Command("kubectl", "--kubeconfig", kubeconfigPath, "get", "ns", "-o", "json")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to execute kubectl command: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	var namespaces struct {
+		Items []struct {
+			Metadata struct {
+				Name string `json:"name"`
+			} `json:"metadata"`
+		} `json:"items"`
+	}
+
+	if err := json.Unmarshal(output, &namespaces); err != nil {
+		http.Error(w, fmt.Sprintf("Failed to parse kubectl output: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	var nsList []string
+	for _, ns := range namespaces.Items {
+		nsList = append(nsList, ns.Metadata.Name)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{"namespaces": nsList})
+}
+
+func getServicesHandler(w http.ResponseWriter, r *http.Request) {
+	namespace := r.URL.Query().Get("namespace")
+	if namespace == "" {
+		http.Error(w, "Namespace is required", http.StatusBadRequest)
+		return
+	}
+
+	kubeconfigPath := filepath.Join(os.Getenv("HOME"), ".kube", "config")
+	cmd := exec.Command("kubectl", "--kubeconfig", kubeconfigPath, "get", "svc", "-n", namespace, "-o", "json")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to execute kubectl command: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	var services struct {
+		Items []struct {
+			Metadata struct {
+				Name   string            `json:"name"`
+				Labels map[string]string `json:"labels"`
+			} `json:"metadata"`
+			Spec struct {
+				Ports []struct {
+					Port int `json:"port"`
+				} `json:"ports"`
+			} `json:"spec"`
+		} `json:"items"`
+	}
+
+	if err := json.Unmarshal(output, &services); err != nil {
+		http.Error(w, fmt.Sprintf("Failed to parse kubectl output: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	var svcList []map[string]interface{}
+	for _, svc := range services.Items {
+		for _, port := range svc.Spec.Ports {
+			svcList = append(svcList, map[string]interface{}{
+				"name":   svc.Metadata.Name,
+				"port":   port.Port,
+				"labels": svc.Metadata.Labels,
+			})
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{"services": svcList})
 }
