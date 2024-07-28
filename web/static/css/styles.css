@@ -164,3 +164,25 @@ body, html {
 .cta a {
     margin: 0 10px;
 }
+
+.btn-primary {
+    background-color: var(--color-primary);
+}
+  
+.btn-primary:hover {
+    background-color: darken(var(--color-primary), 10%);
+}
+  
+.btn-secondary {
+    background-color: var(--color-secondary);
+}
+  
+.btn-secondary:hover {
+    background-color: darken(var(--color-secondary), 10%);
+}
+  
+.alert-error {
+    color: #e74c3c;
+    background-color: #fddede;
+    border-color: #e74c3c;
+}

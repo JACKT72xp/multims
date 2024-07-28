@@ -1,164 +1,128 @@
 <template>
-  <div class="service-setup">
-    <h4 class="text-lg font-semibold mb-4">Internal Service Setup for {{ cluster.name }}</h4>
-    <div v-if="error" class="alert alert-error">
-      {{ error }}
-    </div>
-    <div v-if="loadingNamespaces" class="loader">Loading namespaces...</div>
-    <div v-else>
-      <select v-model="selectedNamespace" @change="fetchServices" class="dropdown">
-        <option value="" disabled selected>Select a namespace</option>
+  <div>
+    <h4 class="text-lg font-semibold mb-4">Internal Service Setup</h4>
+    <div v-if="error" class="alert alert-error">{{ error }}</div>
+    <div>
+      <select v-model="namespace" @change="loadServices" class="input-field mb-4">
+        <option disabled value="">Select Namespace</option>
         <option v-for="ns in namespaces" :key="ns" :value="ns">{{ ns }}</option>
       </select>
-      <div v-if="loadingServices" class="loader">Loading services...</div>
-      <div v-else>
-        <ul class="service-list">
-          <li v-for="service in services" :key="service.name" class="service-item">
-            <button @click="selectService(service)" class="btn-service">
-              {{ service.name }} - Port: {{ service.port }}
-            </button>
-          </li>
-        </ul>
-      </div>
-    </div>
-    <div v-if="selectedService" class="service-details">
-      <h5 class="text-md font-semibold mb-2">Service Details</h5>
-      <textarea class="textarea-details" readonly>{{ serviceDetails }}</textarea>
-      <input v-model="customPort" placeholder="Custom Port" type="number" class="input-port" />
-      <div v-if="portForwarding" class="port-forwarding-status">
-        <p>Port forwarding active on localhost:{{ customPort }}</p>
-        <button @click="stopPortForward" class="btn-secondary">STOP</button>
-      </div>
-      <button v-if="!portForwarding" @click="startPortForward" class="btn-primary">FORWARD</button>
+      <select v-model="selectedService" class="input-field mb-4">
+        <option disabled value="">Select Service</option>
+        <option v-for="svc in services" :key="svc.name" :value="svc">
+          {{ svc.name }}:{{ svc.port }}
+        </option>
+      </select>
+      <input v-model="localPort" placeholder="Local Port" type="number" class="input-field mb-4" />
+      <button @click="startPortForward" :disabled="loading" class="btn-primary">{{ loading ? "Forwarding..." : "Forward" }}</button>
+      <button @click="cancel" class="btn-secondary">Cancel</button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import axios from 'axios';
 
 const props = defineProps({
   cluster: Object
 });
 
+const emit = defineEmits(['forward', 'cancel']);
+
 const error = ref('');
 const namespaces = ref([]);
-const selectedNamespace = ref('');
 const services = ref([]);
+const namespace = ref('');
 const selectedService = ref(null);
-const serviceDetails = ref('');
-const customPort = ref('');
-const loadingNamespaces = ref(false);
-const loadingServices = ref(false);
-const portForwarding = ref(false);
+const localPort = ref('');
+const loading = ref(false);
 
-const fetchNamespaces = async () => {
-  loadingNamespaces.value = true;
+const loadNamespaces = async () => {
   try {
-    const response = await axios.get('/api/namespaces');
-    console.log('Namespaces:', response.data.namespaces);  // Debugging line
+    const response = await axios.get(`/api/namespaces?cluster=${props.cluster.name}`);
     namespaces.value = response.data.namespaces;
   } catch (err) {
     error.value = 'Failed to load namespaces: ' + err.message;
-  } finally {
-    loadingNamespaces.value = false;
   }
 };
 
-const fetchServices = async () => {
-  if (!selectedNamespace.value) return;
-  loadingServices.value = true;
+const loadServices = async () => {
   try {
-    const response = await axios.get(`/api/services?namespace=${selectedNamespace.value}`);
-    services.value = response.data.services;
+    const response = await axios.get(`/api/services?cluster=${props.cluster.name}&namespace=${namespace.value}`);
+    services.value = response.data.services.map(svc => ({
+      name: svc.name,
+      port: svc.port
+    }));
   } catch (err) {
     error.value = 'Failed to load services: ' + err.message;
-  } finally {
-    loadingServices.value = false;
   }
 };
 
-const selectService = (service) => {
-  selectedService.value = service;
-  serviceDetails.value = `Name: ${service.name}\nPort: ${service.port}\nLabels: ${JSON.stringify(service.labels, null, 2)}`;
-};
+watch(error, (newError) => {
+  if (newError) {
+    setTimeout(() => {
+      error.value = '';
+    }, 5000); // Desaparece después de 5 segundos
+  }
+});
+
 
 const startPortForward = async () => {
-  if (!customPort.value || !selectedService.value) {
-    error.value = 'Please select a service and enter a custom port.';
-    return;
-  }
-
   try {
-    const response = await axios.post('/api/start-port-forward', {
-      namespace: selectedNamespace.value,
+    loading.value = true;
+    const requestData = {
+      namespace: namespace.value,
       service: selectedService.value.name,
-      localPort: customPort.value,
+      localPort: parseInt(localPort.value, 10),
       cluster: {
         name: props.cluster.name,
-        user: props.cluster.user
+        user: props.cluster.user // Añadir cualquier otro dato necesario del cluster
       }
-    });
+    };
+    console.log("Request Data:", requestData); // Para depuración
 
-    if (response.status === 200) {
-      portForwarding.value = true;
-      alert(`Service ${selectedService.value.name} forwarded to localhost:${customPort.value}`);
-    }
+    const response = await axios.post('/api/start-port-forward', requestData);
+    const session = {
+      id: response.data.id,
+      type: 'Internal',
+      cluster: props.cluster.name,
+      hostNamespace: namespace.value,
+      externalPortService: `${selectedService.value.name}:${selectedService.value.port}`,
+      localPort: localPort.value
+    };
+    emit('forward', session);
+    emit('cancel'); // Resetea los formularios
   } catch (err) {
-    error.value = `Failed to start port forward: ${err.response.data}`;
-    console.error('Port forward error:', err.response.data);
+    error.value = 'Failed to start port forward: ' + err.message;
+  } finally {
+    loading.value = false;
   }
 };
 
 
-const stopPortForward = async () => {
-  if (!customPort.value || !selectedService.value) {
-    error.value = 'Please select a service and enter a custom port.';
-    return;
-  }
-
-  try {
-    await axios.post('/api/stop-port-forward', {
-      namespace: selectedNamespace.value,
-      service: selectedService.value.name,
-      localPort: customPort.value,
-    });
-    portForwarding.value = false;
-    alert(`Port forwarding for service ${selectedService.value.name} on localhost:${customPort.value} stopped.`);
-  } catch (err) {
-    error.value = 'Failed to stop port forward: ' + err.message;
-  }
+const cancel = () => {
+  emit('cancel');
 };
 
-onMounted(fetchNamespaces);
+loadNamespaces();
 </script>
 
 <style scoped>
-.service-setup {
-  background: var(--color-dark);
-  padding: 1rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  color: var(--color-light);
-}
 .alert {
   padding: 1rem;
   margin-bottom: 1rem;
   border: 1px solid transparent;
   border-radius: 0.25rem;
 }
+
 .alert-error {
   color: #f44336;
   background-color: #fddede;
   border-color: #f44336;
 }
-.loader {
-  color: var(--color-light);
-  text-align: center;
-  padding: 1rem;
-}
-.dropdown {
+
+.input-field {
   width: 100%;
   padding: 0.75rem;
   margin-bottom: 1rem;
@@ -168,57 +132,7 @@ onMounted(fetchNamespaces);
   color: var(--color-light);
   font-size: 1rem;
 }
-.service-list {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-}
-.service-item {
-  margin-bottom: 0.5rem;
-}
-.btn-service {
-  display: block;
-  width: 100%;
-  padding: 0.75rem;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  text-align: left;
-  text-decoration: none;
-  color: var(--color-light);
-  background-color: #4a5568;
-  border: none;
-  border-radius: 0.5rem;
-  transition: background-color 0.3s ease-in-out, transform 0.3s;
-}
-.btn-service:hover {
-  background-color: #2d3748;
-  transform: translateY(-2px);
-}
-.service-details {
-  margin-top: 1rem;
-}
-.textarea-details {
-  width: 100%;
-  height: 100px;
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  border: 1px solid #ccc;
-  background: #2d3748;
-  color: var(--color-light);
-  font-size: 1rem;
-  margin-bottom: 1rem;
-}
-.input-port {
-  width: 100%;
-  padding: 0.75rem;
-  margin-bottom: 1rem;
-  border-radius: 0.5rem;
-  border: 1px solid #ccc;
-  background: #2d3748;
-  color: var(--color-light);
-  font-size: 1rem;
-}
+
 .btn-primary {
   display: inline-block;
   padding: 0.75rem 1.5rem;
@@ -234,34 +148,41 @@ onMounted(fetchNamespaces);
   border-radius: 0.5rem;
   transition: background-color 0.3s ease-in-out, transform 0.3s;
 }
+
+.btn-primary:disabled {
+  background-color: #0056b3;
+  cursor: not-allowed;
+}
+
+.session-table {
+  margin-top: 2rem;
+  max-height: 400px; /* O la altura que prefieras */
+  overflow-y: auto;
+}
+
 .btn-primary:hover {
   background-color: #0056b3;
   transform: translateY(-2px);
 }
+
 .btn-secondary {
   display: inline-block;
   padding: 0.75rem 1.5rem;
-  margin: 0.5rem 0;
+  margin: 0.5rem 0.5rem 0 0;
   font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
   text-align: center;
   text-decoration: none;
-  color: var(--color-light);
+  color: var(--color-dark);
   background-color: var(--color-secondary);
   border: none;
   border-radius: 0.5rem;
   transition: background-color 0.3s ease-in-out, transform 0.3s;
 }
+
 .btn-secondary:hover {
-  background-color: #e06c00;
+  background-color: #e67e22;
   transform: translateY(-2px);
-}
-.port-forwarding-status {
-  margin-top: 1rem;
-  padding: 1rem;
-  background-color: #2d3748;
-  border-radius: 0.5rem;
-  text-align: center;
 }
 </style>
