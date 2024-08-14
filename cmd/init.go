@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"multims/pkg/auth"
@@ -10,116 +9,218 @@ import (
 	"multims/pkg/config"
 	"multims/pkg/utils"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
+	"github.com/AlecAivazis/survey/v2"
+	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
 )
+
+// checkIfGitRepo checks if the current directory is a Git repository
+func checkIfGitRepo() bool {
+	cmd := exec.Command("git", "rev-parse", "--is-inside-work-tree")
+	err := cmd.Run()
+	return err == nil
+}
+
+// getGitRepositoryURL retrieves the URL of the Git repository
+func getGitRepositoryURL() (string, error) {
+	cmd := exec.Command("git", "remote", "get-url", "origin")
+	output, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(output)), nil
+}
+
+// title prints a title with a separator
+func title(text string) {
+	fmt.Println(aurora.Bold(aurora.Cyan("\n" + text)))
+	fmt.Println(strings.Repeat("-", len(text)))
+}
+
+// checkIfMultimsYMLExists checks if the multims.yml file exists
+func checkIfMultimsYMLExists() bool {
+	_, err := os.Stat("multims.yml")
+	return !os.IsNotExist(err)
+}
 
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "k8s-cli is a CLI tool for managing Kubernetes",
 	Long:  `Welcome to MULTIMS by JT. A CLI tool to interact with Kubernetes.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Welcome to MULTIMS by JT. Manage your Kubernetes clusters effectively.")
-		//kubeconfig := config.LoadConfig()
-		useDefaultKubeConfig, kubeConfigPath := config.ChooseKubeConfig()
+		title("Welcome to MULTIMS by JT")
+		fmt.Println(aurora.Bold(aurora.Cyan("Manage your Kubernetes clusters effectively.")))
 
+		// Show loading message
+		fmt.Print(aurora.BrightYellow("Validating..."))
+		time.Sleep(2 * time.Second) // Simulate loading time
+
+		// Check if multims.yml exists
+		if checkIfMultimsYMLExists() {
+			var overwriteConfirmation bool
+			prompt := &survey.Confirm{
+				Message: "A multims.yml configuration file already exists. Do you want to overwrite it? This will erase the existing configuration.",
+			}
+			survey.AskOne(prompt, &overwriteConfirmation)
+			if !overwriteConfirmation {
+				fmt.Println("Operation cancelled by the user.")
+				return
+			}
+		}
+
+		// Check if current directory is a Git repository
+		isGitRepo := checkIfGitRepo()
+		fmt.Print("\r                \r") // Clear the "Validating..." message
+
+		if isGitRepo {
+			fmt.Println(aurora.Green("Git repository detected."))
+			repoURL, err := getGitRepositoryURL()
+			if err != nil {
+				log.Fatalf("Failed to retrieve Git repository URL: %v", err)
+			}
+			fmt.Printf("MULTIMS will be deployed in the repository: %s\n", aurora.Bold(repoURL))
+		} else {
+			fmt.Println(aurora.Red("No Git repository detected."))
+			var confirmation bool
+			prompt := &survey.Confirm{
+				Message: "MULTIMS will not be deployed in a Git repository. Do you want to continue?",
+			}
+			survey.AskOne(prompt, &confirmation)
+			if !confirmation {
+				fmt.Println("Operation cancelled by the user.")
+				return
+			}
+		}
+
+		// Choose kubeconfig
+		title("Kubernetes Configuration")
+		var kubeconfigOptions = []string{"Use default kubeconfig (~/.kube/config)", "Specify kubeconfig file path"}
+		var kubeconfigChoice string
+		promptKubeconfig := &survey.Select{
+			Message: "How do you want to connect to Kubernetes?",
+			Options: kubeconfigOptions,
+		}
+		survey.AskOne(promptKubeconfig, &kubeconfigChoice)
+
+		var useDefaultKubeConfig bool
+		var kubeConfigPath string
+		if kubeconfigChoice == kubeconfigOptions[0] {
+			useDefaultKubeConfig = true
+			kubeConfigPath = os.ExpandEnv("$HOME/.kube/config")
+		} else {
+			useDefaultKubeConfig = false
+			promptKubeconfigPath := &survey.Input{
+				Message: "Please specify the kubeconfig file path:",
+			}
+			survey.AskOne(promptKubeconfigPath, &kubeConfigPath)
+		}
+
+		// Choose context
 		ctx, err := config.ChooseContext(kubeConfigPath)
 		if err != nil {
 			log.Fatalf("Error choosing context: %v", err)
 		}
 
+		// Select namespace
 		namespace, err := utils.SelectNamespace(kubeConfigPath, ctx)
 		if err != nil {
 			log.Fatalf("Error selecting namespace: %v", err)
 		}
 
-		fmt.Printf("Selected namespace: '%s'\n", namespace)
+		fmt.Printf("Selected namespace: '%s'\n", aurora.Bold(namespace))
 
+		// Select technology
+		title("Technology Selection")
 		technology := utils.SelectTechnology()
 		if technology == "Cancel" {
 			fmt.Println("Operation cancelled by the user.")
 			return
 		}
 
-		fmt.Printf("You have selected: %s\n", technology)
-		registry := utils.SlectRegistry()
-		if registry == "DockerHub" {
+		fmt.Printf("You have selected: %s\n", aurora.Bold(technology))
+
+		// Select registry
+		title("Registry Selection")
+		var registryOptions = []string{"DockerHub", "AWS ECR", "CustomImageMultiMS"}
+		var registryChoice string
+		promptRegistry := &survey.Select{
+			Message: "Where do you want to store your images?",
+			Options: registryOptions,
+		}
+		survey.AskOne(promptRegistry, &registryChoice)
+
+		// Variable to hold the custom image name if selected
+		var customImage string
+		if registryChoice == "CustomImageMultiMS" {
+			switch technology {
+			case "Node":
+				customImage = "jackt72xp/multims:nodejsv3"
+			case "Python":
+				customImage = "jackt72xp/multims:pythonv2"
+			}
+		} else if registryChoice == "DockerHub" {
 			auth.HandleDockerLogin()
-		} else if registry == "AWS ECR" {
+		} else if registryChoice == "AWS ECR" {
 			auth.HandleECRLogin()
 		}
 
-		reader := bufio.NewReader(os.Stdin)
-		defaultCommand := "node index.js"
-		fmt.Printf("Please enter the command to start your application (default: %s): ", defaultCommand)
-
-		// Read the input from user
-		input, err := reader.ReadString('\n')
-		if err != nil {
-			fmt.Println("Error reading input:", err)
-			return
+		// Enter start command
+		title("Application Configuration")
+		var startCommand string
+		promptStartCommand := &survey.Input{
+			Message: "Please enter the command to start your application (default: node index.js):",
+			Default: "node index.js",
 		}
+		survey.AskOne(promptStartCommand, &startCommand)
 
-		// Trim space and check if the input is empty
-		input = strings.TrimSpace(input)
-		if input == "" {
-			input = defaultCommand
+		// Enter port number
+		var portNumber string
+		promptPortNumber := &survey.Input{
+			Message: "Please enter the port number to start your application (default: 3000):",
+			Default: "3000",
 		}
+		survey.AskOne(promptPortNumber, &portNumber)
 
-		reader2 := bufio.NewReader(os.Stdin)
-		defaultCommandPort := "3000"
-		fmt.Printf("Please enter the number of port to start your application (default: %s): ", defaultCommandPort)
-		// Read the input from user
-		input2, err2 := reader2.ReadString('\n')
-		if err != nil {
-			fmt.Println("Error reading input:", err2, input2)
-			return
-		}
-
-		// Obtener el nombre del directorio actual
+		// Get the current directory name
 		currentDir, err := os.Getwd()
 		if err != nil {
 			log.Fatalf("Error getting current directory: %v", err)
 		}
-		dirName := filepath.Base(currentDir) // Esto da el nombre del directorio actual
-		fmt.Printf("You appName : %s\n", dirName)
-		fmt.Printf("You llega aqui-1 : %s\n", "______________________________")
+		dirName := filepath.Base(currentDir)
+		fmt.Printf("Your app name: %s\n", aurora.Bold(dirName))
 
+		// Create MULTIMS directory
 		build.CreateMultimsDirectory()
-		fmt.Printf("You llega aqui0 : %s\n", "______________________________")
 
-		// Obtener el ID de la cuenta de AWS y la región
+		// Get AWS account info
 		accountID, region, err := config.GetAWSAccountInfo()
-		fmt.Printf("You llega aqui0.05 : %s\n", "______________________________")
-
 		if err != nil {
 			log.Fatalf("Failed to retrieve AWS account info: %v", err)
 		}
-		fmt.Printf("You llega aqui0.1 : %s\n", "______________________________")
 
-		intValue, err := strconv.Atoi(strings.TrimSuffix(input2, "\n"))
-
+		intValue, err := strconv.Atoi(portNumber)
 		if err != nil {
-			fmt.Printf("You llega aqui : %s\n", err)
-			return
+			log.Fatalf("Invalid port number: %v", err)
 		}
-		fmt.Printf("You llega aqui : %s\n", "______________________________")
 
 		ecrEndpoint := fmt.Sprintf("%s.dkr.ecr.%s.amazonaws.com", accountID, region)
-		fmt.Printf("You llega aqui2 : %s\n", "______________________________")
 
-		formattedStr := fmt.Sprintf("%08d", intValue)
-		fmt.Println(formattedStr)
+		// Save config to file
+		if registryChoice == "CustomImageMultiMS" {
+			build.SaveCustomImageConfigToFile(technology, customImage, ctx, namespace, useDefaultKubeConfig, kubeConfigPath, dirName, startCommand, intValue)
+		} else {
+			build.SaveConfigToFile(technology, ecrEndpoint, ctx, namespace, useDefaultKubeConfig, kubeConfigPath, dirName, registryChoice, startCommand, intValue)
+		}
 
-		fmt.Printf("You llega aqui3 : %s\n", "______________________________")
+		fmt.Println(aurora.Bold(aurora.Green("Files generated")))
 
-		build.SaveConfigToFile(technology, ecrEndpoint, ctx, namespace, useDefaultKubeConfig, kubeConfigPath, dirName, registry, input, intValue)
-
-		fmt.Println("Files generated")
-
+		// Setup Kubernetes connection
 		client.SetupKubernetesConnection(kubeConfigPath, ctx)
 	},
 }

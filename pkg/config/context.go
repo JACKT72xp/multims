@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"log"
 
@@ -16,29 +17,54 @@ import (
 	"k8s.io/client-go/util/homedir"
 )
 
-type ServiceConfig struct {
-	Name  string // Nombre del servicio
-	Image string // Imagen del contenedor del servicio
-	Port  int    // Puerto del servicio
-}
 type AppInfo struct {
 	StartRun string `yaml:"start_run"`
-	Port     int32  `yaml:"port"` // Este campo es ahora parte de una subestructura
+	Port     int    `yaml:"port"`
 }
+
+// RegistryConfig represents the registry-specific configuration
+type RegistryConfig struct {
+	Provider string `yaml:"provider"`
+	Image    string `yaml:"image"`
+}
+
+type ServiceConfig struct {
+	Name  string `yaml:"name"`
+	Image string `yaml:"image"`
+	Port  int    `yaml:"port"`
+}
+
 type Config struct {
-	KubernetesContext    string          `yaml:"kubernetesContext"`
 	RegistryOrDocker     string          `yaml:"registryOrDocker"`
-	RegistryURL          string          `yaml:"registry"`
+	Registry             RegistryConfig  `yaml:"registry"`
 	Technology           string          `yaml:"technology"`
+	KubernetesContext    string          `yaml:"kubernetesContext"`
 	Namespace            string          `yaml:"namespace"`
 	UseDefaultKubeConfig bool            `yaml:"useDefaultKubeConfig"`
 	KubeConfigPath       string          `yaml:"kubeConfigPath"`
 	UID                  string          `yaml:"uid"`
 	AppName              string          `yaml:"appName"`
-	Application          AppInfo         `yaml:"application"` // Cambiado para reflejar la jerarquía
-	MultiServices        []ServiceConfig // Slice de servicios
+	Application          AppInfo         `yaml:"application"`
+	Multiservices        []ServiceConfig `yaml:"multiservices"`
+	RegistryURL          string          `yaml:"registryURL"`
+}
 
-	// Este campo debe comenzar con letra mayúscula
+// LoadConfigFromFile loads the configuration from a YAML file
+// LoadConfigFromFile loads the configuration from a YAML file
+// LoadConfigFromFile carga la configuración desde un archivo YAML
+func LoadConfigFromFile(filepath string) (*Config, error) {
+	data, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read config file: %w", err)
+	}
+
+	var config Config
+	err = yaml.Unmarshal(data, &config)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal config: %w", err)
+	}
+
+	return &config, nil
 }
 
 // ChooseAndReturnContext prompts the user to choose a Kubernetes context from the kubeconfig and returns it
@@ -93,20 +119,6 @@ func ChooseKubeConfig() (bool, string) {
 		return false, path
 	}
 	return true, filepath.Join(homedir.HomeDir(), ".kube", "config")
-}
-
-// LoadConfigFromFile carga la configuración desde un archivo YAML
-func LoadConfigFromFile(filePath string) (*Config, error) {
-	data, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		return nil, err
-	}
-	var config Config
-	err = yaml.Unmarshal(data, &config)
-	if err != nil {
-		return nil, err
-	}
-	return &config, nil
 }
 
 func GetAWSAccountInfo() (accountID, region string, err error) {

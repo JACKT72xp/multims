@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '../views/HomeView.vue';
 import ConsoleView from '../views/ConsoleView.vue';
 import PortForwardSetup from '../views/PortForwardSetupView.vue'; // Asegúrate de que la importación sea correcta
+import ExecutionView from '../views/ExecutionView.vue'; // Nueva vista
 
 
 const routes = [
@@ -19,6 +20,11 @@ const routes = [
     path: '/port-forward',
     name: 'PortForward',
     component: PortForwardSetup,
+  },
+  {
+    path: '/execution',
+    name: 'Execution',
+    component: ExecutionView, // Nueva vista
   },
 ];
 

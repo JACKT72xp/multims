@@ -5,7 +5,7 @@
       <div v-if="error" class="alert alert-error">
         {{ error }}
       </div>
-      <div v-if="!configLoaded" class="config-loader">
+      <div v-if="!configLoaded && !hasSessions" class="config-loader">
         <div class="alert alert-warning mb-4">
           No multims.yaml found. Loading default kubeconfig...
         </div>
@@ -13,8 +13,8 @@
         <button @click="loadKubeConfigDefault" class="btn-primary">Use Default Kubeconfig</button>
       </div>
       <div v-else>
-        <p class="instruction">Select a context to continue:</p>
-        <ul class="context-list">
+        <p class="instruction" v-if="contexts.length">Select a context to continue:</p>
+        <ul class="context-list" v-if="contexts.length">
           <li v-for="context in contexts" :key="context.name">
             <button 
               @click="selectContext(context)" 
@@ -31,7 +31,7 @@
           <InternalServiceSetup v-if="showInternal" :context="selectedContext" @forward="addSession" />
           <ExternalServiceSetup v-if="showExternal" :context="selectedContext" @forward="addSession" />
         </div>
-        <div v-if="sessions.length" class="session-table">
+        <div v-if="hasSessions" class="session-table">
           <h3>Port Forward Sessions</h3>
           <table>
             <thead>
@@ -53,7 +53,7 @@
                 <td>{{ session.localPort }}</td>
                 <td>
                   <button v-if="session.status === 'running'" @click="stopSession(session)" class="btn-stop">Stop</button>
-                  <button v-if="session.status === 'stopped' || session.status === 'registered'" @click="startSession(session)" class="btn-start">Start</button>
+                  <button v-if="session.status === 'stopped' || session.status === 'registered' || session.status === 'NOT_INITIALIZED'" @click="startSession(session)" class="btn-start">Start</button>
                   <button @click="deleteSession(session)" class="btn-delete">Delete</button>
                 </td>
               </tr>
@@ -66,7 +66,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
 import axios from 'axios';
 import InternalServiceSetup from '../components/InternalServiceSetup.vue';
 import ExternalServiceSetup from '../components/ExternalServiceSetup.vue';
@@ -77,11 +77,13 @@ const selectedContext = ref(null);
 const configLoaded = ref(false);
 const showInternal = ref(false);
 const showExternal = ref(false);
-const sessions = ref(JSON.parse(localStorage.getItem('portForwardSessions') || '[]'));
+const sessions = ref([]); // Inicialmente vacío
 
 watch(sessions, (newSessions) => {
   localStorage.setItem('portForwardSessions', JSON.stringify(newSessions));
 }, { deep: true });
+
+const hasSessions = computed(() => sessions.value.length > 0);
 
 const loadKubeConfigFromFile = async (event) => {
   try {
@@ -99,7 +101,7 @@ const loadKubeConfigFromFile = async (event) => {
     configLoaded.value = true;
     selectedContext.value = null;
     showInternal.value = false;
-    showExternal.value = false;
+    showExternal.value = false; // Se añadió el punto y coma faltante
   } catch (err) {
     error.value = 'Failed to load kubeconfig: ' + err.message;
     console.error('Kubeconfig loading error:', err);
@@ -113,7 +115,7 @@ const loadKubeConfigDefault = async () => {
     configLoaded.value = true;
     selectedContext.value = null;
     showInternal.value = false;
-    showExternal.value = false;
+    showExternal.value = false; // Se añadió el punto y coma faltante
   } catch (err) {
     error.value = 'Failed to load kubeconfig: ' + err.message;
     console.error('Default kubeconfig loading error:', err);
@@ -189,6 +191,46 @@ const deleteSession = async (session) => {
     error.value = 'Failed to delete port forward: ' + err.message;
   }
 };
+
+// Cargar sesiones desde la API al montar el componente
+onMounted(async () => {
+  try {
+    const response = await axios.get('/api/sessions');
+    const apiSessions = response.data;
+
+    // Validar que la respuesta no sea null y sea una lista válida
+    if (apiSessions && Array.isArray(apiSessions)) {
+      // Validar el estado de las sesiones cargadas
+      for (const session of apiSessions) {
+        if (session.status === 'running') {
+          // Verificar el estado del port forward
+          const portForwardStatus = await axios.post('/api/check-port-forward', {
+            localPort: session.localPort,
+          });
+
+          if (!portForwardStatus.data.active) {
+            // Verificar el estado del pod
+            const podStatus = await axios.post('/api/check-pod', {
+              podName: session.podName,
+              namespace: session.namespace,
+              context: session.context,
+            });
+
+            if (podStatus.data.exists) {
+              session.status = 'STOPPED';
+            } else {
+              session.status = 'NOT_INITIALIZED';
+            }
+          }
+        }
+      }
+
+      sessions.value = apiSessions;
+    }
+  } catch (err) {
+    console.error('Failed to load sessions:', err);
+  }
+});
 </script>
 
 <style scoped>

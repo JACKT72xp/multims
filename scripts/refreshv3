@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# Comprobar si se proporcionaron suficientes argumentos
+if [ $# -ne 3 ]; then
+    echo "Usage: $0 <directory> <podname> <namespace>"
+    exit 1
+fi
+
+# Asignar argumentos a variables claras
+directory="$1"
+podname="$2"
+namespace="$3"
+
+# Obtener el directorio donde reside el script
+script_dir=$(dirname "$0")
+script_dir_abs=$(cd "$script_dir" && pwd)
+
+echo "Monitoring directory: $directory and synchronizing with pod: $podname in namespace: $namespace"
+
+# Verificar si el pod existe
+if ! kubectl get pod "$podname" -n "$namespace" > /dev/null 2>&1; then
+    echo "Error: Pod $podname not found in namespace $namespace."
+    exit 1
+fi
+
+# Utilizar ruta relativa para krsync
+krsync_path="$script_dir_abs/krsync"
+$krsync_path -av -r --delete --progress --stats "$directory" "${podname}:${namespace}:/home"
+
+# Definir la función para refrescar la sincronización
+function refresh {
+    echo "Starting synchronization loop..."
+    # Bucle infinito
+    while true; do
+        # Utilizar fswatch para monitorear cambios en el directorio especificado
+        echo "Waiting for changes in $directory..."
+        if ! command -v fswatch &> /dev/null; then
+            echo "Error: fswatch is not installed. Please install it to continue."
+            exit 1
+        fi
+
+        fswatch -0 -r "$directory" | while read -d "" event; do
+            echo "Change detected: $event"
+            # Cuando se detecte un cambio, ejecutar rsync
+            echo "Synchronizing $directory with ${podname}:/home..."
+            if ! $krsync_path -av -r --delete --progress --stats "$directory" "${podname}:${namespace}:/home"; then
+                echo "Error: Failed to synchronize $directory with ${podname}:${namespace}:/home."
+            else
+                echo "Synchronization completed."
+            fi
+        done
+
+        # Esperar 5 segundos antes de la próxima ejecución
+        echo "Waiting for 5 seconds before the next check..."
+        sleep 5
+    done
+}
+
+# Ejecutar la función de refresco
+refresh

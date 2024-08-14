@@ -1,0 +1,106 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-try-msync
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: openebs-standard
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-ssl-secret
+  namespace: default
+type: kubernetes.io/tls
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUVCVENDQXUyZ0F3SUJBZ0lVU1E1K21OUHVidmR2TXhIeEk1V0VoeGt6d080d0RRWUpLb1pJaHZjTkFRRUwKQlFBd2daRXhDekFKQmdOVkJBWVRBbEJGTVEwd0N3WURWUVFJREFSTWFXMWhNUTB3Q3dZRFZRUUhEQVJNYVcxaApNUkF3RGdZRFZRUUtEQWRYYVhOemRtVnlNUkF3RGdZRFZRUUxEQWRYYVhOemRtVnlNUkF3RGdZRFZRUUREQWRYCmFYTnpkbVZ5TVM0d0xBWUpLb1pJaHZjTkFRa0JGaDlrWlhabGJHOXdaWEp6UUdSbGRtVnliRzl3WlhKekxYQmwKY25VdVkyOXRNQjRYRFRJME1EZ3hNVEU1TlRBek5sb1hEVEkzTURZd01URTVOVEF6Tmxvd2daRXhDekFKQmdOVgpCQVlUQWxCRk1RMHdDd1lEVlFRSURBUk1hVzFoTVEwd0N3WURWUVFIREFSTWFXMWhNUkF3RGdZRFZRUUtEQWRYCmFYTnpkbVZ5TVJBd0RnWURWUVFMREFkWGFYTnpkbVZ5TVJBd0RnWURWUVFEREFkWGFYTnpkbVZ5TVM0d0xBWUoKS29aSWh2Y05BUWtCRmg5a1pYWmxiRzl3WlhKelFHUmxkbVZ5Ykc5d1pYSnpMWEJsY25VdVkyOXRNSUlCSWpBTgpCZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUFvMk5EbDgzVHVzdVpEcUZHTXZyZlQ5MWRjYkNsCk9mK1FHdy8zRU9SaTE4OWtaSDNGWldGVktMM1hHczZ2RVg3aHIvQTU4em0wdGFwT0h6MkwxNXY3eFBTRGtJZ1UKMXVXYzZuR3FyUW1ORWZpL0xmc01KaG1LL0hoS244MHd3WnFpMEJmcGo3KzBBZmJIOTRLeXgxWVpnZHJTMUZCagp2aUxRVlFTb3JzdHZhRjhOcEhIY1lIY3FsOEVMMklMQTFtK0lyU1dhZU5QakRzTEtvYnpxT1NFOCtSSlF4d2w1ClRnVm9peUMxV3FBdHFiTG85M0dBN3RQT1pjRUNtVEZqRkNRUjZKN0ZMb1l4Q0ZWMjUrS1U5eGF0ZW9aSjYraXIKU0wxbWcvM0NkNVpTTk5IMzdGVXBxZGVJdmd6Umx4SnlIUDNLUndWQ3dRTFpYbWxwcUpyUUpKdm5sUUlEQVFBQgpvMU13VVRBZEJnTlZIUTRFRmdRVW5tRFRBcGVNTjFZV1lCeXhrd2dRVUhmZFp3a3dId1lEVlIwakJCZ3dGb0FVCm5tRFRBcGVNTjFZV1lCeXhrd2dRVUhmZFp3a3dEd1lEVlIwVEFRSC9CQVV3QXdFQi96QU5CZ2txaGtpRzl3MEIKQVFzRkFBT0NBUUVBVXQ2eVlYbGtmZHh5bFc4RnhUbmc4bEhQWHdaMkxoT2pTRDZTWDB3VkNLMU1qdXlkblFVMAptQlRjOWRXeWgwa1EwSW10THBaQysxcXIybXNESGt0YUUrd1MxWEt3YWUwQ0doYkRsbjZQN3RYbjF1OXQ2czhsCmdReEs5RjlxVzJ4c1kxVzNDYkpCSkN2VXVjVUY5Ni9JTXBuanFtbVlGYkJkSFd1djg5RlR1MHhWUXdLQysyTmkKajJFUkEzM2xyOTRIMUxKdzNndm8vWWg1R2MvNS8rRFNBTC9FYk1SYTcwQ0xFaFVScWEzV1ViTlljYXJadUtzagpmSXdXSlJGTHJOK1NHMVVrTzg4YjF2TkhENDY1T1ZNV0ZBYlFQVGlnSkIxaEhGblFHYXFjN3c5V1pjb3lPbGRnCjM1bm1ES0FEYnkvWG1FTXUyeS9kUzc3akdwSEd3OWgzckE9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0t
+  tls.key: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSUV2QUlCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQktZd2dnU2lBZ0VBQW9JQkFRQ2pZME9YemRPNnk1a08Kb1VZeSt0OVAzVjF4c0tVNS81QWJEL2NRNUdMWHoyUmtmY1ZsWVZVb3ZkY2F6cThSZnVHdjhEbnpPYlMxcWs0ZgpQWXZYbS92RTlJT1FpQlRXNVp6cWNhcXRDWTBSK0w4dCt3d21HWXI4ZUVxZnpUREJtcUxRRittUHY3UUI5c2YzCmdyTEhWaG1CMnRMVVVHTytJdEJWQktpdXkyOW9YdzJrY2R4Z2R5cVh3UXZZZ3NEV2I0aXRKWnA0MCtNT3dzcWgKdk9vNUlUejVFbERIQ1hsT0JXaUxJTFZhb0MycHN1ajNjWUR1MDg1bHdRS1pNV01VSkJIb25zVXVoakVJVlhibgo0cFQzRnExNmhrbnI2S3RJdldhRC9jSjNsbEkwMGZmc1ZTbXAxNGkrRE5HWEVuSWMvY3BIQlVMQkF0bGVhV21vCm10QWttK2VWQWdNQkFBRUNnZ0VBRWlYeStwZ210ZjlxYTFrWGtvOFNJZTFkTlVVaFBTMTVaTUFqdWRFY2Q0czIKUkFGQ1hVM3Y1eHdiR2dPdUozdlg5ckp3eFdiNS94bkJIckEzNmNXT05DVFN2a21YUXYxekxnbGRJMlpGc0tMWQpIWFBldUJhclBQcmhreGw0R25FaU40b0lhK3FueEhZVVpSWXo1SGRZVXZlcTVtRmRpdCtVRTNWMmhSL2NxcE9DCnQ1KzRzbDBxNjl0bkRmTTNURmNHUlI4MGwvV0Y2U0E3NGpPUFRTZGw5MXZ6bkRUTDQwaXcvcHJHOUNEQnhMSzIKdjhsOTFLdnJZUkpNSEhuUGV2aXNjL2lFZEthZ3ZNMzZRRjVkRFlTNjQzcTNyTmxVZ1V3YXhsUWtpaHJwblhjbQpOaUhpaktUTnBENHN0TkdtQmIvMFFQQmNsWW85U2xnWkFvc2lndUtHdXdLQmdRRGVzU3dBNERrQ3BRc2dTcGxzCjlFQjUvbWp5OXlSeThQbVV2SmJCTUxrNFNJODRDY0FEOFprZWtZVWVOSWdBWG9Bcm5xN3hvb1dPQ3RkdGk1Rk0KRHdzSXE1VXhRaVlTVmw5K0paUWtJWnl2R05LSWZmQ3BCY0E3VURFWjJMZWdpYVgvRGNieUJBV0xORXQwcDZzawpkRGhDL2d5YXh1RVRncWFJUzRsYTFBNktBd0tCZ1FDNzAxZmFEbHZCd0UzNEJyeVJrSjZmSUh4NzdiY0o1Y0pzClJCWEZzZ2ROM1EzbklXVFF0SU9oVm5DVUxqWHVuQlZnZUZCcm1QcWpzL01mckVSL2xHOGcwQ0FmWkFkekdWUFEKUlBMZU5Vd2ZDMjdraGk1bWJsMG52Wjl3TDU2M2tEM3Z0MG0waG8vUUs3VDhacnNxVFZyck4yKzJ6YlJObm1GNAo0RzRzdnhCZ2h3S0JnRGJxOW5FWTJyWmVRVW9yVzM3VkZYbUFWaDFrK1dZbkswV1U1SkNzRldGZDg0UGNVN0FsClNwK1JQNFRkYTVTN3VWd0lmQmcyL2p5elM4RkdKQVRmeU5iUWliQm1JY0Z2NzRqS2Q2Z1phZXg4Y0o4Y2Y5Y1AKQmdNYW1hRklJckRDZ1Y5TzVIc1dwczlYakN3dWxUUWVQU200UVIrQ1lFdFJjd1Exckovcm45SkZBb0dBVHh5UgpvRkx6NndQbzAxTmpFWnpzY3ZIbi9Qci9ZYmZZMEdsTkVsd09ING5BVlY0SGJMRGIwSlRzRGozNGtXeEV4TUZvCmZpbU5TRzUvTlJRR05nWjdXRUxSaE9kSkMvM2JBNXBIQWJsSk9ycENGeGM5YS8rSVZUalZjeGRicnMyZWlOMlcKdWVjRHBCY0V3RnMwOG5ocWx6QmVhWXp6S001UkYrelAreUR1OFBrQ2dZQWJuWVFaOEwycGgrRDVBYjRadDQ4WgpyWHQxdDA1MEx1c1FJUUFSVmhsSndlcmEwZzdkTjArWjdPZEw2YnJUek45SHRKYjM1cE1ZSnM4VmR4VHJXQU1iCjFFbCtVRHpBTVdFQVhtR2Qyams0UzdNUmtvTFRwcWR2eDlwTDJiZUdZVGtrSXRoNW9oRDV3d3ZPUStxK3hjelQKZDU2d2Z0enBMOTJSTk00TW5qSzB0QT09Ci0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0=
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: default
+data:
+  nginx.conf: |
+    events { }
+
+    http {
+        server {
+            listen 3000;  # Expose this port externally for the HTTP application
+
+            location / {
+                proxy_pass http://127.0.0.1:3001;  # Forward to the internal application server
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+            }
+        }
+    }
+
+    stream {
+        server {
+            listen 6060;  # Expose this port externally for msync TCP
+
+            proxy_pass 127.0.0.1:6062;  # Forward to the internal msync server
+        }
+    }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-try-msync
+  namespace: default
+  labels:
+    app: pod-try-msync
+spec:
+  volumes:
+    - name: data-storage
+      persistentVolumeClaim:
+        claimName: pvc-try-msync
+    - name: nginx-config
+      configMap:
+        name: nginx-config
+  containers:
+    - name: nginx-proxy
+      image: nginx:alpine
+      ports:
+        - containerPort: 3000  # Exposing HTTP for the application
+        - containerPort: 6060  # Exposing HTTP for msync
+      volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+        - name: data-storage
+          mountPath: /mnt/data
+      command: [ "nginx", "-g", "daemon off;" ]
+
+    - name: application-container
+      image: jackt72xp/multims:nodejsv25 
+      ports:
+        - containerPort: 3001 # Internal port for the application
+      volumeMounts:
+        - mountPath: /mnt/data
+          name: data-storage
+      stdin: true
+      tty: true
+      command: ["/bin/bash"]
+      args: ["-c", "tail -f /dev/null"]  # Keep the container running for interactive access
+
+    - name: msync-container
+      image: jackt72xp/multims:initv14
+      ports:
+        - containerPort: 6062 # Internal port for msync
+      volumeMounts:
+        - mountPath: /mnt/data
+          name: data-storage
+      command: ["/usr/local/bin/msync"]
+      args: ["-mode=server", "-port=6062", "-directory=/mnt/data"] # No TLS arguments needed
+  restartPolicy: Never
+  terminationGracePeriodSeconds: 30

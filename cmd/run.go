@@ -27,9 +27,9 @@ func run(cmd *cobra.Command, args []string) {
 		fmt.Println("Running in multi-service mode.")
 	case "onlyoneservice":
 		// El código para manejar onlyoneservice aquí
-		operations.OnlyOneServiceHandler()
+		operations.OnlyOneServiceHandlerV2()
 	default:
 		fmt.Println("Unexpected type value. Running default single-service mode.")
-		operations.OnlyOneServiceHandler() // Aquí puedes reutilizar la misma función para manejar onlyoneservice
+		operations.OnlyOneServiceHandlerV2() // Aquí puedes reutilizar la misma función para manejar onlyoneservice
 	}
 }

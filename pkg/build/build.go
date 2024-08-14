@@ -1,10 +1,10 @@
-// pkg/build/build.go
 package build
 
 import (
 	"embed"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"text/template"
@@ -24,28 +24,86 @@ type ServiceConfig struct {
 	Port  int    // Puerto del servicio
 }
 
-// Define la estructura Config con la propiedad MultiServices
-// type Config struct {
-// 	KubernetesContext string          // Otros campos existentes
-// }
-
 type AppInfo struct {
 	StartRun string `yaml:"start_run"`
 	Port     int    `yaml:"port"`
-	// Este campo es ahora parte de una subestructura
 }
+
+// RegistryConfig represents the registry-specific configuration
+type RegistryConfig struct {
+	Provider string
+	Image    string
+}
+
 type Config struct {
-	KubernetesContext    string          `yaml:"kubernetesContext"`
 	RegistryOrDocker     string          `yaml:"registryOrDocker"`
-	RegistryURL          string          `yaml:"registry"`
+	Registry             RegistryConfig  `yaml:"registry"`
 	Technology           string          `yaml:"technology"`
+	KubernetesContext    string          `yaml:"kubernetesContext"`
 	Namespace            string          `yaml:"namespace"`
 	UseDefaultKubeConfig bool            `yaml:"useDefaultKubeConfig"`
 	KubeConfigPath       string          `yaml:"kubeConfigPath"`
 	UID                  string          `yaml:"uid"`
 	AppName              string          `yaml:"appName"`
-	Application          AppInfo         `yaml:"application"` // Cambiado para reflejar la jerarquía
-	MultiServices        []ServiceConfig // Slice de servicios
+	Application          AppInfo         `yaml:"application"`
+	Multiservices        []ServiceConfig `yaml:"multiservices"`
+	RegistryURL          string          `yaml:"registryURL"`
+}
+
+const multimsTemplate = `kubernetesContext: {{.KubernetesContext}}
+registryOrDocker: CustomImageMultiMS
+registry: 
+  provider: {{.Registry.Provider}}
+  image: {{.Registry.Image}}
+technology: {{.Technology}}
+namespace: {{.Namespace}}
+useDefaultKubeConfig: {{.UseDefaultKubeConfig}}
+kubeConfigPath: {{.KubeConfigPath}}
+uid: {{.UID}}
+appName: {{.AppName}}
+application:
+  start_run: {{.Application.StartRun}}
+  port: {{.Application.Port}}
+multiservices: []
+registryURL: {{.RegistryURL}}
+`
+
+// SaveCustomImageConfigToFile saves the configuration to a multims.yml file
+func SaveCustomImageConfigToFile(technology, image, kubernetesContext, namespace string, useDefaultKubeConfig bool, kubeConfigPath, appName, startRun string, port int) {
+	config := Config{
+		Technology:           technology,
+		KubernetesContext:    kubernetesContext,
+		Namespace:            namespace,
+		UseDefaultKubeConfig: useDefaultKubeConfig,
+		KubeConfigPath:       kubeConfigPath,
+		AppName:              appName,
+		Application: AppInfo{
+			StartRun: startRun,
+			Port:     port,
+		},
+		Registry: RegistryConfig{
+			Provider: "CustomImageMultiMS",
+			Image:    image,
+		},
+	}
+
+	tmpl, err := template.New("multims").Parse(multimsTemplate)
+	if err != nil {
+		log.Fatalf("Failed to parse template: %v", err)
+	}
+
+	file, err := os.Create("multims.yml")
+	if err != nil {
+		log.Fatalf("Failed to create multims.yml: %v", err)
+	}
+	defer file.Close()
+
+	err = tmpl.Execute(file, config)
+	if err != nil {
+		log.Fatalf("Failed to execute template: %v", err)
+	}
+
+	fmt.Println("multims.yml configuration file generated successfully.")
 }
 
 func getCurrentDirectory() string {
@@ -70,8 +128,6 @@ func SaveConfigToFile(technology, registry, context, namespace string, useDefaul
 	uid := uuid.New().String()
 	config := Config{
 		KubernetesContext:    context,
-		RegistryOrDocker:     ecr_docker,
-		RegistryURL:          registry,
 		Technology:           technology,
 		Namespace:            namespace,
 		UseDefaultKubeConfig: useDefault,
@@ -82,7 +138,8 @@ func SaveConfigToFile(technology, registry, context, namespace string, useDefaul
 			StartRun: input,
 			Port:     port,
 		},
-		MultiServices: []ServiceConfig{},
+		Multiservices: []ServiceConfig{},
+		RegistryURL:   registry,
 	}
 	configData, err := yaml.Marshal(config)
 	if err != nil {

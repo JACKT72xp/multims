@@ -1,0 +1,21 @@
+# Deployment.yaml.template
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: 192c16b5-dd3b-4630-8d6b-bc54a6260aa6-nodejs-app
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nodejs-app
+  template:
+    metadata:
+      labels:
+        app: nodejs-app
+    spec:
+      containers:
+      - name: nodejs
+        image: 218347415817.dkr.ecr.us-east-1.amazonaws.com/nodejs-image:latest
+        ports:
+        - containerPort: 3000

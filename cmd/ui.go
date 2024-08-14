@@ -28,9 +28,43 @@ var (
 	db               *sql.DB
 )
 
-// Función para eliminar la tabla portforwardsv4
+type Session struct {
+	ID        int       `json:"id"`
+	Host      string    `json:"host"`
+	Port      int       `json:"port"`
+	LocalPort int       `json:"localPort"`
+	PodName   string    `json:"podName"`
+	Namespace string    `json:"namespace"`
+	StartedAt time.Time `json:"startedAt"`
+	Status    string    `json:"status"`
+}
+
+func checkPodStatus(podName, namespace, context string) (string, error) {
+	cmd := exec.Command("kubectl", "get", "pod", podName, "-n", namespace, "--context", context, "-o", "jsonpath={.status.phase}")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		if len(output) > 0 && string(output) == "NotFound" {
+			return "NOT_INITIALIZED", nil
+		}
+		return "", fmt.Errorf("failed to get pod status: %v - %s", err, output)
+	}
+
+	podStatus := string(output)
+	if podStatus == "Running" {
+		return "STOPPED", nil
+	}
+	return "NOT_INITIALIZED", nil
+}
+
+func checkPortForwardStatus(localPort int) bool {
+	cmd := exec.Command("lsof", "-i", fmt.Sprintf(":%d", localPort))
+	output, err := cmd.CombinedOutput()
+	return err == nil && len(output) > 0
+}
+
+// Función para eliminar la tabla portforwardsv5
 func deleteTableHandler(w http.ResponseWriter, r *http.Request) {
-	_, err := db.Exec("DROP TABLE IF EXISTS portforwardsv4")
+	_, err := db.Exec("DROP TABLE IF EXISTS portforwardsv5")
 	if err != nil {
 		log.Printf("Failed to delete table: %v", err)
 		http.Error(w, "Failed to delete table", http.StatusInternalServerError)
@@ -43,13 +77,13 @@ func deleteTableHandler(w http.ResponseWriter, r *http.Request) {
 
 func initDB() {
 	var err error
-	db, err = sql.Open("sqlite3", "./portforwardsv4.db")
+	db, err = sql.Open("sqlite3", "./portforwardsv5.db")
 	if err != nil {
 		log.Fatalf("Failed to open database: %v", err)
 	}
 
 	sqlStmt := `
-		CREATE TABLE IF NOT EXISTS portforwardsv4 (
+		CREATE TABLE IF NOT EXISTS portforwardsv5 (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             host TEXT NOT NULL,
             port INTEGER NOT NULL,
@@ -57,7 +91,8 @@ func initDB() {
             podName TEXT NOT NULL,
             pid INTEGER,
             status TEXT NOT NULL,
-            namespace TEXT NOT NULL
+            namespace TEXT NOT NULL,
+			startedAt DATETIME DEFAULT CURRENT_TIMESTAMP
         );
 	`
 	_, err = db.Exec(sqlStmt)
@@ -105,6 +140,8 @@ func StartUIServer() {
 	http.HandleFunc("/api/register-external-port-forward", registerExternalPortForwardHandler)
 	http.HandleFunc("/ws", handleWebSocket)
 	http.HandleFunc("/api/load-kube-config-default", loadKubeConfigDefaultHandler)
+	http.HandleFunc("/api/check-port-forward", checkPortForwardHandler)
+	http.HandleFunc("/api/check-pod", checkPodHandler)
 
 	// Catch-all handler to serve index.html for any non-asset route
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -278,7 +315,7 @@ func startPortForwardHandler(w http.ResponseWriter, r *http.Request) {
 		portForwardMutex.Unlock()
 	}()
 
-	_, err := db.Exec("INSERT INTO portforwardsv4 (host, port, localPort, pid, status) VALUES (?, ?, ?, ?, ?)", req.Service, req.LocalPort, req.LocalPort, pid, "running")
+	_, err := db.Exec("INSERT INTO portforwardsv5 (host, port, localPort, pid, status) VALUES (?, ?, ?, ?, ?)", req.Service, req.LocalPort, req.LocalPort, pid, "running")
 	if err != nil {
 		log.Printf("Failed to insert record into database: %v", err)
 		http.Error(w, "Failed to record session in database", http.StatusInternalServerError)
@@ -305,7 +342,7 @@ func stopPortForwardHandler(w http.ResponseWriter, r *http.Request) {
 
 	if !exists {
 		var pid int
-		err := db.QueryRow("SELECT pid FROM portforwardsv4 WHERE host = ? AND localPort = ?", req.Service, req.LocalPort).Scan(&pid)
+		err := db.QueryRow("SELECT pid FROM portforwardsv5 WHERE host = ? AND localPort = ?", req.Service, req.LocalPort).Scan(&pid)
 		if err != nil {
 			http.Error(w, "Port forward not found", http.StatusNotFound)
 			return
@@ -320,7 +357,7 @@ func stopPortForwardHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		_, err = db.Exec("DELETE FROM portforwardsv4 WHERE host = ? AND localPort = ?", req.Service, req.LocalPort)
+		_, err = db.Exec("DELETE FROM portforwardsv5 WHERE host = ? AND localPort = ?", req.Service, req.LocalPort)
 		if err != nil {
 			log.Printf("Failed to delete record from database: %v", err)
 			http.Error(w, "Failed to delete session from database", http.StatusInternalServerError)
@@ -340,7 +377,7 @@ func stopPortForwardHandler(w http.ResponseWriter, r *http.Request) {
 	delete(portForwardCmds, key)
 	portForwardMutex.Unlock()
 
-	_, err := db.Exec("UPDATE portforwardsv4 SET status = ? WHERE host = ? AND localPort = ?", "stopped", req.Service, req.LocalPort)
+	_, err := db.Exec("UPDATE portforwardsv5 SET status = ? WHERE host = ? AND localPort = ?", "stopped", req.Service, req.LocalPort)
 	if err != nil {
 		log.Printf("Failed to update record in database: %v", err)
 		http.Error(w, "Failed to update session in database", http.StatusInternalServerError)
@@ -551,11 +588,18 @@ func validateExternalServiceHandler(w http.ResponseWriter, r *http.Request) {
 		Port        int    `json:"port"`
 		Context     string `json:"context"`
 		ClusterName string `json:"clusterName"`
-		Kubeconfig  string `json:"kubeconfig"` // Añadir ruta del kubeconfig si es proporcionado
+		Kubeconfig  string `json:"kubeconfig"`
+		Namespace   string `json:"namespace"` // Añadir ruta del kubeconfig si es proporcionado
 	}
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
+	}
+
+	// Set default namespace if not provided
+	if req.Namespace == "" {
+		req.Namespace = "default"
 	}
 
 	// Usar kubeconfig proporcionado o el predeterminado
@@ -593,7 +637,7 @@ func validateExternalServiceHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Ejecutar el comando kubectl usando el archivo temporal de kubeconfig
-	cmd = exec.Command("kubectl", "--kubeconfig", tmpFile.Name(), "run", "--rm", "-i", "temp-pod", "--image=busybox", "--restart=Never", "--", "sh", "-c", fmt.Sprintf("nc -zv %s %d", req.Host, req.Port))
+	cmd = exec.Command("kubectl", "--kubeconfig", tmpFile.Name(), "run", "-n", req.Namespace, "--rm", "-i", "temp-pod", "--image=busybox", "--restart=Never", "--", "sh", "-c", fmt.Sprintf("nc -zv %s %d", req.Host, req.Port))
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Printf("Failed to validate external service: %v - %s", err, string(stdoutStderr))
@@ -725,7 +769,7 @@ func registerExternalPortForwardHandler(w http.ResponseWriter, r *http.Request) 
 	podUUID := uuid.New().String()
 	podName := fmt.Sprintf("temp-pod-forward-%s", podUUID)
 
-	_, err := db.Exec("INSERT INTO portforwardsv4 (host, port, localPort, podName, status) VALUES (?, ?, ?, ?, ?)", req.Host, req.Port, req.LocalPort, podName, "registered")
+	_, err := db.Exec("INSERT INTO portforwardsv5 (host, port, localPort, podName, status) VALUES (?, ?, ?, ?, ?)", req.Host, req.Port, req.LocalPort, podName, "registered")
 	if err != nil {
 		log.Printf("Failed to insert record into database: %v", err)
 		http.Error(w, "Failed to record session in database", http.StatusInternalServerError)
@@ -768,7 +812,7 @@ func startExternalPortForwardHandler(w http.ResponseWriter, r *http.Request) {
 	podName := fmt.Sprintf("external-port-%s", podUUID[:8])
 
 	// Insert the podName into the database without pid
-	_, err := db.Exec("INSERT INTO portforwardsv4 (host, port, localPort, podName, namespace, status) VALUES (?, ?, ?, ?, ?, ?)", req.Host, req.Port, req.LocalPort, podName, req.Namespace, "pending")
+	_, err := db.Exec("INSERT INTO portforwardsv5 (host, port, localPort, podName, namespace, status) VALUES (?, ?, ?, ?, ?, ?)", req.Host, req.Port, req.LocalPort, podName, req.Namespace, "pending")
 	if err != nil {
 		log.Printf("Failed to insert record into database: %v", err)
 		http.Error(w, "Failed to insert pod name into database", http.StatusInternalServerError)
@@ -842,7 +886,7 @@ func stopExternalPortForwardHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var pid int
-	err := db.QueryRow("SELECT pid FROM portforwardsv4 WHERE host = ? AND localPort = ?", req.Host, req.LocalPort).Scan(&pid)
+	err := db.QueryRow("SELECT pid FROM portforwardsv5 WHERE host = ? AND localPort = ?", req.Host, req.LocalPort).Scan(&pid)
 	if err != nil {
 		log.Printf("Failed to query pid from database: %v", err)
 		http.Error(w, "Failed to query pid from database", http.StatusInternalServerError)
@@ -877,7 +921,7 @@ func stopExternalPortForwardHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	_, err = db.Exec("UPDATE portforwardsv4 SET status = ? WHERE host = ? AND localPort = ?", "stopped", req.Host, req.LocalPort)
+	_, err = db.Exec("UPDATE portforwardsv5 SET status = ? WHERE host = ? AND localPort = ?", "stopped", req.Host, req.LocalPort)
 	if err != nil {
 		log.Printf("Failed to update record in database: %v", err)
 		http.Error(w, "Failed to update session in database", http.StatusInternalServerError)
@@ -909,7 +953,7 @@ func deleteExternalPortForwardHandler(w http.ResponseWriter, r *http.Request) {
 
 	var podName string
 	var pid sql.NullInt64
-	err := db.QueryRow("SELECT podName, pid, namespace FROM portforwardsv4 WHERE host = ? AND localPort = ?", req.Host, req.LocalPort).Scan(&podName, &pid, &req.Namespace)
+	err := db.QueryRow("SELECT podName, pid, namespace FROM portforwardsv5 WHERE host = ? AND localPort = ?", req.Host, req.LocalPort).Scan(&podName, &pid, &req.Namespace)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Printf("No rows found for host %s and localPort %d, using provided podName: %s", req.Host, req.LocalPort, req.PodName)
@@ -959,7 +1003,7 @@ func deleteExternalPortForwardHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	_, err = db.Exec("DELETE FROM portforwardsv4 WHERE host = ? AND localPort = ?", req.Host, req.LocalPort)
+	_, err = db.Exec("DELETE FROM portforwardsv5 WHERE host = ? AND localPort = ?", req.Host, req.LocalPort)
 	if err != nil {
 		log.Printf("Failed to delete record from database: %v", err)
 		http.Error(w, "Failed to delete session from database", http.StatusInternalServerError)
@@ -990,34 +1034,40 @@ func deleteExternalPortForwardHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getSessionsHandler(w http.ResponseWriter, r *http.Request) {
-	rows, err := db.Query("SELECT id, host, port, localPort, podName, startedAt, status FROM portforwardsv4")
+	rows, err := db.Query("SELECT id, host, port, localPort, podName, namespace, status FROM portforwardsv5")
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to query sessions: %v", err), http.StatusInternalServerError)
 		return
 	}
 	defer rows.Close()
 
-	var sessions []map[string]interface{}
+	var sessions []Session
 	for rows.Next() {
-		var id int
-		var host, podName, status string
-		var port, localPort int
-		var startedAt time.Time
-
-		if err := rows.Scan(&id, &host, &port, &localPort, &podName, &startedAt, &status); err != nil {
+		var session Session
+		if err := rows.Scan(&session.ID, &session.Host, &session.Port, &session.LocalPort, &session.PodName, &session.Namespace, &session.Status); err != nil {
 			http.Error(w, fmt.Sprintf("Failed to scan session: %v", err), http.StatusInternalServerError)
 			return
 		}
 
-		session := map[string]interface{}{
-			"id":        id,
-			"host":      host,
-			"port":      port,
-			"localPort": localPort,
-			"podName":   podName,
-			"startedAt": startedAt,
-			"status":    status,
+		// Check port forward status
+		portForwardActive := checkPortForwardStatus(session.LocalPort)
+
+		// Check pod status
+		podStatus, err := checkPodStatus(session.PodName, session.Namespace, session.Status)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Failed to check pod status: %v", err), http.StatusInternalServerError)
+			return
 		}
+
+		// Update session status based on checks
+		if !portForwardActive {
+			if podStatus == "Running" {
+				session.Status = "STOPPED"
+			} else {
+				session.Status = "NOT_INITIALIZED"
+			}
+		}
+
 		sessions = append(sessions, session)
 	}
 
@@ -1025,4 +1075,42 @@ func getSessionsHandler(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(sessions); err != nil {
 		http.Error(w, fmt.Sprintf("Failed to encode sessions: %v", err), http.StatusInternalServerError)
 	}
+}
+
+func checkPortForwardHandler(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		LocalPort int `json:"localPort"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	cmd := exec.Command("lsof", "-i", fmt.Sprintf(":%d", req.LocalPort))
+	output, err := cmd.CombinedOutput()
+	active := err == nil && len(output) > 0
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]bool{"active": active})
+}
+
+func checkPodHandler(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		PodName   string `json:"podName"`
+		Namespace string `json:"namespace"`
+		Context   string `json:"context"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	cmd := exec.Command("kubectl", "get", "pod", req.PodName, "-n", req.Namespace, "--context", req.Context)
+	output, err := cmd.CombinedOutput()
+	exists := err == nil && len(output) > 0
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]bool{"exists": exists})
 }

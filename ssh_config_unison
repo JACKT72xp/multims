@@ -1,0 +1,6 @@
+Host pod-unison
+    HostName 127.0.0.1
+    User root
+    IdentityFile ~/.ssh/unison_rsa
+    StrictHostKeyChecking no
+    ProxyCommand kubectl exec -i -n default pod-192c16b5-dd3b-4630-8d6b-bc54a6260bb6 -- nc %h %p

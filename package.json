@@ -1,6 +1,6 @@
 {
   "name": "multims",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "demov2ss",
   "main": "index.js",
   "scripts": {
@@ -12,6 +12,7 @@
   "dependencies": {
     "bootstrap": "^5.3.3",
     "bootstrap-vue": "^2.23.1",
+    "express": "^4.19.2",
     "navigo": "^8.11.1",
     "vue": "^3.4.31",
     "vue-router": "^4.4.0",

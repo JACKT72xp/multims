@@ -1,0 +1,19 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: openebs-cstor-admission-webhook-cfg
+webhooks:
+  - name: admission-webhook.cstor.openebs.io
+    clientConfig:
+      service:
+        name: openebs-cstor-admission-server
+        namespace: storage
+        path: /validate
+      caBundle: Cg== # Reemplaza con el CA Bundle correcto
+    rules:
+      - operations: ["CREATE", "UPDATE"]
+        apiGroups: ["openebs.io"]
+        apiVersions: ["v1"]
+        resources: ["cstorvolumepolicies", "cstorvolumereplicas", "cstorvolumes"]
+    admissionReviewVersions: ["v1", "v1beta1"]
+    sideEffects: None
