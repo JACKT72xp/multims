@@ -25,13 +25,19 @@ func main() {
 	if *excludes != "" {
 		excludePatterns = append(excludePatterns, *excludes)
 	}
+	stateFile := "sync_state.json" // Path to store the sync state
 
 	switch *mode {
 	case "client":
 		if *directory == "" {
 			log.Fatal("You must specify a directory to sync in client mode")
 		}
-		client.RunClient(*directory, *address, *port, excludePatterns, *useTLS, "server.crt")
+		client.RunClient(*directory, *address, *port, stateFile, excludePatterns)
+	case "autoclient":
+		if *directory == "" {
+			log.Fatal("You must specify a directory to sync in autoclient mode")
+		}
+		client.AutoClient(*directory, *address, *port, stateFile, excludePatterns)
 	case "server":
 		if *directory == "" {
 			log.Fatal("You must specify a target directory in server mode")
@@ -44,6 +50,17 @@ func main() {
 		} else {
 			server.StartServer(*port, *directory)
 		}
+	case "clientHttp":
+		if *directory == "" {
+			log.Fatal("You must specify a directory to sync in clientHttp mode")
+		}
+		stateFile := "sync_state.json" // Ruta del archivo para almacenar el estado de sincronización
+		client.RunClientHTTP(*directory, *address, *port, stateFile, excludePatterns)
+	case "serverHttp":
+		if *directory == "" {
+			log.Fatal("You must specify a target directory in serverHttp mode")
+		}
+		server.StartServerHTTP(*port, *directory)
 	default:
 		log.Fatalf("Unknown mode: %s", *mode)
 	}

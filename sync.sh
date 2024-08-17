@@ -6,7 +6,7 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-# Ruta relativa del directorio que quieres sincronizar
+# Ruta relativa del directorio que quieres sincronizar v2
 DIRECTORY_TO_SYNC="$1"
 ADDRESS="localhost"
 PORT=6060

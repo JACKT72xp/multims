@@ -1,23 +1,22 @@
 package operations
 
 import (
-	"bytes"
 	"context"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"log"
 	kong "multims/pkg/build"
 	"multims/pkg/client"
 	"multims/pkg/config"
 	"multims/pkg/container"
-	"net"
 	"net/http"
 	"os"
 	"os/exec"
 	"os/signal"
 	"path/filepath"
-	"runtime"
+	"strconv"
 	"strings"
-	"sync"
 	"syscall"
 	"time"
 
@@ -37,71 +36,71 @@ import (
 )
 
 // Función para generar el YAML del PVC
-func generatePVCYAML(namespace, uid string) string {
-	return fmt.Sprintf(`
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: pvc-%s
-  namespace: %s
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 2Gi
-  storageClassName: openebs-standard
-`, uid, namespace)
-}
+// func generatePVCYAML(namespace, uid string) string {
+// 	return fmt.Sprintf(`
+// apiVersion: v1
+// kind: PersistentVolumeClaim
+// metadata:
+//   name: pvc-%s
+//   namespace: %s
+// spec:
+//   accessModes:
+//     - ReadWriteOnce
+//   resources:
+//     requests:
+//       storage: 2Gi
+//   storageClassName: openebs-standard
+// `, uid, namespace)
+// }
 
-func generatePodYAMLWithInteractiveCommand(conf *config.Config) string {
-	image := conf.Registry.Image
-	uid := conf.UID
+// func generatePodYAMLWithInteractiveCommand(conf *config.Config) string {
+// 	image := conf.Registry.Image
+// 	uid := conf.UID
 
-	podYAML := fmt.Sprintf(`
-apiVersion: v1
-kind: Pod
-metadata:
-  name: pod-%s
-  namespace: %s
-  labels:
-    app: pod-%s
-spec:
-  restartPolicy: Never
-  terminationGracePeriodSeconds: 30
-  containers:
-  - name: %s
-    image: %s
-    ports:
-    - containerPort: %d
-    - containerPort: 6060 # Exponer puerto para msync
-    stdin: true
-    tty: true
-    volumeMounts:
-    - mountPath: /mnt/data
-      name: data-storage
-  volumes:
-  - name: data-storage
-    persistentVolumeClaim:
-      claimName: pvc-%s
-`, uid, conf.Namespace, uid, conf.AppName, image, conf.Application.Port, uid)
+// 	podYAML := fmt.Sprintf(`
+// apiVersion: v1
+// kind: Pod
+// metadata:
+//   name: pod-%s
+//   namespace: %s
+//   labels:
+//     app: pod-%s
+// spec:
+//   restartPolicy: Never
+//   terminationGracePeriodSeconds: 30
+//   containers:
+//   - name: %s
+//     image: %s
+//     ports:
+//     - containerPort: %d
+//     - containerPort: 6060 # Exponer puerto para msync
+//     stdin: true
+//     tty: true
+//     volumeMounts:
+//     - mountPath: /mnt/data
+//       name: data-storage
+//   volumes:
+//   - name: data-storage
+//     persistentVolumeClaim:
+//       claimName: pvc-%s
+// `, uid, conf.Namespace, uid, conf.AppName, image, conf.Application.Port, uid)
 
-	return podYAML
-}
+// 	return podYAML
+// }
 
-// Función para crear un recurso en Kubernetes
-func createResource(resourceYAML string) error {
-	// Utilizar la API de Kubernetes para aplicar el YAML
-	cmd := exec.Command("kubectl", "apply", "-f", "-")
-	cmd.Stdin = strings.NewReader(resourceYAML)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Printf("Failed to apply resource: %s\nError: %v", string(output), err)
-		return err
-	}
-	log.Printf("Successfully applied resource: %s\nOutput: %s", resourceYAML, string(output))
-	return nil
-}
+// // Función para crear un recurso en Kubernetes
+// func createResource(resourceYAML string) error {
+// 	// Utilizar la API de Kubernetes para aplicar el YAML
+// 	cmd := exec.Command("kubectl", "apply", "-f", "-")
+// 	cmd.Stdin = strings.NewReader(resourceYAML)
+// 	output, err := cmd.CombinedOutput()
+// 	if err != nil {
+// 		log.Printf("Failed to apply resource: %s\nError: %v", string(output), err)
+// 		return err
+// 	}
+// 	log.Printf("Successfully applied resource: %s\nOutput: %s", resourceYAML, string(output))
+// 	return nil
+// }
 
 // prepareKubernetesClient configura el cliente de Kubernetes usando el contexto especificado
 func prepareKubernetesClient(kubeConfigPath, contextName string) (*kubernetes.Clientset, error) {
@@ -393,6 +392,18 @@ http {
             proxy_set_header X-Forwarded-Proto $scheme;
         }
     }
+
+    server {
+        listen 6065;
+
+        location / {
+            proxy_pass http://127.0.0.1:6067;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
 }
 
 stream {
@@ -412,7 +423,7 @@ stream {
 	return nil
 }
 
-func createPod(clientset *kubernetes.Clientset, namespace, podName, pvcName string, image string, configmap string) error {
+func createPod(clientset *kubernetes.Clientset, namespace, podName, pvcName, image, configmap string) error {
 	pod := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      podName,
@@ -453,6 +464,9 @@ func createPod(clientset *kubernetes.Clientset, namespace, podName, pvcName stri
 						{
 							ContainerPort: 6060,
 						},
+						{
+							ContainerPort: 6065, // Adding HTTP port to the proxy
+						},
 					},
 					VolumeMounts: []corev1.VolumeMount{
 						{
@@ -474,6 +488,9 @@ func createPod(clientset *kubernetes.Clientset, namespace, podName, pvcName stri
 						{
 							ContainerPort: 3001,
 						},
+						{
+							ContainerPort: 6067, // Adding port for the application container
+						},
 					},
 					VolumeMounts: []corev1.VolumeMount{
 						{
@@ -488,10 +505,13 @@ func createPod(clientset *kubernetes.Clientset, namespace, podName, pvcName stri
 				},
 				{
 					Name:  "msync-container",
-					Image: "jackt72xp/multims:initv14",
+					Image: "jackt72xp/multims:initv22",
 					Ports: []corev1.ContainerPort{
 						{
-							ContainerPort: 6062,
+							ContainerPort: 6062, // TCP for msync
+						},
+						{
+							ContainerPort: 6065, // HTTP for msync
 						},
 					},
 					VolumeMounts: []corev1.VolumeMount{
@@ -501,7 +521,7 @@ func createPod(clientset *kubernetes.Clientset, namespace, podName, pvcName stri
 						},
 					},
 					Command: []string{"/usr/local/bin/msync"},
-					Args:    []string{"-mode=server", "-port=6062", "-directory=/mnt/data"},
+					Args:    []string{"-mode=serverHttp", "-port=6067", "-directory=/mnt/data"},
 				},
 			},
 			RestartPolicy: corev1.RestartPolicyNever,
@@ -533,47 +553,88 @@ func portForwardPod(clientset *kubernetes.Clientset, namespace, podName string, 
 		Name(podName).
 		SubResource("portforward")
 
-	for {
-		newStopCh := make(chan struct{})
-		readyCh := make(chan struct{})
-		out := new(bytes.Buffer)
-		errOut := new(bytes.Buffer)
-
-		portForwarder, err := portforward.New(
-			spdy.NewDialer(upgrader, &http.Client{Transport: transport}, "POST", req.URL()),
-			[]string{fmt.Sprintf("%d:%d", localPort, remotePort)},
-			newStopCh,
-			readyCh,
-			out,
-			errOut,
-		)
-		if err != nil {
-			return fmt.Errorf("failed to create port forwarder: %w", err)
-		}
-
-		// Iniciar el port forwarding en una goroutine separada
-		go func() {
-			log.Printf("Starting port forwarding on %d:%d...\n", localPort, remotePort)
-			if err := portForwarder.ForwardPorts(); err != nil {
-				log.Printf("Error in port forwarding on %d:%d: %v", localPort, remotePort, err)
-			}
-
-			log.Printf("Port forwarding on %d:%d lost connection. Retrying in 5 seconds...\n", localPort, remotePort)
-			close(newStopCh) // Asegurar que el canal stopCh se cierre al finalizar la goroutine
-			time.Sleep(5 * time.Second)
-		}()
-
-		select {
-		case <-readyCh:
-			log.Printf("Port forwarding is ready for pod %s on %d:%d\n", podName, localPort, remotePort)
-			<-newStopCh // Esperar hasta que se cierre el canal stopCh en caso de error o reconexión
-		case <-time.After(10 * time.Second):
-			log.Printf("Port forwarding to pod %s on %d:%d timed out\n", podName, localPort, remotePort)
-			close(newStopCh)
-			return fmt.Errorf("port forwarding to pod %s on %d:%d timed out", podName, localPort, remotePort)
-		}
+	portForwarder, err := portforward.New(
+		spdy.NewDialer(upgrader, &http.Client{Transport: transport}, "POST", req.URL()),
+		[]string{fmt.Sprintf("%d:%d", localPort, remotePort)},
+		stopCh,
+		make(chan struct{}), // readyCh is not used to avoid unnecessary checks
+		os.Stdout,
+		os.Stderr,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to create port forwarder: %w", err)
 	}
+
+	// Iniciar el port forwarding en una goroutine separada
+	go func() {
+		log.Printf("Starting port forwarding on %d:%d...\n", localPort, remotePort)
+		if err := portForwarder.ForwardPorts(); err != nil {
+			log.Printf("Port forwarding error on %d:%d: %v", localPort, remotePort, err)
+		}
+	}()
+
+	return nil
 }
+
+// func portForwardPod(clientset *kubernetes.Clientset, namespace, podName string, localPort, remotePort int, stopCh chan struct{}) error {
+// 	kubeconfigPath := filepath.Join(homedir.HomeDir(), ".kube", "config")
+// 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
+// 	if err != nil {
+// 		return fmt.Errorf("failed to build kubeconfig: %w", err)
+// 	}
+
+// 	transport, upgrader, err := spdy.RoundTripperFor(config)
+// 	if err != nil {
+// 		return fmt.Errorf("failed to create roundTripper: %w", err)
+// 	}
+
+// 	req := clientset.CoreV1().RESTClient().Post().
+// 		Resource("pods").
+// 		Namespace(namespace).
+// 		Name(podName).
+// 		SubResource("portforward")
+
+// 	for {
+// 		newStopCh := make(chan struct{})
+// 		readyCh := make(chan struct{})
+// 		out := new(bytes.Buffer)
+// 		errOut := new(bytes.Buffer)
+
+// 		portForwarder, err := portforward.New(
+// 			spdy.NewDialer(upgrader, &http.Client{Transport: transport}, "POST", req.URL()),
+// 			[]string{fmt.Sprintf("%d:%d", localPort, remotePort)},
+// 			newStopCh,
+// 			readyCh,
+// 			out,
+// 			errOut,
+// 		)
+// 		if err != nil {
+// 			return fmt.Errorf("failed to create port forwarder: %w", err)
+// 		}
+
+// 		// Iniciar el port forwarding en una goroutine separada
+// 		go func() {
+// 			log.Printf("Starting port forwarding on %d:%d...\n", localPort, remotePort)
+// 			if err := portForwarder.ForwardPorts(); err != nil {
+// 				log.Printf("Error in port forwarding on %d:%d: %v", localPort, remotePort, err)
+// 			}
+
+// 			log.Printf("Port forwarding on %d:%d lost connection. Retrying in 5 seconds...\n", localPort, remotePort)
+// 			close(newStopCh) // Asegurar que el canal stopCh se cierre al finalizar la goroutine
+// 			time.Sleep(5 * time.Second)
+// 		}()
+
+// 		select {
+// 		case <-readyCh:
+// 			log.Printf("Port forwarding is ready for pod %s on %d:%d\n", podName, localPort, remotePort)
+// 			<-newStopCh // Esperar hasta que se cierre el canal stopCh en caso de error o reconexión
+// 		case <-time.After(10 * time.Second):
+// 			log.Printf("Port forwarding to pod %s on %d:%d timed out\n", podName, localPort, remotePort)
+// 			close(newStopCh)
+// 			return fmt.Errorf("port forwarding to pod %s on %d:%d timed out", podName, localPort, remotePort)
+// 		}
+// 	}
+// }
 
 // Función para cerrar un canal de manera segura
 // func closeChannel(ch chan struct{}) {
@@ -662,225 +723,6 @@ func execIntoPod(namespace, podName, containerName string) error {
 	return nil
 }
 
-// func runSyncScript(scriptPath, directory string) error {
-// 	cmd := exec.Command("bash", scriptPath, directory)
-
-// 	// Redirigir la salida y errores del proceso al de la terminal actual
-// 	cmd.Stdout = os.Stdout
-// 	cmd.Stderr = os.Stderr
-
-// 	// Ejecutar el comando
-// 	if err := cmd.Start(); err != nil {
-// 		return fmt.Errorf("failed to start sync script: %w", err)
-// 	}
-
-// 	// Ejecutar en segundo plano
-// 	go func() {
-// 		if err := cmd.Wait(); err != nil {
-// 			log.Printf("Sync script ended with error: %v", err)
-// 		}
-// 	}()
-
-// 	return nil
-// }
-
-// func setupLogging() error {
-// 	// Obtener el directorio actual de trabajo (base path)
-// 	basePath, err := os.Getwd()
-// 	if err != nil {
-// 		return fmt.Errorf("failed to get working directory: %w", err)
-// 	}
-
-// 	// Construir la ruta del archivo de log en el base path
-// 	logFile := filepath.Join(basePath, "program.log")
-
-// 	// Abrir o crear el archivo de log
-// 	file, err := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-// 	if err != nil {
-// 		return fmt.Errorf("failed to open log file: %w", err)
-// 	}
-
-// 	// Configurar el logger para escribir en el archivo
-// 	log.SetOutput(file)
-
-// 	return nil
-// }
-
-// func runMsync(directory, address string, port int, excludes string) error {
-// 	basePath, err := os.Getwd()
-// 	if err != nil {
-// 		return fmt.Errorf("failed to get working directory: %w", err)
-// 	}
-
-// 	// Detectar la arquitectura y seleccionar el binario adecuado
-// 	var msyncPath string
-// 	switch runtime.GOARCH {
-// 	case "arm64":
-// 		msyncPath = filepath.Join(basePath, "msyncarm")
-// 	case "amd64":
-// 		msyncPath = filepath.Join(basePath, "msyncamd")
-// 	default:
-// 		return fmt.Errorf("unsupported architecture: %s", runtime.GOARCH)
-// 	}
-
-// 	fmt.Println("msyncPath:", msyncPath)
-// 	logFile := filepath.Join(basePath, "msync.log")
-// 	log.Printf("Running msync on directory: %s", directory)
-
-// 	cmd := exec.Command(msyncPath, "-mode=client", fmt.Sprintf("-address=%s", address), fmt.Sprintf("-port=%d", port), fmt.Sprintf("-directory=%s", directory), fmt.Sprintf("-exclude=%s", excludes))
-
-// 	fmt.Println("Command:", cmd.String())
-// 	// Abrir o crear el archivo de log
-// 	file, err := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-// 	if err != nil {
-// 		return fmt.Errorf("failed to open log file: %w", err)
-// 	}
-// 	defer file.Close()
-
-// 	// Redirigir stdout y stderr al archivo de log
-// 	cmd.Stdout = file
-// 	cmd.Stderr = file
-
-// 	if err := cmd.Run(); err != nil {
-// 		return fmt.Errorf("msync command failed: %w", err)
-// 	}
-
-// 	return nil
-// }
-
-func runMsync(directory, address string, port int, excludes string) error {
-	basePath, err := os.Getwd()
-	if err != nil {
-		return fmt.Errorf("failed to get working directory: %w", err)
-	}
-
-	// Detectar la arquitectura y seleccionar el binario adecuado
-	var msyncPath string
-	switch runtime.GOARCH {
-	case "arm64":
-		msyncPath = filepath.Join(basePath, "msyncarm")
-	case "amd64":
-		msyncPath = filepath.Join(basePath, "msyncamd")
-	default:
-		return fmt.Errorf("unsupported architecture: %s", runtime.GOARCH)
-	}
-
-	fmt.Println("msyncPath:", msyncPath)
-	logFile := filepath.Join(basePath, "msync.log")
-	log.Printf("Running msync on directory: %s", directory)
-
-	// Añadir comillas alrededor de excludes
-	excludesWithQuotes := fmt.Sprintf("\"%s\"", excludes)
-
-	// Construir los argumentos para el comando
-	args := []string{
-		"-mode=client",
-		"-address=" + address,
-		"-port=" + fmt.Sprintf("%d", port),
-		"-directory=" + directory,
-		"-exclude=" + excludesWithQuotes,
-	}
-
-	// Crear el comando con los argumentos
-	cmd := exec.Command(msyncPath, args...)
-
-	fmt.Println("Command:", cmd.String())
-
-	// Abrir o crear el archivo de log
-	file, err := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return fmt.Errorf("failed to open log file: %w", err)
-	}
-	defer file.Close()
-
-	// Redirigir stdout y stderr al archivo de log
-	cmd.Stdout = file
-	cmd.Stderr = file
-
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("msync command failed: %w", err)
-	}
-
-	return nil
-}
-func waitForPortForwardingReady(port int) bool {
-	for i := 0; i < 10; i++ { // Intentar 10 veces
-		conn, err := net.Dial("tcp", fmt.Sprintf("localhost:%d", port))
-		if err == nil {
-			conn.Close()
-			return true
-		}
-		time.Sleep(1 * time.Second) // Esperar 1 segundo antes de intentar nuevamente
-	}
-	return false
-}
-
-// func watchDirectory(directory string, address string, port int, excludes string) error {
-// 	watcher, err := fsnotify.NewWatcher()
-// 	if err != nil {
-// 		return fmt.Errorf("failed to create watcher: %w", err)
-// 	}
-// 	defer watcher.Close()
-
-// 	go func() {
-// 		for {
-// 			select {
-// 			case event, ok := <-watcher.Events:
-// 				if !ok {
-// 					return
-// 				}
-// 				log.Printf("Event detected: %s\n", event)
-
-// 				// Run msync when a change is detected
-// 				if err := runMsync(directory, address, port, excludes); err != nil {
-// 					log.Printf("Error running msync: %v\n", err)
-// 				}
-
-// 			case err, ok := <-watcher.Errors:
-// 				if !ok {
-// 					return
-// 				}
-// 				log.Printf("Watcher error: %v\n", err)
-// 			}
-// 		}
-// 	}()
-
-// 	err = watcher.Add(directory)
-// 	if err != nil {
-// 		return fmt.Errorf("failed to add directory to watcher: %w", err)
-// 	}
-
-// 	// Mantener la goroutine en ejecución
-// 	select {}
-// }
-
-// func syncWithRetries(directory, address string, port int, excludes string, maxRetries int) error {
-// 	var err error
-// 	for i := 0; i < maxRetries; i++ {
-// 		err = runMsync(directory, address, port, excludes)
-// 		if err == nil {
-// 			return nil
-// 		}
-// 		log.Printf("Retry %d/%d: Failed to run msync: %v", i+1, maxRetries, err)
-// 		time.Sleep(5 * time.Second) // Esperar un poco antes de reintentar
-// 	}
-// 	return fmt.Errorf("failed to run msync after %d retries: %v", maxRetries, err)
-// }
-
-func runMsyncInBackground(directory, address string, port int, excludes string) error {
-	msyncCmd := exec.Command("/Users/jacktorpoco/Documents/multims/msyncarm",
-		"-mode=client",
-		fmt.Sprintf("-address=%s", address),
-		fmt.Sprintf("-port=%d", port),
-		fmt.Sprintf("-directory=%s", directory),
-		fmt.Sprintf("-exclude=%s", excludes))
-
-	msyncCmd.Stdout = os.Stdout
-	msyncCmd.Stderr = os.Stderr
-
-	return msyncCmd.Start()
-}
-
 func retryPortForward(clientset *kubernetes.Clientset, namespace, podName string, localPort, remotePort int, maxRetries int, stopCh chan struct{}) {
 	for retries := 0; retries < maxRetries; retries++ {
 		stopCh := make(chan struct{}) // Crear un nuevo canal para cada intento
@@ -906,13 +748,13 @@ func retryPortForward(clientset *kubernetes.Clientset, namespace, podName string
 }
 
 // Evitar que la goroutine interfiera con la ejecución principal de la CLI
-func startPortForwarding(clientset *kubernetes.Clientset, namespace, podName string, localPort, remotePort int, stopCh chan struct{}) {
-	go func() {
-		if err := portForwardPod(clientset, namespace, podName, localPort, remotePort, stopCh); err != nil {
-			log.Printf("Error in port forwarding: %v", err)
-		}
-	}()
-}
+// func startPortForwarding(clientset *kubernetes.Clientset, namespace, podName string, localPort, remotePort int, stopCh chan struct{}) {
+// 	go func() {
+// 		if err := portForwardPod(clientset, namespace, podName, localPort, remotePort, stopCh); err != nil {
+// 			log.Printf("Error in port forwarding: %v", err)
+// 		}
+// 	}()
+// }
 
 // func OnlyOneServiceHandlerV2() {
 // 	// Obtener la configuración y preparar el entorno
@@ -1260,8 +1102,84 @@ func startPortForwarding(clientset *kubernetes.Clientset, namespace, podName str
 // 	select {}
 // }
 
+// checkAndKillProcessUsingPort verifica si el puerto está en uso, y si es así, mata el proceso.
+func checkAndKillProcessUsingPort(port int) error {
+	cmd := exec.Command("lsof", "-t", fmt.Sprintf("-i:%d", port))
+	output, err := cmd.Output()
+	if err != nil && !strings.Contains(err.Error(), "exit status 1") {
+		// Ignora "exit status 1", que significa que no hay procesos usando el puerto.
+		return fmt.Errorf("failed to check port usage: %w", err)
+	}
+
+	if len(output) == 0 {
+		return nil
+	}
+
+	pidStr := strings.TrimSpace(string(output))
+	pid, err := strconv.Atoi(pidStr)
+	if err != nil {
+		return fmt.Errorf("failed to parse process ID: %w", err)
+	}
+
+	log.Printf("Killing process %d using port %d", pid, port)
+	if err := syscall.Kill(pid, syscall.SIGKILL); err != nil {
+		return fmt.Errorf("failed to kill process %d: %w", pid, err)
+	}
+
+	return nil
+}
+
+// portForwardPodDetached inicia un port-forward en segundo plano, capturando y descartando stdout y stderr.
+func portForwardPodDetached(namespace, podName string, localPort, remotePort int) error {
+	if err := checkAndKillProcessUsingPort(localPort); err != nil {
+		return fmt.Errorf("failed to prepare port %d: %w", localPort, err)
+	}
+
+	cmd := exec.Command("kubectl", "port-forward", fmt.Sprintf("pod/%s", podName), fmt.Sprintf("%d:%d", localPort, remotePort), "-n", namespace)
+
+	// Crear pipes para capturar la salida
+	stdoutPipe, err := cmd.StdoutPipe()
+	if err != nil {
+		return fmt.Errorf("failed to create stdout pipe: %w", err)
+	}
+
+	stderrPipe, err := cmd.StderrPipe()
+	if err != nil {
+		return fmt.Errorf("failed to create stderr pipe: %w", err)
+	}
+
+	// Iniciar el proceso
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("failed to start port-forward: %w", err)
+	}
+
+	// Goroutine para capturar y descartar stdout
+	go func() {
+		io.Copy(io.Discard, stdoutPipe)
+	}()
+
+	// Goroutine para capturar y descartar stderr
+	go func() {
+		io.Copy(io.Discard, stderrPipe)
+	}()
+
+	// Goroutine para esperar que el proceso termine
+	go func() {
+		cmd.Wait()
+	}()
+
+	return nil
+}
+
 func OnlyOneServiceHandlerV2() {
-	// log.SetOutput(ioutil.Discard)
+	log.SetOutput(ioutil.Discard)
+	// logFile, err := os.OpenFile("msync.log", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
+	// if err != nil {
+	// 	log.Fatalf("Failed to open log file: %v", err)
+	// }
+	// defer logFile.Close()
+
+	// log.SetOutput(logFile)
 	baseDir, err := os.Getwd()
 	if err != nil {
 
@@ -1283,6 +1201,7 @@ func OnlyOneServiceHandlerV2() {
 	uid := conf.UID
 	appPort := conf.Application.Port
 	msyncPort := 6060
+	msyncPortHttp := 6065
 	image := conf.Registry.Image
 
 	clientset, err := prepareKubernetesClient(kubeConfigPath, contextName)
@@ -1383,7 +1302,6 @@ func OnlyOneServiceHandlerV2() {
 	}
 	fmt.Println("Pod is ready.")
 	///////////// port-forward
-	///////////// port-forward
 	// Verificar que el puerto 6060 esté en escucha antes de proceder con el port-forward
 	fmt.Printf("Checking if port %d is listening on pod %s...\n", msyncPort, podName)
 	if !isPortListening(namespace, podName, msyncPort) {
@@ -1393,150 +1311,100 @@ func OnlyOneServiceHandlerV2() {
 	//
 	directory := baseDir
 	fmt.Println("Directory: ", directory)
-	// address := "localhost"
-	port := 6060
-	// excludes := "*.log,.git/,node_modules/"
-	stopCh1 := make(chan struct{})
-	stopCh2 := make(chan struct{})
+	// stopCh1 := make(chan struct{})
+	// stopCh2 := make(chan struct{})
+	// stopCh3 := make(chan struct{})
 	containerName := "application-container"
-	//portForwardReadyCh := make(chan bool)
-	// Crear un WaitGroup para esperar a que ambos port forwards estén listos
-
-	wg := sync.WaitGroup{}
-	wg.Add(2)
-
 	portForwardReadyCh := make(chan bool, 2)
 
+	// Iniciar el port forwarding para el appPort
+	// go func() {
+	// 	log.Println("Starting port forwarding for appPort...")
+	// 	if err := portForwardPod(clientset, namespace, podName, appPort, appPort, stopCh1); err != nil {
+	// 		log.Fatalf("Failed to start port forwarding for app port: %v", err)
+	// 	}
+	// 	log.Println("Port forwarding for appPort is ready.")
+	// 	portForwardReadyCh <- true
+	// }()
+
+	// // Iniciar el port forwarding para el msyncPort
+	// go func() {
+	// 	log.Println("Starting port forwarding for msyncPort...")
+	// 	if err := portForwardPod(clientset, namespace, podName, msyncPort, msyncPort, stopCh2); err != nil {
+	// 		log.Fatalf("Failed to start port forwarding for msync port: %v", err)
+	// 	}
+	// 	log.Println("Port forwarding for msyncPort is ready.")
+	// 	portForwardReadyCh <- true
+	// }()
+
+	// // Iniciar el port forwarding para el msyncPortHttp
+	// go func() {
+	// 	log.Println("Starting port forwarding for msyncPort...")
+	// 	if err := portForwardPod(clientset, namespace, podName, msyncPortHttp, msyncPortHttp, stopCh3); err != nil {
+	// 		log.Fatalf("Failed to start port forwarding for msync port: %v", err)
+	// 	}
+	// 	log.Println("Port forwarding for msyncPort is ready.")
+	// 	portForwardReadyCh <- true
+	// }()
+
+	// Iniciar el port forwarding para el appPort
 	go func() {
-		if err := portForwardPod(clientset, namespace, podName, appPort, appPort, stopCh1); err != nil {
+		log.Println("Starting port forwarding for appPort...")
+		if err := portForwardPodDetached(namespace, podName, appPort, appPort); err != nil {
 			log.Fatalf("Failed to start port forwarding for app port: %v", err)
 		}
-	}()
-	go func() {
-		if err := portForwardPod(clientset, namespace, podName, port, port, stopCh2); err != nil {
-			log.Fatalf("Failed to start port forwarding for msync port: %v", err)
-		}
+		log.Println("Port forwarding for appPort is ready.")
 		portForwardReadyCh <- true
 	}()
-	log.Println("Sincronización inicial completa.")
-	// Ejecutar kubectl exec para entrar en el contenedor del pod
+
+	// Iniciar el port forwarding para el msyncPort
+	go func() {
+		log.Println("Starting port forwarding for msyncPort...")
+		if err := portForwardPodDetached(namespace, podName, msyncPort, msyncPort); err != nil {
+			log.Fatalf("Failed to start port forwarding for msync port: %v", err)
+		}
+		log.Println("Port forwarding for msyncPort is ready.")
+		portForwardReadyCh <- true
+	}()
+
+	// Iniciar el port forwarding para el msyncPortHttp
+	go func() {
+		log.Println("Starting port forwarding for msyncPortHttp...")
+		if err := portForwardPodDetached(namespace, podName, msyncPortHttp, msyncPortHttp); err != nil {
+			log.Fatalf("Failed to start port forwarding for msync port: %v", err)
+		}
+		log.Println("Port forwarding for msyncPortHttp is ready.")
+		portForwardReadyCh <- true
+	}()
+	log.Println("Waiting for both port forwards to be ready...")
+
+	// Esperar a que ambos port forwards estén listos
+	<-portForwardReadyCh
+	<-portForwardReadyCh
+	<-portForwardReadyCh
+
+	log.Println("Both port forwards are ready or timed out. Proceeding with the synchronization...")
+	log.Println("All port forwards are ready. Proceeding with the synchronization...")
+
+	// Iniciar la sincronización HTTP en un goroutine para que se ejecute en segundo plano
+	go func() {
+		client.RunClientHTTP(directory, "localhost", fmt.Sprintf("%d", msyncPortHttp), "sync_state.json", []string{"*.log", ".git/", "node_modules/"})
+	}()
+
+	log.Println("Synchronization started. Proceeding to exec into pod...")
+
+	log.Println("Executing into pod...")
 	if err := execIntoPod(namespace, podName, containerName); err != nil {
 		log.Fatalf("Failed to exec into pod: %v", err)
 	}
+
+	log.Println("Execution into pod completed successfully.")
+	log.Println("Entering into select block to keep the program running.")
+
+	// Mantener el programa en ejecución para que la sincronización siga activa
 	select {}
 }
 
-// Validar si el port forward está funcionando intentando conectar al puerto local
-func isPortForwarded(address string, port int) bool {
-	conn, err := net.DialTimeout("tcp", fmt.Sprintf("%s:%d", address, port), 5*time.Second)
-	if err != nil {
-		log.Printf("Port %d on %s is not ready yet: %v", port, address, err)
-		return false
-	}
-	conn.Close()
-	return true
-}
-
-func waitForPortForward(address string, port int, timeout time.Duration) error {
-	start := time.Now()
-	for {
-		if isPortForwarded(address, port) {
-			return nil
-		}
-		if time.Since(start) > timeout {
-			return fmt.Errorf("timeout waiting for port forward on %s:%d", address, port)
-		}
-		time.Sleep(1 * time.Second)
-	}
-}
-
-// func syncWithRetries(directory, address string, port int, excludes string, maxRetries int) error {
-// 	var err error
-// 	for i := 0; i < maxRetries; i++ {
-// 		err = runMsync(directory, address, port, excludes)
-// 		if err == nil {
-// 			return nil // Sincronización exitosa, salir de la función
-// 		}
-// 		log.Printf("Sync attempt %d/%d failed: %v", i+1, maxRetries, err)
-// 		time.Sleep(2 * time.Second) // Esperar antes de intentar nuevamente
-// 	}
-// 	return fmt.Errorf("sync failed after %d retries: %w", maxRetries, err)
-// }
-
-// func OnlyOneServiceHandlerV2() {
-// 	baseDir, err := os.Getwd()
-// 	if err != nil {
-// 		log.Fatalf("Failed to get working directory: %v", err)
-// 	}
-
-// 	configPath := filepath.Join(baseDir, "multims.yml")
-// 	conf, err := config.LoadConfigFromFile(configPath)
-// 	if err != nil {
-// 		log.Fatalf("Failed to load config: %v", err)
-// 	}
-
-// 	kubeConfigPath := conf.KubeConfigPath
-// 	if conf.UseDefaultKubeConfig {
-// 		kubeConfigPath = filepath.Join(homedir.HomeDir(), ".kube", "config")
-// 	}
-// 	contextName := conf.KubernetesContext
-// 	namespace := conf.Namespace
-// 	uid := conf.UID
-// 	appPort := conf.Application.Port
-// 	msyncPort := 6060
-// 	image := conf.Registry.Image
-
-// 	clientset, err := prepareKubernetesClient(kubeConfigPath, contextName)
-// 	if err != nil {
-// 		log.Fatalf("Failed to prepare Kubernetes client: %v", err)
-// 	}
-
-// 	log.Printf("Using context: %s", contextName)
-// 	log.Printf("Namespace: %s", namespace)
-// 	log.Printf("KubeConfigPath: %s", kubeConfigPath)
-
-// 	// Cambiar el contexto explícitamente
-// 	err = switchKubeContext(kubeConfigPath, contextName)
-// 	if err != nil {
-// 		log.Fatalf("Failed to switch context: %v", err)
-// 	}
-
-// 	podName := fmt.Sprintf("pod-%s", uid)
-// 	pvcName := fmt.Sprintf("pvc-%s", uid)
-// 	svcName := fmt.Sprintf("svc-%s", uid)
-// 	cfmName := fmt.Sprintf("svc-%s", uid)
-
-// 	// Verificar y crear PVC
-// 	_, err = clientset.CoreV1().PersistentVolumeClaims(namespace).Get(context.TODO(), pvcName, metav1.GetOptions{})
-// 	if resourceExists(err) {
-// 		if askForRecreate("PersistentVolumeClaim", pvcName) {
-// 			clientset.CoreV1().PersistentVolumeClaims(namespace).Delete(context.TODO(), pvcName, metav1.DeleteOptions{})
-// 			if err := createPersistentVolumeClaim(clientset, namespace, pvcName); err != nil {
-// 				log.Fatalf("Failed to create PVC: %v", err)
-// 			}
-// 		}
-// 	} else if errors.IsNotFound(err) {
-// 		if err := createPersistentVolumeClaim(clientset, namespace, pvcName); err != nil {
-// 			log.Fatalf("Failed to create PVC: %v", err)
-// 		}
-// 	} else {
-// 		log.Fatalf("Error checking PVC existence: %v", err)
-// 	}
-
-// 	// Verificar y crear ConfigMap
-// 	_, err = clientset.CoreV1().ConfigMaps(namespace).Get(context.TODO(), cfmName, metav1.GetOptions{})
-// 	if resourceExists(err) {
-// 		if askForRecreate("ConfigMap", cfmName) {
-// 			clientset.CoreV1().ConfigMaps(namespace).Delete(context.TODO(), cfmName, metav1.DeleteOptions{})
-// 			if err := createConfigMap(clientset, namespace, cfmName); err != nil {
-// 				log.Fatalf("Failed to create ConfigMap: %v", err)
-// 			}
-// 		}
-// 	} else if errors.IsNotFound(err) {
-// 		if err := createConfigMap(clientset, namespace, cfmName); err != nil {
-// 			log.Fatalf("Failed to create ConfigMap: %v", err)
-// 		}
-// 	} else {
 // 		log.Fatalf("Error checking ConfigMap existence: %v", err)
 // 	}
 
