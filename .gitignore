@@ -15,10 +15,7 @@ packages/template-compiler/browser.js
 dist
 temp
 types/v3-generated.d.ts
-# If you prefer the allow list template instead of the deny list, see community template:
-# https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
-#
-# Binaries for programs and plugins
+
 *.exe
 *.exe~
 *.dll
@@ -31,7 +28,6 @@ types/v3-generated.d.ts
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-# Dependency directories (remove the comment below to include it)
 # vendor/
 
 # Go workspace file

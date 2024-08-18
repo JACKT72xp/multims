@@ -20,7 +20,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// checkIfGitRepo checks if the current directory is a Git repository
+// checkIfGitRepo checks if the current directory is
 func checkIfGitRepo() bool {
 	cmd := exec.Command("git", "rev-parse", "--is-inside-work-tree")
 	err := cmd.Run()
