@@ -66,24 +66,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # Necesario para obtener los tags urgente
-
+          fetch-depth: 0 # Necesario para obtener los tags
+  
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
           go-version: 1.19
-
+  
       - name: Install dependencies
         run: go mod download
+  
       - name: Build binary
         run: |
           mkdir -p build
           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o build/multims_${{ matrix.goos }}_${{ matrix.goarch }}
-
+  
       - name: Upload binaries
         uses: actions/upload-artifact@v3
         with:
-          name: multims-${{ matrix.goos }}-${{ matrix.goos }}-${{ matrix.goarch }}
+          name: multims-${{ matrix.goos }}-${{ matrix.goarch }}
           path: build/multims_${{ matrix.goos }}_${{ matrix.goarch }}
 
       - name: Create GitHub Release
