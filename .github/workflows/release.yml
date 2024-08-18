@@ -3,7 +3,7 @@ name: Tag, Build and Release
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   tag_and_release:
@@ -11,11 +11,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
       - name: Obtener el último tag
         id: get_last_tag
         run: |
-          # Obtener el último tag
-          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          # Obtener el último tag o empezar desde v1.2.0
+          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.2.0")
           
           # Dividir el tag en partes
           IFS='.' read -r -a parts <<< "${last_tag/v/}"
@@ -32,13 +33,13 @@ jobs:
       
           echo "New tag to create: $new_tag"
           echo "::set-output name=new_tag::$new_tag"
-      
+
       - name: Build and Test
         run: |
           # Realiza el build y las pruebas
           go build ./...
           go test ./...
-      
+
       - name: Create and Push Tag
         if: steps.get_last_tag.outputs.new_tag != ''
         run: |
@@ -86,7 +87,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.tag_version.outputs.new_tag }}
+          tag_name: ${{ steps.get_last_tag.outputs.new_tag }}
           files: build/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
