@@ -15,8 +15,8 @@ jobs:
       - name: Obtener el último tag
         id: get_last_tag
         run: |
-          # Obtener el último tag o empezar desde v1.2.0
-          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.2.0")
+          # Obtener el último tag o empezar desde v1.3.0
+          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.3.0")
           
           # Dividir el tag en partes
           IFS='.' read -r -a parts <<< "${last_tag/v/}"
