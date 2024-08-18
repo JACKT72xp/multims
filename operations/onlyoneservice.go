@@ -1382,8 +1382,11 @@ func OnlyOneServiceHandlerV2() {
 	<-portForwardReadyCh
 	<-portForwardReadyCh
 
-	log.Println("Both port forwards are ready or timed out. Proceeding with the synchronization...")
-	log.Println("All port forwards are ready. Proceeding with the synchronization...")
+	// Verificar que el puerto 6060 esté listo usando /healthz antes de proceder con la sincronización
+	if !waitForPortReady("localhost", msyncPort, "/healthz", 60) {
+		log.Fatalf("Port %d is not ready on localhost. Exiting.", msyncPort)
+	}
+	fmt.Println("Port is ready. Proceeding with the initial synchronization.")
 
 	// Iniciar la sincronización HTTP en un goroutine para que se ejecute en segundo plano
 	go func() {
@@ -1392,16 +1395,32 @@ func OnlyOneServiceHandlerV2() {
 
 	log.Println("Synchronization started. Proceeding to exec into pod...")
 
+	// Ejecutar el comando kubectl exec en el pod
 	log.Println("Executing into pod...")
 	if err := execIntoPod(namespace, podName, containerName); err != nil {
 		log.Fatalf("Failed to exec into pod: %v", err)
 	}
-
 	log.Println("Execution into pod completed successfully.")
 	log.Println("Entering into select block to keep the program running.")
 
 	// Mantener el programa en ejecución para que la sincronización siga activa
 	select {}
+}
+
+// waitForPortReady verifica que el puerto y el endpoint estén listos antes de continuar
+func waitForPortReady(host string, port int, path string, timeoutSeconds int) bool {
+	url := fmt.Sprintf("http://%s:%d%s", host, port, path)
+	client := &http.Client{
+		Timeout: 5 * time.Second,
+	}
+	for i := 0; i < timeoutSeconds; i++ {
+		resp, err := client.Get(url)
+		if err == nil && resp.StatusCode == http.StatusOK {
+			return true
+		}
+		time.Sleep(1 * time.Second)
+	}
+	return false
 }
 
 // 		log.Fatalf("Error checking ConfigMap existence: %v", err)
