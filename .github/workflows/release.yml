@@ -17,7 +17,7 @@ jobs:
       - name: Obtener el último tag
         id: get_last_tag
         run: |
-          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.5.8")
+          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.5.9")
           IFS='.' read -r -a parts <<< "${last_tag/v/}"
           patch=$((parts[2] + 1))
           new_tag="v${parts[0]}.${parts[1]}.$patch"
@@ -112,11 +112,19 @@ jobs:
           sed -i'' -e "s|url \".*multims_linux_arm64\"|url \"https://github.com/JACKT72xp/multims/releases/download/$new_tag/multims_linux_arm64\"|" homebrew-cli/Formula/multims.rb
           sed -i'' -e "s|sha256 \".*\"|sha256 \"$sha256_linux_arm64\"|" homebrew-cli/Formula/multims.rb
 
-      - name: Commit and Push changes
+    #   - name: Commit and Push changes
+    #     run: |
+    #       cd homebrew-cli
+    #       git config --global user.name "github-actions[bot]"
+    #       git config --global user.email "github-actions[bot]@users.noreply.github.com"
+    #       git add Formula/multims.rb
+    #       git commit -m "Update multims.rb to ${{ needs.tag_and_release.outputs.new_tag }}"
+    #       git push https://$GITHUB_ACTOR:${{ secrets.GITHUB_TOKEN }}@github.com/JACKT72xp/homebrew-cli.git
+      - name: Push changes to homebrew-cli
         run: |
-          cd homebrew-cli
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "JACKT72xp"
+          git config --global user.email "JACKT72xp@users.noreply.github.com"
+          git remote set-url origin https://$GITHUB_ACTOR:${{ secrets.PAT_TOKEN }}@github.com/JACKT72xp/homebrew-cli.git
           git add Formula/multims.rb
           git commit -m "Update multims.rb to ${{ needs.tag_and_release.outputs.new_tag }}"
-          git push https://$GITHUB_ACTOR:${{ secrets.GITHUB_TOKEN }}@github.com/JACKT72xp/homebrew-cli.git
+          git push origin main
