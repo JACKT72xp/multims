@@ -25,6 +25,7 @@ import (
 	"k8s.io/client-go/transport/spdy"
 
 	corev1 "k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -370,22 +371,22 @@ func createPersistentVolumeClaim(clientset *kubernetes.Clientset, namespace, pvc
 	return nil
 }
 
-func createConfigMap(clientset *kubernetes.Clientset, namespace string, name string) error {
+func createConfigMap(clientset *kubernetes.Clientset, namespace string, name string, appPort int) error {
 	configMap := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
 		},
 		Data: map[string]string{
-			"nginx.conf": `
+			"nginx.conf": fmt.Sprintf(`
 events { }
 
 http {
     server {
-        listen 3000;
+        listen 9999;
 
         location / {
-            proxy_pass http://127.0.0.1:3001;
+            proxy_pass http://127.0.0.1:%d;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -412,7 +413,7 @@ stream {
 
         proxy_pass 127.0.0.1:6062;
     }
-}`,
+}`, appPort),
 		},
 	}
 
@@ -423,7 +424,7 @@ stream {
 	return nil
 }
 
-func createPod(clientset *kubernetes.Clientset, namespace, podName, pvcName, image, configmap string) error {
+func createPod(clientset *kubernetes.Clientset, namespace, podName, pvcName, image, configmapName string, appPort int) error {
 	pod := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      podName,
@@ -447,7 +448,7 @@ func createPod(clientset *kubernetes.Clientset, namespace, podName, pvcName, ima
 					VolumeSource: corev1.VolumeSource{
 						ConfigMap: &corev1.ConfigMapVolumeSource{
 							LocalObjectReference: corev1.LocalObjectReference{
-								Name: configmap,
+								Name: configmapName, // Utilizar el configmapName correctamente
 							},
 						},
 					},
@@ -459,13 +460,13 @@ func createPod(clientset *kubernetes.Clientset, namespace, podName, pvcName, ima
 					Image: "nginx:alpine",
 					Ports: []corev1.ContainerPort{
 						{
-							ContainerPort: 3000,
+							ContainerPort: 8080, // Puerto interno para Nginx
 						},
 						{
-							ContainerPort: 6060,
+							ContainerPort: 6060, // Puerto de sincronización TCP
 						},
 						{
-							ContainerPort: 6065, // Adding HTTP port to the proxy
+							ContainerPort: 6065, // Puerto de sincronización HTTP
 						},
 					},
 					VolumeMounts: []corev1.VolumeMount{
@@ -486,10 +487,7 @@ func createPod(clientset *kubernetes.Clientset, namespace, podName, pvcName, ima
 					Image: image,
 					Ports: []corev1.ContainerPort{
 						{
-							ContainerPort: 3001,
-						},
-						{
-							ContainerPort: 6067, // Adding port for the application container
+							ContainerPort: int32(appPort), // Puerto de la aplicación definido en multims.yml
 						},
 					},
 					VolumeMounts: []corev1.VolumeMount{
@@ -508,10 +506,10 @@ func createPod(clientset *kubernetes.Clientset, namespace, podName, pvcName, ima
 					Image: "jackt72xp/multims:initv22",
 					Ports: []corev1.ContainerPort{
 						{
-							ContainerPort: 6062, // TCP for msync
+							ContainerPort: 6062, // Puerto TCP interno para msync
 						},
 						{
-							ContainerPort: 6065, // HTTP for msync
+							ContainerPort: 6067, // Puerto HTTP interno para msync
 						},
 					},
 					VolumeMounts: []corev1.VolumeMount{
@@ -636,16 +634,6 @@ func portForwardPod(clientset *kubernetes.Clientset, namespace, podName string, 
 // 	}
 // }
 
-// Función para cerrar un canal de manera segura
-// func closeChannel(ch chan struct{}) {
-// 	select {
-// 	case <-ch:
-// 		// El canal ya está cerrado, no hacer nada
-// 	default:
-// 		close(ch)
-// 	}
-// }
-
 func waitForPVCDeletion(clientset *kubernetes.Clientset, namespace, pvcName string) error {
 	for {
 		_, err := clientset.CoreV1().PersistentVolumeClaims(namespace).Get(context.TODO(), pvcName, metav1.GetOptions{})
@@ -661,38 +649,26 @@ func waitForPVCDeletion(clientset *kubernetes.Clientset, namespace, pvcName stri
 	}
 }
 
-func createService(clientset *kubernetes.Clientset, namespace, svcName string, appPort, msyncPort int) error {
-	svc := &corev1.Service{
+func createService(clientset *kubernetes.Clientset, namespace, svcName string, externalPort, internalPort int) error {
+	service := &v1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      svcName,
-			Namespace: namespace,
+			Name: svcName,
 		},
-		Spec: corev1.ServiceSpec{
+		Spec: v1.ServiceSpec{
 			Selector: map[string]string{
 				"app": svcName,
 			},
-			Ports: []corev1.ServicePort{
+			Ports: []v1.ServicePort{
 				{
-					Name:       "app-port",
-					Protocol:   corev1.ProtocolTCP,
-					Port:       int32(appPort),
-					TargetPort: intstr.FromInt(3001),
-				},
-				{
-					Name:       "msync-port",
-					Protocol:   corev1.ProtocolTCP,
-					Port:       int32(msyncPort),
-					TargetPort: intstr.FromInt(6062),
+					Protocol:   v1.ProtocolTCP,
+					Port:       int32(externalPort),
+					TargetPort: intstr.FromInt(internalPort),
 				},
 			},
 		},
 	}
-
-	_, err := clientset.CoreV1().Services(namespace).Create(context.TODO(), svc, metav1.CreateOptions{})
-	if err != nil {
-		return fmt.Errorf("failed to create Service: %w", err)
-	}
-	return nil
+	_, err := clientset.CoreV1().Services(namespace).Create(context.TODO(), service, metav1.CreateOptions{})
+	return err
 }
 
 func resourceExists(err error) bool {
@@ -746,361 +722,6 @@ func retryPortForward(clientset *kubernetes.Clientset, namespace, podName string
 
 	log.Fatalf("Failed to start port forwarding on %d:%d after %d retries.", localPort, remotePort, maxRetries)
 }
-
-// Evitar que la goroutine interfiera con la ejecución principal de la CLI
-// func startPortForwarding(clientset *kubernetes.Clientset, namespace, podName string, localPort, remotePort int, stopCh chan struct{}) {
-// 	go func() {
-// 		if err := portForwardPod(clientset, namespace, podName, localPort, remotePort, stopCh); err != nil {
-// 			log.Printf("Error in port forwarding: %v", err)
-// 		}
-// 	}()
-// }
-
-// func OnlyOneServiceHandlerV2() {
-// 	// Obtener la configuración y preparar el entorno
-// 	baseDir, err := os.Getwd()
-// 	if err != nil {
-// 		log.Fatalf("Failed to get working directory: %v", err)
-// 	}
-
-// 	configPath := filepath.Join(baseDir, "multims.yml")
-// 	conf, err := config.LoadConfigFromFile(configPath)
-// 	if err != nil {
-// 		log.Fatalf("Failed to load config: %v", err)
-// 	}
-
-// 	kubeConfigPath := conf.KubeConfigPath
-// 	if conf.UseDefaultKubeConfig {
-// 		kubeConfigPath = filepath.Join(homedir.HomeDir(), ".kube", "config")
-// 	}
-// 	contextName := conf.KubernetesContext
-// 	namespace := conf.Namespace
-// 	uid := conf.UID
-// 	appPort := conf.Application.Port
-// 	msyncPort := 6060
-// 	image := conf.Registry.Image
-
-// 	clientset, err := prepareKubernetesClient(kubeConfigPath, contextName)
-// 	if err != nil {
-// 		log.Fatalf("Failed to prepare Kubernetes client: %v", err)
-// 	}
-
-// 	log.Printf("Using context: %s", contextName)
-// 	log.Printf("Namespace: %s", namespace)
-// 	log.Printf("KubeConfigPath: %s", kubeConfigPath)
-
-// 	// Cambiar el contexto explícitamente
-// 	err = switchKubeContext(kubeConfigPath, contextName)
-// 	if err != nil {
-// 		log.Fatalf("Failed to switch context: %v", err)
-// 	}
-
-// 	podName := fmt.Sprintf("pod-%s", uid)
-// 	pvcName := fmt.Sprintf("pvc-%s", uid)
-// 	svcName := fmt.Sprintf("svc-%s", uid)
-// 	cfmName := fmt.Sprintf("svc-%s", uid)
-
-// 	// Verificar y crear PVC
-// 	_, err = clientset.CoreV1().PersistentVolumeClaims(namespace).Get(context.TODO(), pvcName, metav1.GetOptions{})
-// 	if resourceExists(err) {
-// 		if askForRecreate("PersistentVolumeClaim", pvcName) {
-// 			clientset.CoreV1().PersistentVolumeClaims(namespace).Delete(context.TODO(), pvcName, metav1.DeleteOptions{})
-// 			if err := waitForPVCDeletion(clientset, namespace, pvcName); err != nil {
-// 				log.Fatalf("Error waiting for PVC deletion: %v", err)
-// 			}
-// 			if err := createPersistentVolumeClaim(clientset, namespace, pvcName); err != nil {
-// 				log.Fatalf("Failed to create PVC: %v", err)
-// 			}
-// 		}
-// 	} else if errors.IsNotFound(err) {
-// 		if err := createPersistentVolumeClaim(clientset, namespace, pvcName); err != nil {
-// 			log.Fatalf("Failed to create PVC: %v", err)
-// 		}
-// 	} else {
-// 		log.Fatalf("Error checking PVC existence: %v", err)
-// 	}
-
-// 	// Verificar y crear ConfigMap
-// 	_, err = clientset.CoreV1().ConfigMaps(namespace).Get(context.TODO(), cfmName, metav1.GetOptions{})
-// 	if resourceExists(err) {
-// 		if askForRecreate("ConfigMap", cfmName) {
-// 			clientset.CoreV1().ConfigMaps(namespace).Delete(context.TODO(), cfmName, metav1.DeleteOptions{})
-// 			if err := createConfigMap(clientset, namespace, cfmName); err != nil {
-// 				log.Fatalf("Failed to create ConfigMap: %v", err)
-// 			}
-// 		}
-// 	} else if errors.IsNotFound(err) {
-// 		if err := createConfigMap(clientset, namespace, cfmName); err != nil {
-// 			log.Fatalf("Failed to create ConfigMap: %v", err)
-// 		}
-// 	} else {
-// 		log.Fatalf("Error checking ConfigMap existence: %v", err)
-// 	}
-
-// 	// Verificar y crear Pod
-// 	_, err = clientset.CoreV1().Pods(namespace).Get(context.TODO(), podName, metav1.GetOptions{})
-// 	if resourceExists(err) {
-// 		if askForRecreate("Pod", podName) {
-// 			clientset.CoreV1().Pods(namespace).Delete(context.TODO(), podName, metav1.DeleteOptions{})
-// 			if err := createPod(clientset, namespace, podName, pvcName, image, cfmName); err != nil {
-// 				log.Fatalf("Failed to create Pod: %v", err)
-// 			}
-// 		}
-// 	} else if errors.IsNotFound(err) {
-// 		if err := createPod(clientset, namespace, podName, pvcName, image, cfmName); err != nil {
-// 			log.Fatalf("Failed to create Pod: %v", err)
-// 		}
-// 	} else {
-// 		log.Fatalf("Error checking Pod existence: %v", err)
-// 	}
-
-// 	// Verificar y crear Service
-// 	_, err = clientset.CoreV1().Services(namespace).Get(context.TODO(), svcName, metav1.GetOptions{})
-// 	if resourceExists(err) {
-// 		if askForRecreate("Service", svcName) {
-// 			clientset.CoreV1().Services(namespace).Delete(context.TODO(), svcName, metav1.DeleteOptions{})
-// 			if err := createService(clientset, namespace, svcName, appPort, msyncPort); err != nil {
-// 				log.Fatalf("Failed to create Service: %v", err)
-// 			}
-// 		}
-// 	} else if errors.IsNotFound(err) {
-// 		if err := createService(clientset, namespace, svcName, appPort, msyncPort); err != nil {
-// 			log.Fatalf("Failed to create Service: %v", err)
-// 		}
-// 	} else {
-// 		log.Fatalf("Error checking Service existence: %v", err)
-// 	}
-// 	// Esperar a que el pod esté listo
-// 	fmt.Printf("Waiting for Pod %s to be ready...\n", podName)
-// 	if err := waitForPodReady(clientset, podName, namespace, 120); err != nil {
-// 		log.Fatalf("Error waiting for Pod to be ready: %v", err)
-// 	}
-// 	fmt.Println("Pod is ready.")
-
-// 	stopCh1 := make(chan struct{})
-// 	stopCh2 := make(chan struct{})
-// 	portForwardReadyCh := make(chan bool, 2)
-
-// 	// Iniciar el port forwarding para el appPort
-// 	go func() {
-// 		log.Println("Starting port forwarding for appPort...")
-// 		if err := portForwardPod(clientset, namespace, podName, appPort, appPort, stopCh1); err != nil {
-// 			log.Fatalf("Failed to start port forwarding for app port: %v", err)
-// 		}
-// 		log.Println("Port forwarding for appPort is ready.")
-// 		portForwardReadyCh <- true
-// 	}()
-
-// 	// Iniciar el port forwarding para el msyncPort
-// 	go func() {
-// 		log.Println("Starting port forwarding for msyncPort...")
-// 		if err := portForwardPod(clientset, namespace, podName, msyncPort, msyncPort, stopCh2); err != nil {
-// 			log.Fatalf("Failed to start port forwarding for msync port: %v", err)
-// 		}
-// 		log.Println("Port forwarding for msyncPort is ready.")
-// 		portForwardReadyCh <- true
-// 	}()
-
-// 	// Esperar a que ambos port forwards estén listos antes de continuar
-// 	log.Println("Waiting for both port forwards to be ready...")
-
-// 	// Timeout en caso de que los port forwards no estén listos en 30 segundos
-// 	timeout := time.After(30 * time.Second)
-
-// 	// Esperar a que los dos port forwards estén listos
-// 	for i := 0; i < 2; i++ {
-// 		select {
-// 		case <-portForwardReadyCh:
-// 			// Uno de los port forwards está listo
-// 		case <-timeout:
-// 			log.Fatal("Timeout waiting for port forwards to be ready")
-// 		}
-// 	}
-
-// 	log.Println("Both port forwards are ready.")
-
-// 	// Sincronización inicial
-// 	log.Println("Iniciando sincronización inicial con reintentos...")
-// 	// Aquí ejecutarías la función de sincronización
-// 	// Por ejemplo: syncWithRetries(...)
-// 	log.Println("Sincronización inicial completa.")
-
-// 	// Ejecutar kubectl exec para entrar en el contenedor del pod
-// 	containerName := "application-container"
-// 	if err := execIntoPod(namespace, podName, containerName); err != nil {
-// 		log.Fatalf("Failed to exec into pod: %v", err)
-// 	}
-
-// 	// Mantener el programa en ejecución para que la sincronización siga activa
-// 	select {}
-// }
-
-// func OnlyOneServiceHandlerV2() {
-// 	baseDir, err := os.Getwd()
-// 	if err != nil {
-// 		log.Fatalf("Failed to get working directory: %v", err)
-// 	}
-
-// 	configPath := filepath.Join(baseDir, "multims.yml")
-// 	conf, err := config.LoadConfigFromFile(configPath)
-// 	if err != nil {
-// 		log.Fatalf("Failed to load config: %v", err)
-// 	}
-
-// 	kubeConfigPath := conf.KubeConfigPath
-// 	if conf.UseDefaultKubeConfig {
-// 		kubeConfigPath = filepath.Join(homedir.HomeDir(), ".kube", "config")
-// 	}
-// 	contextName := conf.KubernetesContext
-// 	namespace := conf.Namespace
-// 	uid := conf.UID
-// 	appPort := conf.Application.Port
-// 	msyncPort := 6060
-// 	image := conf.Registry.Image
-
-// 	clientset, err := prepareKubernetesClient(kubeConfigPath, contextName)
-// 	if err != nil {
-// 		log.Fatalf("Failed to prepare Kubernetes client: %v", err)
-// 	}
-
-// 	log.Printf("Using context: %s", contextName)
-// 	log.Printf("Namespace: %s", namespace)
-// 	log.Printf("KubeConfigPath: %s", kubeConfigPath)
-
-// 	// Cambiar el contexto explícitamente
-// 	err = switchKubeContext(kubeConfigPath, contextName)
-// 	if err != nil {
-// 		log.Fatalf("Failed to switch context: %v", err)
-// 	}
-
-// 	podName := fmt.Sprintf("pod-%s", uid)
-// 	pvcName := fmt.Sprintf("pvc-%s", uid)
-// 	svcName := fmt.Sprintf("svc-%s", uid)
-// 	cfmName := fmt.Sprintf("svc-%s", uid)
-
-// 	// Verificar y crear PVC (entrada de usuario antes de iniciar goroutines)
-// 	_, err = clientset.CoreV1().PersistentVolumeClaims(namespace).Get(context.TODO(), pvcName, metav1.GetOptions{})
-// 	if resourceExists(err) {
-// 		if askForRecreate("PersistentVolumeClaim", pvcName) {
-// 			clientset.CoreV1().PersistentVolumeClaims(namespace).Delete(context.TODO(), pvcName, metav1.DeleteOptions{})
-// 			if err := waitForPVCDeletion(clientset, namespace, pvcName); err != nil {
-// 				log.Fatalf("Error waiting for PVC deletion: %v", err)
-// 			}
-// 			if err := createPersistentVolumeClaim(clientset, namespace, pvcName); err != nil {
-// 				log.Fatalf("Failed to create PVC: %v", err)
-// 			}
-// 		}
-// 	} else if errors.IsNotFound(err) {
-// 		if err := createPersistentVolumeClaim(clientset, namespace, pvcName); err != nil {
-// 			log.Fatalf("Failed to create PVC: %v", err)
-// 		}
-// 	} else {
-// 		log.Fatalf("Error checking PVC existence: %v", err)
-// 	}
-
-// 	// Verificar y crear ConfigMap
-// 	_, err = clientset.CoreV1().ConfigMaps(namespace).Get(context.TODO(), cfmName, metav1.GetOptions{})
-// 	if resourceExists(err) {
-// 		if askForRecreate("ConfigMap", cfmName) {
-// 			clientset.CoreV1().ConfigMaps(namespace).Delete(context.TODO(), cfmName, metav1.DeleteOptions{})
-// 			if err := createConfigMap(clientset, namespace, cfmName); err != nil {
-// 				log.Fatalf("Failed to create ConfigMap: %v", err)
-// 			}
-// 		}
-// 	} else if errors.IsNotFound(err) {
-// 		if err := createConfigMap(clientset, namespace, cfmName); err != nil {
-// 			log.Fatalf("Failed to create ConfigMap: %v", err)
-// 		}
-// 	} else {
-// 		log.Fatalf("Error checking ConfigMap existence: %v", err)
-// 	}
-
-// 	// Verificar y crear Pod
-// 	_, err = clientset.CoreV1().Pods(namespace).Get(context.TODO(), podName, metav1.GetOptions{})
-// 	if resourceExists(err) {
-// 		if askForRecreate("Pod", podName) {
-// 			clientset.CoreV1().Pods(namespace).Delete(context.TODO(), podName, metav1.DeleteOptions{})
-// 			if err := createPod(clientset, namespace, podName, pvcName, image, cfmName); err != nil {
-// 				log.Fatalf("Failed to create Pod: %v", err)
-// 			}
-// 		}
-// 	} else if errors.IsNotFound(err) {
-// 		if err := createPod(clientset, namespace, podName, pvcName, image, cfmName); err != nil {
-// 			log.Fatalf("Failed to create Pod: %v", err)
-// 		}
-// 	} else {
-// 		log.Fatalf("Error checking Pod existence: %v", err)
-// 	}
-
-// 	// Verificar y crear Service
-// 	_, err = clientset.CoreV1().Services(namespace).Get(context.TODO(), svcName, metav1.GetOptions{})
-// 	if resourceExists(err) {
-// 		if askForRecreate("Service", svcName) {
-// 			clientset.CoreV1().Services(namespace).Delete(context.TODO(), svcName, metav1.DeleteOptions{})
-// 			if err := createService(clientset, namespace, svcName, appPort, msyncPort); err != nil {
-// 				log.Fatalf("Failed to create Service: %v", err)
-// 			}
-// 		}
-// 	} else if errors.IsNotFound(err) {
-// 		if err := createService(clientset, namespace, svcName, appPort, msyncPort); err != nil {
-// 			log.Fatalf("Failed to create Service: %v", err)
-// 		}
-// 	} else {
-// 		log.Fatalf("Error checking Service existence: %v", err)
-// 	}
-
-// 	// Esperar a que el pod esté listo
-// 	fmt.Printf("Waiting for Pod %s to be ready...\n", podName)
-// 	if err := waitForPodReady(clientset, podName, namespace, 120); err != nil {
-// 		log.Fatalf("Error waiting for Pod to be ready: %v", err)
-// 	}
-// 	fmt.Println("Pod is ready.")
-
-// 	// Ahora que la entrada del usuario se ha manejado, puedes iniciar las goroutines
-// 	wg := sync.WaitGroup{}
-// 	wg.Add(2)
-
-// 	portForwardReadyCh := make(chan bool, 2)
-// 	stopCh1 := make(chan struct{})
-// 	stopCh2 := make(chan struct{})
-
-// 	go func() {
-// 		defer wg.Done()
-// 		if err := portForwardPod(clientset, namespace, podName, appPort, appPort, stopCh1); err != nil {
-// 			log.Fatalf("Failed to start port forwarding for app port: %v", err)
-// 		}
-// 	}()
-
-// 	go func() {
-// 		defer wg.Done()
-// 		if err := portForwardPod(clientset, namespace, podName, msyncPort, msyncPort, stopCh2); err != nil {
-// 			log.Fatalf("Failed to start port forwarding for msync port: %v", err)
-// 		}
-// 		portForwardReadyCh <- true
-// 	}()
-
-// 	wg.Wait() // Esperar a que las goroutines terminen
-
-// 	// directory := baseDir
-// 	// address := "localhost"
-// 	// excludes := ".git/,node_modules/"
-// 	// // Sincronización inicial
-// 	// maxRetries := 3
-// 	// log.Println("Iniciando sincronización inicial con reintentos...")
-// 	// if err := syncWithRetries(directory, address, msyncPort, excludes, maxRetries); err != nil {
-// 	// 	log.Fatalf("Failed to run initial msync after retries: %v", err)
-// 	// }
-// 	// log.Println("Sincronización inicial completa.")
-
-// 	// Ejecutar kubectl exec para entrar en el contenedor del pod
-// 	containerName := "application-container"
-// 	if err := execIntoPod(namespace, podName, containerName); err != nil {
-// 		log.Fatalf("Failed to exec into pod: %v", err)
-// 	}
-
-// 	// Mantener el programa en ejecución para que la sincronización siga activa
-// 	select {}
-// }
 
 // checkAndKillProcessUsingPort verifica si el puerto está en uso, y si es así, mata el proceso.
 func checkAndKillProcessUsingPort(port int) error {
@@ -1221,8 +842,8 @@ func OnlyOneServiceHandlerV2() {
 	podName := fmt.Sprintf("pod-%s", uid)
 	pvcName := fmt.Sprintf("pvc-%s", uid)
 	svcName := fmt.Sprintf("svc-%s", uid)
-	cfmName := fmt.Sprintf("svc-%s", uid)
-
+	cfmName := fmt.Sprintf("cfm-%s", uid)
+	internalAppPort := 9999 // or 3001, depending on your preference
 	// Verificar y crear PVC
 	_, err = clientset.CoreV1().PersistentVolumeClaims(namespace).Get(context.TODO(), pvcName, metav1.GetOptions{})
 	if resourceExists(err) {
@@ -1248,12 +869,12 @@ func OnlyOneServiceHandlerV2() {
 	if resourceExists(err) {
 		if askForRecreate("ConfigMap", cfmName) {
 			clientset.CoreV1().ConfigMaps(namespace).Delete(context.TODO(), cfmName, metav1.DeleteOptions{})
-			if err := createConfigMap(clientset, namespace, cfmName); err != nil {
+			if err := createConfigMap(clientset, namespace, cfmName, appPort); err != nil { // Asegúrate de pasar appPort aquí
 				log.Fatalf("Failed to create ConfigMap: %v", err)
 			}
 		}
 	} else if errors.IsNotFound(err) {
-		if err := createConfigMap(clientset, namespace, cfmName); err != nil {
+		if err := createConfigMap(clientset, namespace, cfmName, appPort); err != nil { // Asegúrate de pasar appPort aquí
 			log.Fatalf("Failed to create ConfigMap: %v", err)
 		}
 	} else {
@@ -1261,33 +882,34 @@ func OnlyOneServiceHandlerV2() {
 	}
 
 	// Verificar y crear Pod
+	// Verificar y crear Pod
 	_, err = clientset.CoreV1().Pods(namespace).Get(context.TODO(), podName, metav1.GetOptions{})
 	if resourceExists(err) {
 		if askForRecreate("Pod", podName) {
 			clientset.CoreV1().Pods(namespace).Delete(context.TODO(), podName, metav1.DeleteOptions{})
-			if err := createPod(clientset, namespace, podName, pvcName, image, cfmName); err != nil {
+			if err := createPod(clientset, namespace, podName, pvcName, image, cfmName, appPort); err != nil { // Asegúrate de pasar cfmName y appPort
 				log.Fatalf("Failed to create Pod: %v", err)
 			}
 		}
 	} else if errors.IsNotFound(err) {
-		if err := createPod(clientset, namespace, podName, pvcName, image, cfmName); err != nil {
+		if err := createPod(clientset, namespace, podName, pvcName, image, cfmName, appPort); err != nil { // Asegúrate de pasar cfmName y appPort
 			log.Fatalf("Failed to create Pod: %v", err)
 		}
 	} else {
 		log.Fatalf("Error checking Pod existence: %v", err)
 	}
 
-	// Verificar y crear Service
+	// Verificar y crear Service para la aplicación
 	_, err = clientset.CoreV1().Services(namespace).Get(context.TODO(), svcName, metav1.GetOptions{})
 	if resourceExists(err) {
 		if askForRecreate("Service", svcName) {
 			clientset.CoreV1().Services(namespace).Delete(context.TODO(), svcName, metav1.DeleteOptions{})
-			if err := createService(clientset, namespace, svcName, appPort, msyncPort); err != nil {
+			if err := createService(clientset, namespace, svcName, appPort, internalAppPort); err != nil {
 				log.Fatalf("Failed to create Service: %v", err)
 			}
 		}
 	} else if errors.IsNotFound(err) {
-		if err := createService(clientset, namespace, svcName, appPort, msyncPort); err != nil {
+		if err := createService(clientset, namespace, svcName, appPort, internalAppPort); err != nil {
 			log.Fatalf("Failed to create Service: %v", err)
 		}
 	} else {
@@ -1310,41 +932,8 @@ func OnlyOneServiceHandlerV2() {
 	//
 	directory := baseDir
 	fmt.Println("Directory: ", directory)
-	// stopCh1 := make(chan struct{})
-	// stopCh2 := make(chan struct{})
-	// stopCh3 := make(chan struct{})
 	containerName := "application-container"
 	portForwardReadyCh := make(chan bool, 2)
-
-	// Iniciar el port forwarding para el appPort
-	// go func() {
-	// 	log.Println("Starting port forwarding for appPort...")
-	// 	if err := portForwardPod(clientset, namespace, podName, appPort, appPort, stopCh1); err != nil {
-	// 		log.Fatalf("Failed to start port forwarding for app port: %v", err)
-	// 	}
-	// 	log.Println("Port forwarding for appPort is ready.")
-	// 	portForwardReadyCh <- true
-	// }()
-
-	// // Iniciar el port forwarding para el msyncPort
-	// go func() {
-	// 	log.Println("Starting port forwarding for msyncPort...")
-	// 	if err := portForwardPod(clientset, namespace, podName, msyncPort, msyncPort, stopCh2); err != nil {
-	// 		log.Fatalf("Failed to start port forwarding for msync port: %v", err)
-	// 	}
-	// 	log.Println("Port forwarding for msyncPort is ready.")
-	// 	portForwardReadyCh <- true
-	// }()
-
-	// // Iniciar el port forwarding para el msyncPortHttp
-	// go func() {
-	// 	log.Println("Starting port forwarding for msyncPort...")
-	// 	if err := portForwardPod(clientset, namespace, podName, msyncPortHttp, msyncPortHttp, stopCh3); err != nil {
-	// 		log.Fatalf("Failed to start port forwarding for msync port: %v", err)
-	// 	}
-	// 	log.Println("Port forwarding for msyncPort is ready.")
-	// 	portForwardReadyCh <- true
-	// }()
 
 	// Iniciar el port forwarding para el appPort
 	go func() {

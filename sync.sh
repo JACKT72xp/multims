@@ -26,7 +26,7 @@ function sync() {
     echo "Sincronización completa." | tee -a "$LOG_FILE"
 }
 
-# Ejecutar una sincronización inicial XXXXXX
+# Ejecutar una sincronización inicial XXXXXXjackjack
 sync
 
 # Usar fswatch para monitorear cambios y volver a sincronizar automáticamente

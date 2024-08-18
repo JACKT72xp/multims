@@ -7,7 +7,7 @@ technology: Node
 namespace: local
 useDefaultKubeConfig: true
 kubeConfigPath: /Users/jacktorpoco/.kube/config
-uid: a5317d09-c858-8b2d-14dc-7b91fe901ce6
+uid: a5317d09-c858-8b2d-14dc-7b91fe901ce123
 appName: multims
 application:
   start_run: node index.js
