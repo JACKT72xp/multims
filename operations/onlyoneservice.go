@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	kong "multims/pkg/build"
 	"multims/pkg/client"
@@ -1171,6 +1172,7 @@ func portForwardPodDetached(namespace, podName string, localPort, remotePort int
 }
 
 func OnlyOneServiceHandlerV2() {
+	log.SetOutput(ioutil.Discard)
 	// Verificar si el archivo multims.yml existe
 	baseDir, err := os.Getwd()
 	if err != nil {
