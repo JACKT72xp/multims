@@ -20,8 +20,13 @@ jobs:
           # Asegurarse de que todos los tags estén disponibles en el entorno local
           git fetch --tags
           
-          # Obtener el último tag o empezar desde v1.5.0 si no hay tags
-          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.5.0")
+          # Obtener todos los tags y ordenarlos numéricamente
+          last_tag=$(git tag --sort=-v:refname | head -n 1)
+          
+          # Si no se encuentra ningún tag, empezar desde v1.5.0
+          if [ -z "$last_tag" ]; then
+            last_tag="v1.5.0"
+          fi
           
           # Dividir el tag en partes
           IFS='.' read -r -a parts <<< "${last_tag/v/}"
@@ -32,15 +37,9 @@ jobs:
           # Crear un nuevo tag con la versión incrementada
           new_tag="v${parts[0]}.${parts[1]}.$patch"
           
-          # Verificar si el nuevo tag ya existe en el remoto
-          if git rev-parse "refs/tags/$new_tag" >/dev/null 2>&1; then
-            echo "Tag $new_tag already exists. Trying the next version."
-            # Incrementar el parche nuevamente si ya existe
-            patch=$((patch + 1))
-            new_tag="v${parts[0]}.${parts[1]}.$patch"
-          fi
-          
-          echo "::set-output name=new_tag::$new_tag"
+          # Configurar la salida del nuevo tag
+          echo "New tag to create: $new_tag"
+          echo "new_tag=$new_tag" >> $GITHUB_ENV
 
       - name: Build and Test
         run: |
