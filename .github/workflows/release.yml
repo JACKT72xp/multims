@@ -17,20 +17,29 @@ jobs:
       - name: Obtener el último tag
         id: get_last_tag
         run: |
-          # Obtener el último tag, si no hay ninguno, comenzar desde v1.5.13
-          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.5.13")
+          # Asegurarse de que todos los tags estén disponibles en el entorno local
+          git fetch --tags
           
-          # Dividir el tag en partes (Mayor.Minor.Patch)
-          IFS='.' read -r -a parts <<< "${last_tag//v/}"
+          # Obtener el último tag o empezar desde v1.5.0 si no hay tags
+          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.5.0")
           
-          # Incrementar la versión del parche (Patch)
+          # Dividir el tag en partes
+          IFS='.' read -r -a parts <<< "${last_tag/v/}"
+          
+          # Incrementar la versión del parche
           patch=$((parts[2] + 1))
           
-          # Construir el nuevo tag
+          # Crear un nuevo tag con la versión incrementada
           new_tag="v${parts[0]}.${parts[1]}.$patch"
           
-          # Establecer el nuevo tag como salida
-          echo "New tag: $new_tag"
+          # Verificar si el nuevo tag ya existe en el remoto
+          if git rev-parse "refs/tags/$new_tag" >/dev/null 2>&1; then
+            echo "Tag $new_tag already exists. Trying the next version."
+            # Incrementar el parche nuevamente si ya existe
+            patch=$((patch + 1))
+            new_tag="v${parts[0]}.${parts[1]}.$patch"
+          fi
+          
           echo "::set-output name=new_tag::$new_tag"
 
       - name: Build and Test
