@@ -8,6 +8,8 @@ on:
 jobs:
   tag_and_release:
     runs-on: ubuntu-latest
+    outputs:
+      new_tag: ${{ steps.get_last_tag.outputs.new_tag }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -15,8 +17,8 @@ jobs:
       - name: Obtener el último tag
         id: get_last_tag
         run: |
-          # Obtener el último tag o empezar desde v1.5.1
-          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.5.1")
+          # Obtener el último tag o empezar desde v1.5.3
+          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.5.3")
           
           # Dividir el tag en partes
           IFS='.' read -r -a parts <<< "${last_tag/v/}"
