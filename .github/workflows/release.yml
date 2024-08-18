@@ -1,14 +1,40 @@
-name: Build and Release
+name: Tag, Build and Release
 
 on:
   push:
     branches:
       - main
-    tags:
-      - 'v*.*.*'
 
 jobs:
-  build:
+  tag_and_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+      - name: Bump version and create tag
+        id: tag_version
+        run: |
+          # Obtener el último tag
+          last_tag=$(git describe --tags --abbrev=0 || echo "v0.0.0")
+          # Dividir el tag en partes
+          IFS='.' read -r -a parts <<< "${last_tag/v/}"
+          # Incrementar la versión del parche
+          patch=$((parts[2] + 1))
+          new_tag="v${parts[0]}.${parts[1]}.$patch"
+          # Crear un nuevo tag
+          git tag $new_tag
+          git push origin $new_tag
+          echo "New tag created: $new_tag"
+          echo "::set-output name=new_tag::$new_tag"
+
+  release:
+    needs: tag_and_release
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -17,6 +43,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Necesario para obtener los tags
 
       - name: Set up Go
         uses: actions/setup-go@v4
@@ -34,18 +62,10 @@ jobs:
           name: multims-${{ matrix.goos }}-${{ matrix.goos }}-${{ matrix.goarch }}
           path: build/multims_${{ matrix.goos }}_${{ matrix.goarch }}
 
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download binaries
-        uses: actions/download-artifact@v3
-        with:
-          name: multims-${{ matrix.goos }}-${{ matrix.goos }}-${{ matrix.goarch }}
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ steps.tag_version.outputs.new_tag }}
           files: build/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
