@@ -16,7 +16,7 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-
+      
       - name: Bump version and create tag
         id: tag_version
         run: |
@@ -29,10 +29,10 @@ jobs:
           new_tag="v${parts[0]}.${parts[1]}.$patch"
           # Crear un nuevo tag
           git tag $new_tag
-          git push origin $new_tag
+          git push https://$GITHUB_ACTOR:${{ secrets.PAT_TOKEN }}@github.com/$GITHUB_REPOSITORY.git $new_tag
           echo "New tag created: $new_tag"
           echo "::set-output name=new_tag::$new_tag"
-
+  
   release:
     needs: tag_and_release
     runs-on: ubuntu-latest
