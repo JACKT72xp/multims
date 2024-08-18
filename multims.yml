@@ -4,12 +4,13 @@ registry:
   provider: CustomImageMultiMS
   image: jackt72xp/multims:nodejsv25
 technology: Node
-namespace: default
+namespace: local
 useDefaultKubeConfig: true
 kubeConfigPath: /Users/jacktorpoco/.kube/config
-uid: 192c16b5-dd3b-4630-8d6b-bc54a6260bd30
+uid: a5317d09-c858-8b2d-14dc-7b91fe901ce6
 appName: multims
 application:
   start_run: node index.js
   port: 3000
 multiservices: []
+registryURL: 

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	kong "multims/pkg/build"
 	"multims/pkg/client"
@@ -1172,21 +1171,19 @@ func portForwardPodDetached(namespace, podName string, localPort, remotePort int
 }
 
 func OnlyOneServiceHandlerV2() {
-	log.SetOutput(ioutil.Discard)
-	// logFile, err := os.OpenFile("msync.log", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
-	// if err != nil {
-	// 	log.Fatalf("Failed to open log file: %v", err)
-	// }
-	// defer logFile.Close()
-
-	// log.SetOutput(logFile)
+	// Verificar si el archivo multims.yml existe
 	baseDir, err := os.Getwd()
 	if err != nil {
-
 		log.Fatalf("Failed to get working directory: %v", err)
 	}
 
 	configPath := filepath.Join(baseDir, "multims.yml")
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		fmt.Println("Error: No se encontró el archivo 'multims.yml'.")
+		fmt.Println("Por favor, ejecute 'multims init' para configurar su entorno.")
+		return
+	}
+
 	conf, err := config.LoadConfigFromFile(configPath)
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)

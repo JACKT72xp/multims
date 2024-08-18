@@ -10,8 +10,6 @@ import (
 	"text/template"
 
 	"gopkg.in/yaml.v2"
-
-	"github.com/google/uuid"
 )
 
 //go:embed templates/nodejs/*
@@ -69,7 +67,7 @@ registryURL: {{.RegistryURL}}
 `
 
 // SaveCustomImageConfigToFile saves the configuration to a multims.yml file
-func SaveCustomImageConfigToFile(technology, image, kubernetesContext, namespace string, useDefaultKubeConfig bool, kubeConfigPath, appName, startRun string, port int) {
+func SaveCustomImageConfigToFile(technology, image, kubernetesContext, namespace string, useDefaultKubeConfig bool, kubeConfigPath, appName, startRun string, port int, uid string) {
 	config := Config{
 		Technology:           technology,
 		KubernetesContext:    kubernetesContext,
@@ -77,6 +75,7 @@ func SaveCustomImageConfigToFile(technology, image, kubernetesContext, namespace
 		UseDefaultKubeConfig: useDefaultKubeConfig,
 		KubeConfigPath:       kubeConfigPath,
 		AppName:              appName,
+		UID:                  uid, // Incluye el UID aquí
 		Application: AppInfo{
 			StartRun: startRun,
 			Port:     port,
@@ -124,15 +123,15 @@ func CreateMultimsDirectory() error {
 	return nil
 }
 
-func SaveConfigToFile(technology, registry, context, namespace string, useDefault bool, kubeConfigPath, appName string, ecr_docker string, input string, port int) error {
-	uid := uuid.New().String()
+func SaveConfigToFile(technology, registry, context, namespace string, useDefault bool, kubeConfigPath, appName, ecr_docker, input string, port int, uid string) error {
+	// Ya no necesitamos generar el uid aquí
 	config := Config{
 		KubernetesContext:    context,
 		Technology:           technology,
 		Namespace:            namespace,
 		UseDefaultKubeConfig: useDefault,
 		KubeConfigPath:       kubeConfigPath,
-		UID:                  uid,
+		UID:                  uid, // Incluye el UID aquí
 		AppName:              appName,
 		Application: AppInfo{
 			StartRun: input,
@@ -141,6 +140,7 @@ func SaveConfigToFile(technology, registry, context, namespace string, useDefaul
 		Multiservices: []ServiceConfig{},
 		RegistryURL:   registry,
 	}
+
 	configData, err := yaml.Marshal(config)
 	if err != nil {
 		fmt.Printf("Error marshaling config data: %v\n", err)
@@ -166,7 +166,6 @@ func SaveConfigToFile(technology, registry, context, namespace string, useDefaul
 
 	return nil
 }
-
 func processTemplates(dir string, config Config) error {
 	// Utiliza el sistema de archivos embebido para cargar las plantillas
 	dockerfileTemplate, err := templatesFS.ReadFile("templates/nodejs/Dockerfile.template")

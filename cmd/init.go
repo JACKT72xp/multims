@@ -10,7 +10,6 @@ import (
 	"multims/pkg/utils"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -57,7 +56,6 @@ var initCmd = &cobra.Command{
 		title("Welcome to MULTIMS by JT")
 		fmt.Println(aurora.Bold(aurora.Cyan("Manage your Kubernetes clusters effectively.")))
 
-		// Show loading message
 		fmt.Print(aurora.BrightYellow("Validating..."))
 		time.Sleep(2 * time.Second) // Simulate loading time
 
@@ -127,7 +125,7 @@ var initCmd = &cobra.Command{
 			log.Fatalf("Error choosing context: %v", err)
 		}
 
-		// Select namespace
+		// Select namespace (kept as user-defined)
 		namespace, err := utils.SelectNamespace(kubeConfigPath, ctx)
 		if err != nil {
 			log.Fatalf("Error selecting namespace: %v", err)
@@ -160,7 +158,7 @@ var initCmd = &cobra.Command{
 		if registryChoice == "CustomImageMultiMS" {
 			switch technology {
 			case "Node":
-				customImage = "jackt72xp/multims:nodejsv3"
+				customImage = "jackt72xp/multims:nodejsv25"
 			case "Python":
 				customImage = "jackt72xp/multims:pythonv2"
 			}
@@ -187,38 +185,34 @@ var initCmd = &cobra.Command{
 		}
 		survey.AskOne(promptPortNumber, &portNumber)
 
-		// Get the current directory name
-		currentDir, err := os.Getwd()
-		if err != nil {
-			log.Fatalf("Error getting current directory: %v", err)
-		}
-		dirName := filepath.Base(currentDir)
-		fmt.Printf("Your app name: %s\n", aurora.Bold(dirName))
+		// Force appName to be "multims"
+		appName := "multims"
+		fmt.Printf("Your app name: %s\n", aurora.Bold(appName))
 
 		// Create MULTIMS directory
 		build.CreateMultimsDirectory()
 
-		// Get AWS account info
-		accountID, region, err := config.GetAWSAccountInfo()
-		if err != nil {
-			log.Fatalf("Failed to retrieve AWS account info: %v", err)
-		}
+		// Generate a UUID for the configuration
+		uid := utils.GenerateUUID()
 
 		intValue, err := strconv.Atoi(portNumber)
 		if err != nil {
 			log.Fatalf("Invalid port number: %v", err)
 		}
 
-		ecrEndpoint := fmt.Sprintf("%s.dkr.ecr.%s.amazonaws.com", accountID, region)
-
-		// Save config to file
+		// Remove registryURL
 		if registryChoice == "CustomImageMultiMS" {
-			build.SaveCustomImageConfigToFile(technology, customImage, ctx, namespace, useDefaultKubeConfig, kubeConfigPath, dirName, startCommand, intValue)
+			build.SaveCustomImageConfigToFile(technology, customImage, ctx, namespace, useDefaultKubeConfig, kubeConfigPath, appName, startCommand, intValue, uid)
 		} else {
-			build.SaveConfigToFile(technology, ecrEndpoint, ctx, namespace, useDefaultKubeConfig, kubeConfigPath, dirName, registryChoice, startCommand, intValue)
+			accountID, region, err := config.GetAWSAccountInfo()
+			if err != nil {
+				log.Fatalf("Failed to retrieve AWS account info: %v", err)
+			}
+			ecrEndpoint := fmt.Sprintf("%s.dkr.ecr.%s.amazonaws.com", accountID, region)
+			build.SaveConfigToFile(technology, ecrEndpoint, ctx, namespace, useDefaultKubeConfig, kubeConfigPath, appName, registryChoice, startCommand, intValue, uid)
 		}
 
-		fmt.Println(aurora.Bold(aurora.Green("Files generated")))
+		fmt.Println(aurora.Bold(aurora.Green("multims.yml configuration file generated successfully.")))
 
 		// Setup Kubernetes connection
 		client.SetupKubernetesConnection(kubeConfigPath, ctx)
