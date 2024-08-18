@@ -86,7 +86,7 @@ func RunInit() {
 		fmt.Println(formattedPort)
 
 		// Guardar configuración en archivo
-		build.SaveConfigToFile(technology, fmt.Sprintf("%s.dkr.ecr.%s.amazonaws.com", accountID, region), ctx, namespace, useDefaultKubeConfig, kubeConfigPath, dirName, registry, command, port)
+		build.SaveConfigToFile(technology, fmt.Sprintf("%s.dkr.ecr.%s.amazonaws.com", accountID, region), ctx, namespace, useDefaultKubeConfig, kubeConfigPath, dirName, registry, command, port, utils.GenerateUUID())
 
 		fmt.Println("Files generated")
 
