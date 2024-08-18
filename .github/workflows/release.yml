@@ -17,15 +17,20 @@ jobs:
       - name: Obtener el último tag
         id: get_last_tag
         run: |
-          git fetch --tags
-          last_tag=$(git tag --sort=-v:refname | head -n 1)
-          if [ -z "$last_tag" ]; then
-            last_tag="v1.5.0"
-          fi
-          IFS='.' read -r -a parts <<< "${last_tag/v/}"
+          # Obtener el último tag, si no hay ninguno, comenzar desde v1.5.16
+          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.5.16")
+          
+          # Dividir el tag en partes (Mayor.Minor.Patch)
+          IFS='.' read -r -a parts <<< "${last_tag//v/}"
+          
+          # Incrementar la versión del parche (Patch)
           patch=$((parts[2] + 1))
+          
+          # Construir el nuevo tag
           new_tag="v${parts[0]}.${parts[1]}.$patch"
-          echo "new_tag=$new_tag" >> $GITHUB_ENV
+          
+          # Establecer el nuevo tag como salida
+          echo "New tag: $new_tag"
           echo "::set-output name=new_tag::$new_tag"
 
       - name: Build and Test
@@ -38,9 +43,9 @@ jobs:
         run: |
           git config --global user.name "JACKT72xp"
           git config --global user.email "JACKT72xp@users.noreply.github.com"
-          git tag ${{ env.new_tag }}
-          git push https://$GITHUB_ACTOR:${{ secrets.PAT_TOKEN }}@github.com/$GITHUB_REPOSITORY.git ${{ env.new_tag }}
-
+          git tag ${{ steps.get_last_tag.outputs.new_tag }}
+          git push https://$GITHUB_ACTOR:${{ secrets.PAT_TOKEN }}@github.com/$GITHUB_REPOSITORY.git ${{ steps.get_last_tag.outputs.new_tag }}
+      
   release:
     needs: tag_and_release
     runs-on: ubuntu-latest
@@ -68,27 +73,26 @@ jobs:
         run: |
           mkdir -p build
           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o build/multims_${{ matrix.goos }}_${{ matrix.goarch }}
-
+  
       - name: Generate SHA256 Checksums
-        id: generate_sha256
         run: |
           sha256sum build/* > sha256sums.txt
           cat sha256sums.txt
-
+  
       - name: Upload binaries
         uses: actions/upload-artifact@v3
         with:
           name: multims-${{ matrix.goos }}-${{ matrix.goarch }}
           path: build/multims_${{ matrix.goos }}_${{ matrix.goarch }}
-
+  
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ env.new_tag }}
+          tag_name: ${{ needs.tag_and_release.outputs.new_tag }}
           files: build/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+  
       - name: Print SHA256 for copying
         run: |
           sha256_darwin_amd64=$(grep multims_darwin_amd64 sha256sums.txt | awk '{ print $1 }')
