@@ -24,7 +24,7 @@ jobs:
           last_tag=$(git describe --tags --abbrev=0 || echo "v0.0.0")
           # Dividir el tag en partes
           IFS='.' read -r -a parts <<< "${last_tag/v/}"
-          # Incrementar la versión del parche
+          # Incrementar la versión del parche 2
           patch=$((parts[2] + 1))
           new_tag="v${parts[0]}.${parts[1]}.$patch"
           # Crear un nuevo tag
