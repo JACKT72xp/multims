@@ -12,21 +12,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Git
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
       
       - name: Bump version and create tag
         id: tag_version
         run: |
           # Obtener el último tag
-          last_tag=$(git describe --tags --abbrev=0 || echo "v0.0.0")
+          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           # Dividir el tag en partes
           IFS='.' read -r -a parts <<< "${last_tag/v/}"
-          # Incrementar la versión del parche 2
+          # Incrementar la versión del parche
           patch=$((parts[2] + 1))
           new_tag="v${parts[0]}.${parts[1]}.$patch"
+          # Configurar git para usar el PAT
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           # Crear un nuevo tag
           git tag $new_tag
           git push https://$GITHUB_ACTOR:${{ secrets.PAT_TOKEN }}@github.com/$GITHUB_REPOSITORY.git $new_tag
