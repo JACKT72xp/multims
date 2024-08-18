@@ -17,10 +17,20 @@ jobs:
       - name: Obtener el último tag
         id: get_last_tag
         run: |
-          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.5.11")
-          IFS='.' read -r -a parts <<< "${last_tag/v/}"
+          # Obtener el último tag, si no hay ninguno, comenzar desde v1.5.13
+          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.5.13")
+          
+          # Dividir el tag en partes (Mayor.Minor.Patch)
+          IFS='.' read -r -a parts <<< "${last_tag//v/}"
+          
+          # Incrementar la versión del parche (Patch)
           patch=$((parts[2] + 1))
+          
+          # Construir el nuevo tag
           new_tag="v${parts[0]}.${parts[1]}.$patch"
+          
+          # Establecer el nuevo tag como salida
+          echo "New tag: $new_tag"
           echo "::set-output name=new_tag::$new_tag"
 
       - name: Build and Test
