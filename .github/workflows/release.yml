@@ -17,8 +17,8 @@ jobs:
       - name: Obtener el último tag
         id: get_last_tag
         run: |
-          # Obtener el último tag, si no hay ninguno, comenzar desde v1.5.19
-          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.5.19")
+          # Obtener el último tag, si no hay ninguno, comenzar desde v1.5.20
+          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.5.20")
           
           # Dividir el tag en partes (Mayor.Minor.Patch)
           IFS='.' read -r -a parts <<< "${last_tag//v/}"
@@ -35,8 +35,8 @@ jobs:
 
       - name: Build and Test
         run: |
-          go build ./...
-          go test ./...
+          CGO_ENABLED=1 go build ./...
+          CGO_ENABLED=1 go test ./...
 
       - name: Create and Push Tag
         if: ${{ steps.get_last_tag.outputs.new_tag != '' }}
@@ -72,7 +72,7 @@ jobs:
       - name: Build binary
         run: |
           mkdir -p build
-          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o build/multims_${{ matrix.goos }}_${{ matrix.goarch }}
+          CGO_ENABLED=1 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o build/multims_${{ matrix.goos }}_${{ matrix.goarch }}
   
       - name: Generate SHA256 Checksums
         run: |
