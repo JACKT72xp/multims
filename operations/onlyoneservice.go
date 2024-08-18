@@ -1383,7 +1383,7 @@ func OnlyOneServiceHandlerV2() {
 	<-portForwardReadyCh
 
 	// Verificar que el puerto 6060 esté listo usando /healthz antes de proceder con la sincronización
-	if !waitForPortReady("localhost", msyncPort, "/healthz", 60) {
+	if !waitForPortReady("localhost", msyncPortHttp, "/healthz", 60) {
 		log.Fatalf("Port %d is not ready on localhost. Exiting.", msyncPort)
 	}
 	fmt.Println("Port is ready. Proceeding with the initial synchronization.")

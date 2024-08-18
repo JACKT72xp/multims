@@ -15,7 +15,7 @@ EXCLUDES="*.log,.git/,node_modules/"
 # Ruta absoluta al binario msync
 MSYNC_PATH="/Users/jacktorpoco/Documents/multims/msync/msync" # Asegúrate de que esta sea la ruta completa al binario
 
-# Archivo de log
+# Archivo de log demodemo
 LOG_FILE="./sync.log"
 
 # Función para iniciar la sincronización manual usando msync
@@ -26,7 +26,7 @@ function sync() {
     echo "Sincronización completa." | tee -a "$LOG_FILE"
 }
 
-# Ejecutar una sincronización inicial
+# Ejecutar una sincronización inicial XXXXXX
 sync
 
 # Usar fswatch para monitorear cambios y volver a sincronizar automáticamente
