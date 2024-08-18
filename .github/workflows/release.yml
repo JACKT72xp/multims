@@ -17,7 +17,7 @@ jobs:
       - name: Obtener el último tag
         id: get_last_tag
         run: |
-          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.5.10")
+          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.5.11")
           IFS='.' read -r -a parts <<< "${last_tag/v/}"
           patch=$((parts[2] + 1))
           new_tag="v${parts[0]}.${parts[1]}.$patch"
@@ -63,19 +63,18 @@ jobs:
         run: |
           mkdir -p build
           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o build/multims_${{ matrix.goos }}_${{ matrix.goarch }}
-
+  
       - name: Generate SHA256 Checksums
-        id: generate_sha256
         run: |
           sha256sum build/* > sha256sums.txt
           cat sha256sums.txt
-
+  
       - name: Upload binaries
         uses: actions/upload-artifact@v3
         with:
           name: multims-${{ matrix.goos }}-${{ matrix.goarch }}
           path: build/multims_${{ matrix.goos }}_${{ matrix.goarch }}
-
+  
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
@@ -83,48 +82,7 @@ jobs:
           files: build/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  update_formula:
-    needs: [tag_and_release, release]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout homebrew-tap repo
-        uses: actions/checkout@v3
-        with:
-          repository: JACKT72xp/homebrew-cli
-          path: homebrew-cli
-
-      - name: Update formula with new version and SHA256
-        run: |
-          new_tag=${{ needs.tag_and_release.outputs.new_tag || '' }}
-          sha256_darwin_amd64=$(grep multims_darwin_amd64 sha256sums.txt | awk '{ print $1 }')
-          sha256_darwin_arm64=$(grep multims_darwin_arm64 sha256sums.txt | awk '{ print $1 }')
-          sha256_linux_amd64=$(grep multims_linux_amd64 sha256sums.txt | awk '{ print $1 }')
-          sha256_linux_arm64=$(grep multims_linux_arm64 sha256sums.txt | awk '{ print $1 }')
-          
-          sed -i'' -e "s/version \".*\"/version \"$new_tag\"/" homebrew-cli/Formula/multims.rb
-          sed -i'' -e "s|url \".*multims_darwin_amd64\"|url \"https://github.com/JACKT72xp/multims/releases/download/$new_tag/multims_darwin_amd64\"|" homebrew-cli/Formula/multims.rb
-          sed -i'' -e "s|sha256 \".*\"|sha256 \"$sha256_darwin_amd64\"|" homebrew-cli/Formula/multims.rb
-          sed -i'' -e "s|url \".*multims_darwin_arm64\"|url \"https://github.com/JACKT72xp/multims/releases/download/$new_tag/multims_darwin_arm64\"|" homebrew-cli/Formula/multims.rb
-          sed -i'' -e "s|sha256 \".*\"|sha256 \"$sha256_darwin_arm64\"|" homebrew-cli/Formula/multims.rb
-          sed -i'' -e "s|url \".*multims_linux_amd64\"|url \"https://github.com/JACKT72xp/multims/releases/download/$new_tag/multims_linux_amd64\"|" homebrew-cli/Formula/multims.rb
-          sed -i'' -e "s|sha256 \".*\"|sha256 \"$sha256_linux_amd64\"|" homebrew-cli/Formula/multims.rb
-          sed -i'' -e "s|url \".*multims_linux_arm64\"|url \"https://github.com/JACKT72xp/multims/releases/download/$new_tag/multims_linux_arm64\"|" homebrew-cli/Formula/multims.rb
-          sed -i'' -e "s|sha256 \".*\"|sha256 \"$sha256_linux_arm64\"|" homebrew-cli/Formula/multims.rb
-
-    #   - name: Commit and Push changes
-    #     run: |
-    #       cd homebrew-cli
-    #       git config --global user.name "github-actions[bot]"
-    #       git config --global user.email "github-actions[bot]@users.noreply.github.com"
-    #       git add Formula/multims.rb
-    #       git commit -m "Update multims.rb to ${{ needs.tag_and_release.outputs.new_tag }}"
-    #       git push https://$GITHUB_ACTOR:${{ secrets.GITHUB_TOKEN }}@github.com/JACKT72xp/homebrew-cli.git
-      - name: Calculate SHA256
-        run: |
-          sha256sum build/* > sha256sums.txt
-          cat sha256sums.txt
-
+  
       - name: Print SHA256 for copying
         run: |
           sha256_darwin_amd64=$(grep multims_darwin_amd64 sha256sums.txt | awk '{ print $1 }')
