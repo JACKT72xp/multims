@@ -8,8 +8,6 @@ on:
 jobs:
   tag_and_release:
     runs-on: ubuntu-latest
-    outputs:
-      new_tag: ${{ steps.push_tag.outputs.new_tag }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -17,10 +15,19 @@ jobs:
       - name: Obtener el último tag
         id: get_last_tag
         run: |
-          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.5.36")
+          # Obtener el último tag, si no hay ninguno, comenzar desde v1.5.40
+          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.5.40")
+          
+          # Dividir el tag en partes (Mayor.Minor.Patch)
           IFS='.' read -r -a parts <<< "${last_tag//v/}"
+          
+          # Incrementar la versión del parche (Patch)
           patch=$((parts[2] + 1))
+          
+          # Construir el nuevo tag
           new_tag="v${parts[0]}.${parts[1]}.$patch"
+          
+          # Establecer el nuevo tag como salida
           echo "New tag: $new_tag"
           echo "::set-output name=new_tag::$new_tag"
 
@@ -31,8 +38,6 @@ jobs:
           git config --global user.email "JACKT72xp@users.noreply.github.com"
           git tag ${{ steps.get_last_tag.outputs.new_tag }}
           git push https://$GITHUB_ACTOR:${{ secrets.PAT_TOKEN }}@github.com/$GITHUB_REPOSITORY.git ${{ steps.get_last_tag.outputs.new_tag }}
-        outputs:
-          new_tag: ${{ steps.get_last_tag.outputs.new_tag }}
 
   build_linux:
     needs: tag_and_release
