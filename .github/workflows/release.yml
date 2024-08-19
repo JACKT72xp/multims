@@ -17,8 +17,8 @@ jobs:
       - name: Obtener el último tag
         id: get_last_tag
         run: |
-          # Obtener el último tag, si no hay ninguno, comenzar desde v1.5.23
-          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.5.23")
+          # Obtener el último tag, si no hay ninguno, comenzar desde v1.5.24
+          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.5.24")
           
           # Dividir el tag en partes (Mayor.Minor.Patch)
           IFS='.' read -r -a parts <<< "${last_tag//v/}"
@@ -75,7 +75,10 @@ jobs:
           export CGO_ENABLED=1
           export CC=clang
           export CXX=clang++
+          export CGO_CFLAGS="-O -D__BL__=1 -Wno-unused-command-line-argument"
+          export CGO_CPPFLAGS="-O -D__BL__=1 -Wno-unused-command-line-argument"
           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o build/multims_${{ matrix.goos }}_${{ matrix.goarch }}
+
 
       - name: Generate SHA256 Checksums
         run: |
