@@ -72,8 +72,12 @@ jobs:
       - name: Build binary
         run: |
           mkdir -p build
-          CGO_ENABLED=1 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o build/multims_${{ matrix.goos }}_${{ matrix.goarch }}
-  
+          if [[ "${{ matrix.goos }}" == "darwin" && "${{ matrix.goarch }}" == "arm64" ]]; then
+            CGO_ENABLED=1 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} CC="clang" CXX="clang++" CGO_CFLAGS="-arch arm64" CGO_LDFLAGS="-arch arm64" go build -o build/multims_${{ matrix.goos }}_${{ matrix.goarch }}
+          else
+            CGO_ENABLED=1 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o build/multims_${{ matrix.goos }}_${{ matrix.goarch }}
+          fi
+
       - name: Generate SHA256 Checksums
         run: |
           sha256sum build/* > sha256sums.txt
