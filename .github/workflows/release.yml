@@ -17,8 +17,8 @@ jobs:
       - name: Obtener el último tag
         id: get_last_tag
         run: |
-          # Obtener el último tag, si no hay ninguno, comenzar desde v1.5.22
-          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.5.22")
+          # Obtener el último tag, si no hay ninguno, comenzar desde v1.5.23
+          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.5.23")
           
           # Dividir el tag en partes (Mayor.Minor.Patch)
           IFS='.' read -r -a parts <<< "${last_tag//v/}"
@@ -72,12 +72,11 @@ jobs:
       - name: Build binary
         run: |
           mkdir -p build
-          if [[ "${{ matrix.goos }}" == "darwin" && "${{ matrix.goarch }}" == "arm64" ]]; then
-            CC="clang" CXX="clang++" CGO_ENABLED=1 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o build/multims_${{ matrix.goos }}_${{ matrix.goarch }}
-          else
-            CGO_ENABLED=1 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o build/multims_${{ matrix.goos }}_${{ matrix.goarch }}
-          fi
-  
+          export CGO_ENABLED=1
+          export CC=clang
+          export CXX=clang++
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o build/multims_${{ matrix.goos }}_${{ matrix.goarch }}
+
       - name: Generate SHA256 Checksums
         run: |
           sha256sum build/* > sha256sums.txt
