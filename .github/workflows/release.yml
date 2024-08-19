@@ -17,19 +17,10 @@ jobs:
       - name: Obtener el último tag
         id: get_last_tag
         run: |
-          # Obtener el último tag, si no hay ninguno, comenzar desde v1.5.25
-          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.5.25")
-          
-          # Dividir el tag en partes (Mayor.Minor.Patch)
+          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.5.27")
           IFS='.' read -r -a parts <<< "${last_tag//v/}"
-          
-          # Incrementar la versión del parche (Patch)
           patch=$((parts[2] + 1))
-          
-          # Construir el nuevo tag
           new_tag="v${parts[0]}.${parts[1]}.$patch"
-          
-          # Establecer el nuevo tag como salida
           echo "New tag: $new_tag"
           echo "::set-output name=new_tag::$new_tag"
 
@@ -41,55 +32,98 @@ jobs:
           git tag ${{ steps.get_last_tag.outputs.new_tag }}
           git push https://$GITHUB_ACTOR:${{ secrets.PAT_TOKEN }}@github.com/$GITHUB_REPOSITORY.git ${{ steps.get_last_tag.outputs.new_tag }}
 
-  release:
+  build_linux:
     needs: tag_and_release
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        goos: [darwin, linux]
         goarch: [amd64, arm64]
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-  
+
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
           go-version: 1.23
-  
-      - name: Install dependencies
-        run: |
-          go mod download
-          go mod tidy
-  
-      - name: Build binary
+
+      - name: Build binary for Linux
         run: |
           mkdir -p build
-          if [[ $RUNNER_OS == "macOS" ]]; then
-            export CGO_ENABLED=0
-            GOARCH=${{ matrix.goarch }} go build -o build/multims_${{ matrix.goos }}_${{ matrix.goarch }}
-          else
-            export CGO_ENABLED=1
-            export CC=clang
-            export CXX=clang++
-            export CGO_CFLAGS="-O -D__BL__=1 -Wno-unused-command-line-argument"
-            export CGO_CPPFLAGS="-O -D__BL__=1 -Wno-unused-command-line-argument"
-            GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o build/multims_${{ matrix.goos }}_${{ matrix.goarch }}
-          fi
+          GOOS=linux GOARCH=${{ matrix.goarch }} go build -o build/multims_linux_${{ matrix.goarch }}
 
-      - name: Generate SHA256 Checksums
+      - name: Generate SHA256 Checksums for Linux
+        run: |
+          sha256sum build/* > sha256sums_linux.txt
+          cat sha256sums_linux.txt
+
+      - name: Upload Linux binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: multims-linux-${{ matrix.goarch }}
+          path: build/multims_linux_${{ matrix.goarch }}
+
+  build_macos:
+    needs: tag_and_release
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        goarch: [amd64, arm64]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.23
+
+      - name: Build binary for macOS
+        run: |
+          mkdir -p build
+          GOOS=darwin GOARCH=${{ matrix.goarch }} go build -o build/multims_darwin_${{ matrix.goarch }}
+
+      - name: Generate SHA256 Checksums for macOS
+        run: |
+          shasum -a 256 build/* > sha256sums_macos.txt
+          cat sha256sums_macos.txt
+
+      - name: Upload macOS binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: multims-macos-${{ matrix.goarch }}
+          path: build/multims_darwin_${{ matrix.goarch }}
+
+  release:
+    needs: [build_linux, build_macos]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: multims-linux-amd64
+          path: build/
+      - uses: actions/download-artifact@v3
+        with:
+          name: multims-linux-arm64
+          path: build/
+      - uses: actions/download-artifact@v3
+        with:
+          name: multims-macos-amd64
+          path: build/
+      - uses: actions/download-artifact@v3
+        with:
+          name: multims-macos-arm64
+          path: build/
+
+      - name: Generate SHA256 Checksums for all binaries
         run: |
           sha256sum build/* > sha256sums.txt
           cat sha256sums.txt
-  
-      - name: Upload binaries
-        uses: actions/upload-artifact@v3
-        with:
-          name: multims-${{ matrix.goos }}-${{ matrix.goarch }}
-          path: build/multims_${{ matrix.goos }}_${{ matrix.goarch }}
-  
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
@@ -97,7 +131,7 @@ jobs:
           files: build/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
+
       - name: Print SHA256 for copying
         run: |
           sha256_darwin_amd64=$(grep multims_darwin_amd64 sha256sums.txt | awk '{ print $1 }')
