@@ -8,6 +8,8 @@ on:
 jobs:
   tag_and_release:
     runs-on: ubuntu-latest
+    outputs:
+      new_tag: ${{ steps.get_last_tag.outputs.new_tag }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -15,8 +17,8 @@ jobs:
       - name: Obtener el último tag
         id: get_last_tag
         run: |
-          # Obtener el último tag, si no hay ninguno, comenzar desde v1.5.40
-          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.5.40")
+          # Obtener el último tag, si no hay ninguno, comenzar desde v1.5.28
+          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.5.28")
           
           # Dividir el tag en partes (Mayor.Minor.Patch)
           IFS='.' read -r -a parts <<< "${last_tag//v/}"
@@ -28,6 +30,7 @@ jobs:
           new_tag="v${parts[0]}.${parts[1]}.$patch"
           
           # Establecer el nuevo tag como salida
+          echo "new_tag=$new_tag" >> $GITHUB_ENV
           echo "New tag: $new_tag"
           echo "::set-output name=new_tag::$new_tag"
 
@@ -102,7 +105,7 @@ jobs:
           path: build/multims_darwin_${{ matrix.goarch }}
 
   release:
-    needs: [build_linux, build_macos]
+    needs: [tag_and_release, build_linux, build_macos]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -134,7 +137,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ needs.tag_and_release.outputs.new_tag }}
+          tag_name: ${{ steps.tag_and_release.outputs.new_tag }}
           files: build/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

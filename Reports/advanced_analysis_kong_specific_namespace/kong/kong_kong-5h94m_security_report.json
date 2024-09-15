@@ -1,0 +1,23 @@
+{
+  "namespace": "kong",
+  "pod_name": "kong-5h94m",
+  "security_details": {
+    "namespace": "kong",
+    "pod_name": "kong-5h94m",
+    "security_details": {
+      "ControllerOwner": "DaemonSet",
+      "HasShellAccess": true,
+      "InsecureNetworkCapabilities": true,
+      "PrivilegedMode": "Unknown",
+      "RunningAsRoot": false
+    },
+    "timestamp": "2024-09-15T11:51:18.155616+02:00",
+    "violations": [
+      "Container kong in pod kong-5h94m (namespace: kong) does not have resource limits or requests set"
+    ]
+  },
+  "timestamp": "2024-09-15T11:51:18.155657+02:00",
+  "violations": [
+    "Container kong in pod kong-5h94m (namespace: kong) does not have resource limits or requests set"
+  ]
+}

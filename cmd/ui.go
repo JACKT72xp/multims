@@ -111,9 +111,9 @@ var uiCmd = &cobra.Command{
 	},
 }
 
-func init() {
-	rootCmd.AddCommand(uiCmd)
-}
+// func init() {
+// 	rootCmd.AddCommand(uiCmd)
+// }
 
 func StartUIServer() {
 	dir := "./frontend/dist"

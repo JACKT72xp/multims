@@ -1,0 +1,5604 @@
+{
+  "ingress": {
+    "apiVersion": "v1",
+    "items": [
+      {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "annotations": {
+            "kubernetes.io/ingress.class": "traefik",
+            "nginx.ingress.kubernetes.io/whitelist-source-range": "0.0.0.0/0,::/0"
+          },
+          "creationTimestamp": "2024-07-29T09:04:15Z",
+          "generateName": "cm-acme-http-solver-",
+          "generation": 1,
+          "labels": {
+            "acme.cert-manager.io/http-domain": "1060177554",
+            "acme.cert-manager.io/http-token": "1116212994",
+            "acme.cert-manager.io/http01-solver": "true"
+          },
+          "name": "cm-acme-http-solver-cnmrb",
+          "namespace": "default",
+          "ownerReferences": [
+            {
+              "apiVersion": "acme.cert-manager.io/v1",
+              "blockOwnerDeletion": true,
+              "controller": true,
+              "kind": "Challenge",
+              "name": "echo2222.bifrost.pe-ctqnm-3108182807-3949717101",
+              "uid": "ccecca14-9100-467f-af5b-593de67946b4"
+            }
+          ],
+          "resourceVersion": "121141216",
+          "uid": "cd2db7d9-be24-45ac-af7d-7ca7d68d8cf5"
+        },
+        "spec": {
+          "rules": [
+            {
+              "host": "echo2222.bifrost.pe",
+              "http": {
+                "paths": [
+                  {
+                    "backend": {
+                      "service": {
+                        "name": "cm-acme-http-solver-njpj5",
+                        "port": {
+                          "number": 8089
+                        }
+                      }
+                    },
+                    "path": "/.well-known/acme-challenge/8Ewty781s5mIJkRK3qtrhp8h7XYjFrvLUyYmOpdJ7cg",
+                    "pathType": "ImplementationSpecific"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "status": {
+          "loadBalancer": {
+            "ingress": [
+              {
+                "ip": "192.168.50.0"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "annotations": {
+            "cert-manager.io/cluster-issuer": "letsencrypt-prod",
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"networking.k8s.io/v1\",\"kind\":\"Ingress\",\"metadata\":{\"annotations\":{\"cert-manager.io/cluster-issuer\":\"letsencrypt-prod\",\"traefik.ingress.kubernetes.io/router.middlewares\":\"default-redirect-https@kubernetescrd\",\"traefik.ingress.kubernetes.io/service-upstream\":\"true\"},\"name\":\"nombre-ingress-api-kubernetes\",\"namespace\":\"default\"},\"spec\":{\"ingressClassName\":\"traefik\",\"rules\":[{\"host\":\"kubeapplaredo.bifrost.pe\",\"http\":{\"paths\":[{\"backend\":{\"service\":{\"name\":\"kubernetes\",\"port\":{\"number\":443}}},\"path\":\"/\",\"pathType\":\"Prefix\"}]}}],\"tls\":[{\"hosts\":[\"kubeapplaredo.bifrost.pe\"],\"secretName\":\"kubeapp\"}]}}\n",
+            "traefik.ingress.kubernetes.io/router.middlewares": "default-redirect-https@kubernetescrd",
+            "traefik.ingress.kubernetes.io/service-upstream": "true"
+          },
+          "creationTimestamp": "2024-01-27T14:56:58Z",
+          "generation": 1,
+          "name": "nombre-ingress-api-kubernetes",
+          "namespace": "default",
+          "resourceVersion": "55173762",
+          "uid": "1cbe6008-d92c-4821-9706-33d136c01399"
+        },
+        "spec": {
+          "ingressClassName": "traefik",
+          "rules": [
+            {
+              "host": "kubeapplaredo.bifrost.pe",
+              "http": {
+                "paths": [
+                  {
+                    "backend": {
+                      "service": {
+                        "name": "kubernetes",
+                        "port": {
+                          "number": 443
+                        }
+                      }
+                    },
+                    "path": "/",
+                    "pathType": "Prefix"
+                  }
+                ]
+              }
+            }
+          ],
+          "tls": [
+            {
+              "hosts": [
+                "kubeapplaredo.bifrost.pe"
+              ],
+              "secretName": "kubeapp"
+            }
+          ]
+        },
+        "status": {
+          "loadBalancer": {
+            "ingress": [
+              {
+                "ip": "192.168.50.0"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "annotations": {
+            "cert-manager.io/cluster-issuer": "letsencrypt-prod",
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"networking.k8s.io/v1\",\"kind\":\"Ingress\",\"metadata\":{\"annotations\":{\"cert-manager.io/cluster-issuer\":\"letsencrypt-prod\",\"traefik.ingress.kubernetes.io/router.middlewares\":\"default-redirect-https@kubernetescrd\",\"traefik.ingress.kubernetes.io/service-upstream\":\"true\"},\"labels\":{\"argocd.argoproj.io/instance\":\"python-dev\"},\"name\":\"python-dev-ingress\",\"namespace\":\"development\"},\"spec\":{\"ingressClassName\":\"traefik\",\"rules\":[{\"host\":\"pythonapidev.bifrost.pe\",\"http\":{\"paths\":[{\"backend\":{\"service\":{\"name\":\"python-dev\",\"port\":{\"number\":5000}}},\"path\":\"/\",\"pathType\":\"Prefix\"}]}}],\"tls\":[{\"hosts\":[\"pythonapidev.bifrost.pe\"],\"secretName\":\"python-dev-tls\"}]}}\n",
+            "traefik.ingress.kubernetes.io/router.middlewares": "default-redirect-https@kubernetescrd",
+            "traefik.ingress.kubernetes.io/service-upstream": "true"
+          },
+          "creationTimestamp": "2023-08-12T19:45:59Z",
+          "generation": 1,
+          "labels": {
+            "argocd.argoproj.io/instance": "python-dev"
+          },
+          "name": "python-dev-ingress",
+          "namespace": "development",
+          "resourceVersion": "5139903",
+          "uid": "12ce3d86-1035-46d5-af30-063b651e5493"
+        },
+        "spec": {
+          "ingressClassName": "traefik",
+          "rules": [
+            {
+              "host": "pythonapidev.bifrost.pe",
+              "http": {
+                "paths": [
+                  {
+                    "backend": {
+                      "service": {
+                        "name": "python-dev",
+                        "port": {
+                          "number": 5000
+                        }
+                      }
+                    },
+                    "path": "/",
+                    "pathType": "Prefix"
+                  }
+                ]
+              }
+            }
+          ],
+          "tls": [
+            {
+              "hosts": [
+                "pythonapidev.bifrost.pe"
+              ],
+              "secretName": "python-dev-tls"
+            }
+          ]
+        },
+        "status": {
+          "loadBalancer": {
+            "ingress": [
+              {
+                "ip": "192.168.50.0"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "annotations": {
+            "cert-manager.io/cluster-issuer": "letsencrypt-prod",
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"networking.k8s.io/v1\",\"kind\":\"Ingress\",\"metadata\":{\"annotations\":{\"cert-manager.io/cluster-issuer\":\"letsencrypt-prod\",\"traefik.ingress.kubernetes.io/router.middlewares\":\"default-redirect-https@kubernetescrd\",\"traefik.ingress.kubernetes.io/service-upstream\":\"true\"},\"labels\":{\"argocd.argoproj.io/instance\":\"support\"},\"name\":\"support\",\"namespace\":\"development\"},\"spec\":{\"ingressClassName\":\"traefik\",\"rules\":[{\"host\":\"backsupport.bifrost.pe\",\"http\":{\"paths\":[{\"backend\":{\"service\":{\"name\":\"support\",\"port\":{\"number\":80}}},\"path\":\"/\",\"pathType\":\"Prefix\"}]}}],\"tls\":[{\"hosts\":[\"backsupport.bifrost.pe\"],\"secretName\":\"support-tls\"}]}}\n",
+            "traefik.ingress.kubernetes.io/router.middlewares": "default-redirect-https@kubernetescrd",
+            "traefik.ingress.kubernetes.io/service-upstream": "true"
+          },
+          "creationTimestamp": "2023-11-21T13:51:21Z",
+          "generation": 1,
+          "labels": {
+            "argocd.argoproj.io/instance": "support"
+          },
+          "name": "support",
+          "namespace": "development",
+          "resourceVersion": "36232749",
+          "uid": "e618fcd1-f35b-4137-958f-208a4f0b1997"
+        },
+        "spec": {
+          "ingressClassName": "traefik",
+          "rules": [
+            {
+              "host": "backsupport.bifrost.pe",
+              "http": {
+                "paths": [
+                  {
+                    "backend": {
+                      "service": {
+                        "name": "support",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    },
+                    "path": "/",
+                    "pathType": "Prefix"
+                  }
+                ]
+              }
+            }
+          ],
+          "tls": [
+            {
+              "hosts": [
+                "backsupport.bifrost.pe"
+              ],
+              "secretName": "support-tls"
+            }
+          ]
+        },
+        "status": {
+          "loadBalancer": {
+            "ingress": [
+              {
+                "ip": "192.168.50.0"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "annotations": {
+            "cert-manager.io/cluster-issuer": "letsencrypt-prod",
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"networking.k8s.io/v1\",\"kind\":\"Ingress\",\"metadata\":{\"annotations\":{\"cert-manager.io/cluster-issuer\":\"letsencrypt-prod\",\"traefik.ingress.kubernetes.io/router.middlewares\":\"default-redirect-https@kubernetescrd\",\"traefik.ingress.kubernetes.io/service-upstream\":\"true\"},\"labels\":{\"argocd.argoproj.io/instance\":\"support-dev\"},\"name\":\"support-dev\",\"namespace\":\"development\"},\"spec\":{\"ingressClassName\":\"traefik\",\"rules\":[{\"host\":\"backsupportdev.bifrost.pe\",\"http\":{\"paths\":[{\"backend\":{\"service\":{\"name\":\"support-dev\",\"port\":{\"number\":80}}},\"path\":\"/\",\"pathType\":\"Prefix\"}]}}],\"tls\":[{\"hosts\":[\"backsupportdev.bifrost.pe\"],\"secretName\":\"support-dev-tls\"}]}}\n",
+            "traefik.ingress.kubernetes.io/router.middlewares": "default-redirect-https@kubernetescrd",
+            "traefik.ingress.kubernetes.io/service-upstream": "true"
+          },
+          "creationTimestamp": "2023-10-12T21:29:36Z",
+          "generation": 1,
+          "labels": {
+            "argocd.argoproj.io/instance": "support-dev"
+          },
+          "name": "support-dev",
+          "namespace": "development",
+          "resourceVersion": "25089894",
+          "uid": "c3464397-ab04-46b7-a138-135ea2326e2e"
+        },
+        "spec": {
+          "ingressClassName": "traefik",
+          "rules": [
+            {
+              "host": "backsupportdev.bifrost.pe",
+              "http": {
+                "paths": [
+                  {
+                    "backend": {
+                      "service": {
+                        "name": "support-dev",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    },
+                    "path": "/",
+                    "pathType": "Prefix"
+                  }
+                ]
+              }
+            }
+          ],
+          "tls": [
+            {
+              "hosts": [
+                "backsupportdev.bifrost.pe"
+              ],
+              "secretName": "support-dev-tls"
+            }
+          ]
+        },
+        "status": {
+          "loadBalancer": {
+            "ingress": [
+              {
+                "ip": "192.168.50.0"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "annotations": {
+            "cert-manager.io/cluster-issuer": "letsencrypt-production",
+            "meta.helm.sh/release-name": "kong",
+            "meta.helm.sh/release-namespace": "kong",
+            "traefik.ingress.kubernetes.io/custom-response-headers": "Access-Control-Allow-Origin:*||Access-Control-Allow-Methods:GET,POST,OPTIONS||Access-Control-Allow-Headers:DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range||Access-Control-Expose-Headers:Content-Length,Content-Range",
+            "traefik.ingress.kubernetes.io/router.middlewares": "default-redirect-https@kubernetescrd,ingress-corsheaders@kubernetescrd,ingress-limit@kubernetescrd\n"
+          },
+          "creationTimestamp": "2023-08-12T01:44:22Z",
+          "generation": 4,
+          "labels": {
+            "app.kubernetes.io/component": "server",
+            "app.kubernetes.io/instance": "kong",
+            "app.kubernetes.io/managed-by": "Helm",
+            "app.kubernetes.io/name": "kong",
+            "helm.sh/chart": "kong-9.4.3"
+          },
+          "name": "kong",
+          "namespace": "kong",
+          "resourceVersion": "39165230",
+          "uid": "41181da0-de90-43bc-b1e6-d38b898c3128"
+        },
+        "spec": {
+          "ingressClassName": "traefik",
+          "rules": [
+            {
+              "host": "kongapi.bifrost.pe",
+              "http": {
+                "paths": [
+                  {
+                    "backend": {
+                      "service": {
+                        "name": "kong",
+                        "port": {
+                          "name": "http-proxy"
+                        }
+                      }
+                    },
+                    "path": "/",
+                    "pathType": "ImplementationSpecific"
+                  }
+                ]
+              }
+            },
+            {
+              "host": "bifrostgateway.bifrost.pe",
+              "http": {
+                "paths": [
+                  {
+                    "backend": {
+                      "service": {
+                        "name": "kong",
+                        "port": {
+                          "name": "http-proxy"
+                        }
+                      }
+                    },
+                    "path": "/",
+                    "pathType": "ImplementationSpecific"
+                  }
+                ]
+              }
+            },
+            {
+              "host": "bifrostgatewaydev.bifrost.pe",
+              "http": {
+                "paths": [
+                  {
+                    "backend": {
+                      "service": {
+                        "name": "kong",
+                        "port": {
+                          "name": "http-proxy"
+                        }
+                      }
+                    },
+                    "path": "/",
+                    "pathType": "ImplementationSpecific"
+                  }
+                ]
+              }
+            }
+          ],
+          "tls": [
+            {
+              "hosts": [
+                "kongapi.bifrost.pe"
+              ],
+              "secretName": "kongapi.bifrost.pe-tls"
+            },
+            {
+              "hosts": [
+                "bifrostgateway.bifrost.pe"
+              ],
+              "secretName": "bifrostgateway.bifrost.pe-tls"
+            },
+            {
+              "hosts": [
+                "bifrostgatewaydev.bifrost.pe"
+              ],
+              "secretName": "bifrostgatewaydev.bifrost.pe-tls"
+            }
+          ]
+        },
+        "status": {
+          "loadBalancer": {
+            "ingress": [
+              {
+                "ip": "192.168.50.0"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "annotations": {
+            "cert-manager.io/cluster-issuer": "letsencrypt-prod",
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"networking.k8s.io/v1\",\"kind\":\"Ingress\",\"metadata\":{\"annotations\":{\"cert-manager.io/cluster-issuer\":\"letsencrypt-prod\",\"traefik.ingress.kubernetes.io/router.middlewares\":\"default-redirect-https@kubernetescrd\",\"traefik.ingress.kubernetes.io/service-upstream\":\"true\"},\"labels\":{\"argocd.argoproj.io/instance\":\"apiaws-prod\"},\"name\":\"apiaws-prod\",\"namespace\":\"production\"},\"spec\":{\"ingressClassName\":\"traefik\",\"rules\":[{\"host\":\"apiaws.bifrost.pe\",\"http\":{\"paths\":[{\"backend\":{\"service\":{\"name\":\"apiaws-prod\",\"port\":{\"number\":80}}},\"path\":\"/\",\"pathType\":\"Prefix\"}]}}],\"tls\":[{\"hosts\":[\"apiaws.bifrost.pe\"],\"secretName\":\"apiaws-prod-tls\"}]}}\n",
+            "traefik.ingress.kubernetes.io/router.middlewares": "default-redirect-https@kubernetescrd",
+            "traefik.ingress.kubernetes.io/service-upstream": "true"
+          },
+          "creationTimestamp": "2024-07-29T14:36:59Z",
+          "generation": 2,
+          "labels": {
+            "argocd.argoproj.io/instance": "apiaws-prod"
+          },
+          "name": "apiaws-prod",
+          "namespace": "production",
+          "resourceVersion": "121233552",
+          "uid": "cd5b125c-232f-43b5-9d53-20c8686cf2f4"
+        },
+        "spec": {
+          "ingressClassName": "traefik",
+          "rules": [
+            {
+              "host": "apiaws.bifrost.pe",
+              "http": {
+                "paths": [
+                  {
+                    "backend": {
+                      "service": {
+                        "name": "apiaws-prod",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    },
+                    "path": "/",
+                    "pathType": "Prefix"
+                  }
+                ]
+              }
+            }
+          ],
+          "tls": [
+            {
+              "hosts": [
+                "apiaws.bifrost.pe"
+              ],
+              "secretName": "apiaws-prod-tls"
+            }
+          ]
+        },
+        "status": {
+          "loadBalancer": {
+            "ingress": [
+              {
+                "ip": "192.168.50.0"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "annotations": {
+            "cert-manager.io/cluster-issuer": "letsencrypt-prod",
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"networking.k8s.io/v1\",\"kind\":\"Ingress\",\"metadata\":{\"annotations\":{\"cert-manager.io/cluster-issuer\":\"letsencrypt-prod\",\"traefik.ingress.kubernetes.io/router.middlewares\":\"default-redirect-https@kubernetescrd\",\"traefik.ingress.kubernetes.io/service-upstream\":\"true\"},\"name\":\"graphics-prd\",\"namespace\":\"production\",\"resourceVersion\":\"5139906\"},\"spec\":{\"ingressClassName\":\"traefik\",\"rules\":[{\"host\":\"graphics.bifrost.pe\",\"http\":{\"paths\":[{\"backend\":{\"service\":{\"name\":\"dataview-grafana\",\"port\":{\"number\":80}}},\"path\":\"/\",\"pathType\":\"Prefix\"}]}}],\"tls\":[{\"hosts\":[\"graphics.bifrost.pe\"],\"secretName\":\"graphics-prd-tls\"}]},\"status\":{\"loadBalancer\":{\"ingress\":[{\"ip\":\"192.168.50.0\"}]}}}\n",
+            "traefik.ingress.kubernetes.io/router.middlewares": "default-redirect-https@kubernetescrd",
+            "traefik.ingress.kubernetes.io/service-upstream": "true"
+          },
+          "creationTimestamp": "2024-02-18T22:56:05Z",
+          "generation": 1,
+          "name": "graphics-prd",
+          "namespace": "production",
+          "resourceVersion": "61742297",
+          "uid": "be014f5b-ea5b-418f-b72f-79927fe05826"
+        },
+        "spec": {
+          "ingressClassName": "traefik",
+          "rules": [
+            {
+              "host": "graphics.bifrost.pe",
+              "http": {
+                "paths": [
+                  {
+                    "backend": {
+                      "service": {
+                        "name": "dataview-grafana",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    },
+                    "path": "/",
+                    "pathType": "Prefix"
+                  }
+                ]
+              }
+            }
+          ],
+          "tls": [
+            {
+              "hosts": [
+                "graphics.bifrost.pe"
+              ],
+              "secretName": "graphics-prd-tls"
+            }
+          ]
+        },
+        "status": {
+          "loadBalancer": {
+            "ingress": [
+              {
+                "ip": "192.168.50.0"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "annotations": {
+            "cert-manager.io/cluster-issuer": "letsencrypt-prod",
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"networking.k8s.io/v1\",\"kind\":\"Ingress\",\"metadata\":{\"annotations\":{\"cert-manager.io/cluster-issuer\":\"letsencrypt-prod\",\"traefik.ingress.kubernetes.io/router.middlewares\":\"default-redirect-https@kubernetescrd\",\"traefik.ingress.kubernetes.io/service-upstream\":\"true\"},\"labels\":{\"argocd.argoproj.io/instance\":\"influx-prd\"},\"name\":\"influx-prd\",\"namespace\":\"production\"},\"spec\":{\"ingressClassName\":\"traefik\",\"rules\":[{\"host\":\"influxapi.bifrost.pe\",\"http\":{\"paths\":[{\"backend\":{\"service\":{\"name\":\"influx-prd\",\"port\":{\"number\":5000}}},\"path\":\"/\",\"pathType\":\"Prefix\"}]}}],\"tls\":[{\"hosts\":[\"influxapi.bifrost.pe\"],\"secretName\":\"influx-prd-tls\"}]}}\n",
+            "traefik.ingress.kubernetes.io/router.middlewares": "default-redirect-https@kubernetescrd",
+            "traefik.ingress.kubernetes.io/service-upstream": "true"
+          },
+          "creationTimestamp": "2023-08-17T12:46:38Z",
+          "generation": 2,
+          "labels": {
+            "argocd.argoproj.io/instance": "influx-prd"
+          },
+          "name": "influx-prd",
+          "namespace": "production",
+          "resourceVersion": "6350493",
+          "uid": "df319f25-0cc2-4a9d-9fb3-1bf98782eab0"
+        },
+        "spec": {
+          "ingressClassName": "traefik",
+          "rules": [
+            {
+              "host": "influxapi.bifrost.pe",
+              "http": {
+                "paths": [
+                  {
+                    "backend": {
+                      "service": {
+                        "name": "influx-prd",
+                        "port": {
+                          "number": 5000
+                        }
+                      }
+                    },
+                    "path": "/",
+                    "pathType": "Prefix"
+                  }
+                ]
+              }
+            }
+          ],
+          "tls": [
+            {
+              "hosts": [
+                "influxapi.bifrost.pe"
+              ],
+              "secretName": "influx-prd-tls"
+            }
+          ]
+        },
+        "status": {
+          "loadBalancer": {
+            "ingress": [
+              {
+                "ip": "192.168.50.0"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "annotations": {
+            "cert-manager.io/cluster-issuer": "letsencrypt-prod",
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"networking.k8s.io/v1\",\"kind\":\"Ingress\",\"metadata\":{\"annotations\":{\"cert-manager.io/cluster-issuer\":\"letsencrypt-prod\",\"traefik.ingress.kubernetes.io/router.middlewares\":\"default-redirect-https@kubernetescrd\",\"traefik.ingress.kubernetes.io/service-upstream\":\"true\"},\"labels\":{\"argocd.argoproj.io/instance\":\"laravel360-prd\"},\"name\":\"laravel360-prd\",\"namespace\":\"production\"},\"spec\":{\"ingressClassName\":\"traefik\",\"rules\":[{\"host\":\"laravel360.bifrost.pe\",\"http\":{\"paths\":[{\"backend\":{\"service\":{\"name\":\"laravel360-prd\",\"port\":{\"number\":80}}},\"path\":\"/\",\"pathType\":\"Prefix\"}]}}],\"tls\":[{\"hosts\":[\"laravel360.bifrost.pe\"],\"secretName\":\"laravel360-prd-tls\"}]}}\n",
+            "traefik.ingress.kubernetes.io/router.middlewares": "default-redirect-https@kubernetescrd",
+            "traefik.ingress.kubernetes.io/service-upstream": "true"
+          },
+          "creationTimestamp": "2024-07-29T14:52:02Z",
+          "generation": 1,
+          "labels": {
+            "argocd.argoproj.io/instance": "laravel360-prd"
+          },
+          "name": "laravel360-prd",
+          "namespace": "production",
+          "resourceVersion": "121232933",
+          "uid": "83f823b0-3667-47c6-a135-ee4ee785eefc"
+        },
+        "spec": {
+          "ingressClassName": "traefik",
+          "rules": [
+            {
+              "host": "laravel360.bifrost.pe",
+              "http": {
+                "paths": [
+                  {
+                    "backend": {
+                      "service": {
+                        "name": "laravel360-prd",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    },
+                    "path": "/",
+                    "pathType": "Prefix"
+                  }
+                ]
+              }
+            }
+          ],
+          "tls": [
+            {
+              "hosts": [
+                "laravel360.bifrost.pe"
+              ],
+              "secretName": "laravel360-prd-tls"
+            }
+          ]
+        },
+        "status": {
+          "loadBalancer": {
+            "ingress": [
+              {
+                "ip": "192.168.50.0"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "annotations": {
+            "cert-manager.io/cluster-issuer": "letsencrypt-prod",
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"networking.k8s.io/v1\",\"kind\":\"Ingress\",\"metadata\":{\"annotations\":{\"cert-manager.io/cluster-issuer\":\"letsencrypt-prod\",\"traefik.ingress.kubernetes.io/router.middlewares\":\"default-redirect-https@kubernetescrd\",\"traefik.ingress.kubernetes.io/service-upstream\":\"true\"},\"labels\":{\"argocd.argoproj.io/instance\":\"newapi-production\"},\"name\":\"newapi-production\",\"namespace\":\"production\"},\"spec\":{\"ingressClassName\":\"traefik\",\"rules\":[{\"host\":\"backproduction.bifrost.pe\",\"http\":{\"paths\":[{\"backend\":{\"service\":{\"name\":\"newapi-production\",\"port\":{\"number\":80}}},\"path\":\"/\",\"pathType\":\"Prefix\"}]}}],\"tls\":[{\"hosts\":[\"backproduction.bifrost.pe\"],\"secretName\":\"newapi-production-tls\"}]}}\n",
+            "traefik.ingress.kubernetes.io/router.middlewares": "default-redirect-https@kubernetescrd",
+            "traefik.ingress.kubernetes.io/service-upstream": "true"
+          },
+          "creationTimestamp": "2024-07-29T14:36:59Z",
+          "generation": 4,
+          "labels": {
+            "argocd.argoproj.io/instance": "newapi-production"
+          },
+          "name": "newapi-production",
+          "namespace": "production",
+          "resourceVersion": "128778028",
+          "uid": "37fcdd7d-100f-448c-8006-b9f0e25dc590"
+        },
+        "spec": {
+          "ingressClassName": "traefik",
+          "rules": [
+            {
+              "host": "backproduction.bifrost.pe",
+              "http": {
+                "paths": [
+                  {
+                    "backend": {
+                      "service": {
+                        "name": "newapi-production",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    },
+                    "path": "/",
+                    "pathType": "Prefix"
+                  }
+                ]
+              }
+            }
+          ],
+          "tls": [
+            {
+              "hosts": [
+                "backproduction.bifrost.pe"
+              ],
+              "secretName": "newapi-production-tls"
+            }
+          ]
+        },
+        "status": {
+          "loadBalancer": {
+            "ingress": [
+              {
+                "ip": "192.168.50.0"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "annotations": {
+            "cert-manager.io/cluster-issuer": "letsencrypt-prod",
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"networking.k8s.io/v1\",\"kind\":\"Ingress\",\"metadata\":{\"annotations\":{\"cert-manager.io/cluster-issuer\":\"letsencrypt-prod\",\"traefik.ingress.kubernetes.io/router.middlewares\":\"default-redirect-https@kubernetescrd\",\"traefik.ingress.kubernetes.io/service-upstream\":\"true\"},\"labels\":{\"argocd.argoproj.io/instance\":\"onpremise-prd\"},\"name\":\"onpremise-prd\",\"namespace\":\"production\"},\"spec\":{\"ingressClassName\":\"traefik\",\"rules\":[{\"host\":\"onpremise.bifrost.pe\",\"http\":{\"paths\":[{\"backend\":{\"service\":{\"name\":\"onpremise-prd\",\"port\":{\"number\":80}}},\"path\":\"/\",\"pathType\":\"Prefix\"}]}}],\"tls\":[{\"hosts\":[\"onpremise.bifrost.pe\"],\"secretName\":\"onpremise-prd-tls\"}]}}\n",
+            "traefik.ingress.kubernetes.io/router.middlewares": "default-redirect-https@kubernetescrd",
+            "traefik.ingress.kubernetes.io/service-upstream": "true"
+          },
+          "creationTimestamp": "2023-08-12T23:24:17Z",
+          "generation": 1,
+          "labels": {
+            "argocd.argoproj.io/instance": "onpremise-prd"
+          },
+          "name": "onpremise-prd",
+          "namespace": "production",
+          "resourceVersion": "5139906",
+          "uid": "b30576bd-6552-4e88-8195-b2d8e6520580"
+        },
+        "spec": {
+          "ingressClassName": "traefik",
+          "rules": [
+            {
+              "host": "onpremise.bifrost.pe",
+              "http": {
+                "paths": [
+                  {
+                    "backend": {
+                      "service": {
+                        "name": "onpremise-prd",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    },
+                    "path": "/",
+                    "pathType": "Prefix"
+                  }
+                ]
+              }
+            }
+          ],
+          "tls": [
+            {
+              "hosts": [
+                "onpremise.bifrost.pe"
+              ],
+              "secretName": "onpremise-prd-tls"
+            }
+          ]
+        },
+        "status": {
+          "loadBalancer": {
+            "ingress": [
+              {
+                "ip": "192.168.50.0"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "annotations": {
+            "cert-manager.io/cluster-issuer": "letsencrypt-prod",
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"networking.k8s.io/v1\",\"kind\":\"Ingress\",\"metadata\":{\"annotations\":{\"cert-manager.io/cluster-issuer\":\"letsencrypt-prod\",\"traefik.ingress.kubernetes.io/router.middlewares\":\"default-redirect-https@kubernetescrd\",\"traefik.ingress.kubernetes.io/service-upstream\":\"true\"},\"labels\":{\"argocd.argoproj.io/instance\":\"python-prd\"},\"name\":\"python-prd-ingress\",\"namespace\":\"production\"},\"spec\":{\"ingressClassName\":\"traefik\",\"rules\":[{\"host\":\"pythonsnmp.bifrost.pe\",\"http\":{\"paths\":[{\"backend\":{\"service\":{\"name\":\"python-prd\",\"port\":{\"number\":5000}}},\"path\":\"/\",\"pathType\":\"Prefix\"}]}}],\"tls\":[{\"hosts\":[\"pythonsnmp.bifrost.pe\"],\"secretName\":\"python-prd-tls\"}]}}\n",
+            "traefik.ingress.kubernetes.io/router.middlewares": "default-redirect-https@kubernetescrd",
+            "traefik.ingress.kubernetes.io/service-upstream": "true"
+          },
+          "creationTimestamp": "2023-08-12T19:45:59Z",
+          "generation": 1,
+          "labels": {
+            "argocd.argoproj.io/instance": "python-prd"
+          },
+          "name": "python-prd-ingress",
+          "namespace": "production",
+          "resourceVersion": "5139907",
+          "uid": "7cfef0a1-81d3-4b0b-8d4e-fc1a98268b1f"
+        },
+        "spec": {
+          "ingressClassName": "traefik",
+          "rules": [
+            {
+              "host": "pythonsnmp.bifrost.pe",
+              "http": {
+                "paths": [
+                  {
+                    "backend": {
+                      "service": {
+                        "name": "python-prd",
+                        "port": {
+                          "number": 5000
+                        }
+                      }
+                    },
+                    "path": "/",
+                    "pathType": "Prefix"
+                  }
+                ]
+              }
+            }
+          ],
+          "tls": [
+            {
+              "hosts": [
+                "pythonsnmp.bifrost.pe"
+              ],
+              "secretName": "python-prd-tls"
+            }
+          ]
+        },
+        "status": {
+          "loadBalancer": {
+            "ingress": [
+              {
+                "ip": "192.168.50.0"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "annotations": {
+            "cert-manager.io/cluster-issuer": "letsencrypt-production",
+            "meta.helm.sh/release-name": "nextcloud",
+            "meta.helm.sh/release-namespace": "storage",
+            "traefik.ingress.kubernetes.io/custom-response-headers": "Access-Control-Allow-Origin:*||Access-Control-Allow-Methods:GET,POST,OPTIONS||Access-Control-Allow-Headers:DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range||Access-Control-Expose-Headers:Content-Length,Content-Range",
+            "traefik.ingress.kubernetes.io/router.middlewares": "default-redirect-https@kubernetescrd"
+          },
+          "creationTimestamp": "2024-04-10T20:53:42Z",
+          "generation": 1,
+          "labels": {
+            "app.kubernetes.io/component": "app",
+            "app.kubernetes.io/instance": "nextcloud",
+            "app.kubernetes.io/managed-by": "Helm",
+            "app.kubernetes.io/name": "nextcloud",
+            "helm.sh/chart": "nextcloud-4.6.5"
+          },
+          "name": "nextcloud",
+          "namespace": "storage",
+          "resourceVersion": "79025071",
+          "uid": "f524296b-5f9f-4c3a-91ad-d3394822342c"
+        },
+        "spec": {
+          "ingressClassName": "traefik",
+          "rules": [
+            {
+              "host": "nextcloud.bifrost.pe",
+              "http": {
+                "paths": [
+                  {
+                    "backend": {
+                      "service": {
+                        "name": "nextcloud",
+                        "port": {
+                          "number": 8080
+                        }
+                      }
+                    },
+                    "path": "/",
+                    "pathType": "Prefix"
+                  }
+                ]
+              }
+            }
+          ],
+          "tls": [
+            {
+              "hosts": [
+                "nextcloud.bifrost.pe"
+              ],
+              "secretName": "nextcloud-tls"
+            }
+          ]
+        },
+        "status": {
+          "loadBalancer": {
+            "ingress": [
+              {
+                "ip": "192.168.50.0"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "kind": "List",
+    "metadata": {
+      "resourceVersion": ""
+    }
+  },
+  "services": {
+    "apiVersion": "v1",
+    "items": [
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "auth.istio.io/8089": "NONE"
+          },
+          "creationTimestamp": "2024-02-07T09:30:06Z",
+          "generateName": "cm-acme-http-solver-",
+          "labels": {
+            "acme.cert-manager.io/http-domain": "1060177554",
+            "acme.cert-manager.io/http-token": "1116212994",
+            "acme.cert-manager.io/http01-solver": "true"
+          },
+          "name": "cm-acme-http-solver-njpj5",
+          "namespace": "default",
+          "ownerReferences": [
+            {
+              "apiVersion": "acme.cert-manager.io/v1",
+              "blockOwnerDeletion": true,
+              "controller": true,
+              "kind": "Challenge",
+              "name": "echo2222.bifrost.pe-ctqnm-3108182807-3949717101",
+              "uid": "ccecca14-9100-467f-af5b-593de67946b4"
+            }
+          ],
+          "resourceVersion": "58218347",
+          "uid": "71e3df9e-3d3b-4a9d-ab49-456815fdcaf7"
+        },
+        "spec": {
+          "clusterIP": "10.102.71.127",
+          "clusterIPs": [
+            "10.102.71.127"
+          ],
+          "externalTrafficPolicy": "Cluster",
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "http",
+              "nodePort": 32006,
+              "port": 8089,
+              "protocol": "TCP",
+              "targetPort": 8089
+            }
+          ],
+          "selector": {
+            "acme.cert-manager.io/http-domain": "1060177554",
+            "acme.cert-manager.io/http-token": "1116212994",
+            "acme.cert-manager.io/http01-solver": "true"
+          },
+          "sessionAffinity": "None",
+          "type": "NodePort"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "creationTimestamp": "2023-07-30T18:01:44Z",
+          "labels": {
+            "component": "apiserver",
+            "provider": "kubernetes"
+          },
+          "name": "kubernetes",
+          "namespace": "default",
+          "resourceVersion": "231",
+          "uid": "895686a0-0eaf-4c53-ac3a-c27608027d66"
+        },
+        "spec": {
+          "clusterIP": "10.96.0.1",
+          "clusterIPs": [
+            "10.96.0.1"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "https",
+              "port": 443,
+              "protocol": "TCP",
+              "targetPort": 6443
+            }
+          ],
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "creationTimestamp": "2024-07-29T17:41:55Z",
+          "name": "service-09e97bf0-57e1-47ec-9a49-e988949dd4b4",
+          "namespace": "default",
+          "resourceVersion": "121277864",
+          "uid": "339e7591-2b44-40b9-ac10-3e103c7ff253"
+        },
+        "spec": {
+          "clusterIP": "10.107.151.151",
+          "clusterIPs": [
+            "10.107.151.151"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app": "09e97bf0-57e1-47ec-9a49-e988949dd4b4"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260aa2\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000}],\"selector\":{\"app\":\"192c16b5-dd3b-4630-8d6b-bc54a6260aa2\"}}}\n"
+          },
+          "creationTimestamp": "2024-07-30T08:43:44Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260aa2",
+          "namespace": "default",
+          "resourceVersion": "121504681",
+          "uid": "15f496eb-3cdd-492e-a985-83d4c876f8f4"
+        },
+        "spec": {
+          "clusterIP": "10.107.247.23",
+          "clusterIPs": [
+            "10.107.247.23"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app": "192c16b5-dd3b-4630-8d6b-bc54a6260aa2"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260bb2\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000}],\"selector\":{\"app\":\"192c16b5-dd3b-4630-8d6b-bc54a6260bb2\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-05T10:09:39Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bb2",
+          "namespace": "default",
+          "resourceVersion": "124220322",
+          "uid": "b7ba69e6-e66e-4389-8b1a-90975618a982"
+        },
+        "spec": {
+          "clusterIP": "10.107.141.72",
+          "clusterIPs": [
+            "10.107.141.72"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app": "192c16b5-dd3b-4630-8d6b-bc54a6260bb2"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260bb4\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000}],\"selector\":{\"app\":\"192c16b5-dd3b-4630-8d6b-bc54a6260bb4\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-07T10:12:55Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bb4",
+          "namespace": "default",
+          "resourceVersion": "125117059",
+          "uid": "5a93318e-4d04-448f-a2fb-57140d1f0034"
+        },
+        "spec": {
+          "clusterIP": "10.99.134.197",
+          "clusterIPs": [
+            "10.99.134.197"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app": "192c16b5-dd3b-4630-8d6b-bc54a6260bb4"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260bb5\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000}],\"selector\":{\"app\":\"192c16b5-dd3b-4630-8d6b-bc54a6260bb5\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-07T10:35:46Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bb5",
+          "namespace": "default",
+          "resourceVersion": "125124221",
+          "uid": "26ce1ad4-3da7-4b83-adc5-07545fd521f6"
+        },
+        "spec": {
+          "clusterIP": "10.100.94.9",
+          "clusterIPs": [
+            "10.100.94.9"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app": "192c16b5-dd3b-4630-8d6b-bc54a6260bb5"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260bb6\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000}],\"selector\":{\"app\":\"192c16b5-dd3b-4630-8d6b-bc54a6260bb6\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-07T10:49:20Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bb6",
+          "namespace": "default",
+          "resourceVersion": "125128471",
+          "uid": "87b0e482-1ce5-4858-b504-d5d2e2ea6330"
+        },
+        "spec": {
+          "clusterIP": "10.107.144.176",
+          "clusterIPs": [
+            "10.107.144.176"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app": "192c16b5-dd3b-4630-8d6b-bc54a6260bb6"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260bb7\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000}],\"selector\":{\"app\":\"192c16b5-dd3b-4630-8d6b-bc54a6260bb7\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-09T14:01:39Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bb7",
+          "namespace": "default",
+          "resourceVersion": "126083781",
+          "uid": "d2b7ecd6-bfc7-4942-b1dc-b2848e4fadeb"
+        },
+        "spec": {
+          "clusterIP": "10.102.66.237",
+          "clusterIPs": [
+            "10.102.66.237"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app": "192c16b5-dd3b-4630-8d6b-bc54a6260bb7"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260bb8\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000}],\"selector\":{\"app\":\"192c16b5-dd3b-4630-8d6b-bc54a6260bb8\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-09T14:09:46Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bb8",
+          "namespace": "default",
+          "resourceVersion": "126086360",
+          "uid": "32dbd41d-e97f-4409-9a9f-8ac79a045a86"
+        },
+        "spec": {
+          "clusterIP": "10.103.181.92",
+          "clusterIPs": [
+            "10.103.181.92"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app": "192c16b5-dd3b-4630-8d6b-bc54a6260bb8"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260bb9\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000}],\"selector\":{\"app\":\"192c16b5-dd3b-4630-8d6b-bc54a6260bb9\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-09T14:13:48Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bb9",
+          "namespace": "default",
+          "resourceVersion": "126087655",
+          "uid": "77cc7337-9c11-43a0-a9be-c90de3062406"
+        },
+        "spec": {
+          "clusterIP": "10.111.28.22",
+          "clusterIPs": [
+            "10.111.28.22"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app": "192c16b5-dd3b-4630-8d6b-bc54a6260bb9"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd1\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000}],\"selector\":{\"app\":\"192c16b5-dd3b-4630-8d6b-bc54a6260bd1\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-09T14:16:42Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd1",
+          "namespace": "default",
+          "resourceVersion": "126088616",
+          "uid": "77c521cd-8feb-4646-8d48-9f6b0054f953"
+        },
+        "spec": {
+          "clusterIP": "10.103.170.53",
+          "clusterIPs": [
+            "10.103.170.53"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app": "192c16b5-dd3b-4630-8d6b-bc54a6260bd1"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd10\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"name\":\"app-port\",\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000},{\"name\":\"msync-port\",\"port\":6060,\"protocol\":\"TCP\",\"targetPort\":6060}],\"selector\":{\"app\":\"pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd10\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-10T18:13:38Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd10",
+          "namespace": "default",
+          "resourceVersion": "126610499",
+          "uid": "ffc88fb3-7fe1-46cf-863a-131e6fc22655"
+        },
+        "spec": {
+          "clusterIP": "10.98.104.142",
+          "clusterIPs": [
+            "10.98.104.142"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "app-port",
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            },
+            {
+              "name": "msync-port",
+              "port": 6060,
+              "protocol": "TCP",
+              "targetPort": 6060
+            }
+          ],
+          "selector": {
+            "app": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd10"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd11\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"name\":\"app-port\",\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000},{\"name\":\"msync-port\",\"port\":6060,\"protocol\":\"TCP\",\"targetPort\":6060}],\"selector\":{\"app\":\"pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd11\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-10T18:33:21Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd11",
+          "namespace": "default",
+          "resourceVersion": "126616658",
+          "uid": "fe2a65ca-2bee-4d7a-81c1-c3f5698b412b"
+        },
+        "spec": {
+          "clusterIP": "10.105.12.184",
+          "clusterIPs": [
+            "10.105.12.184"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "app-port",
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            },
+            {
+              "name": "msync-port",
+              "port": 6060,
+              "protocol": "TCP",
+              "targetPort": 6060
+            }
+          ],
+          "selector": {
+            "app": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd11"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd12\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"name\":\"app-port\",\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000},{\"name\":\"msync-port\",\"port\":6060,\"protocol\":\"TCP\",\"targetPort\":6060}],\"selector\":{\"app\":\"pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd12\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-10T18:48:28Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd12",
+          "namespace": "default",
+          "resourceVersion": "126621406",
+          "uid": "a8274fd7-892c-45ef-ab16-37ecca595683"
+        },
+        "spec": {
+          "clusterIP": "10.102.42.223",
+          "clusterIPs": [
+            "10.102.42.223"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "app-port",
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            },
+            {
+              "name": "msync-port",
+              "port": 6060,
+              "protocol": "TCP",
+              "targetPort": 6060
+            }
+          ],
+          "selector": {
+            "app": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd12"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd13\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"name\":\"app-port\",\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000},{\"name\":\"msync-port\",\"port\":6060,\"protocol\":\"TCP\",\"targetPort\":6060}],\"selector\":{\"app\":\"pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd13\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-10T19:59:50Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd13",
+          "namespace": "default",
+          "resourceVersion": "126643645",
+          "uid": "b62c0e03-d3c8-47bb-95b4-46279472abd3"
+        },
+        "spec": {
+          "clusterIP": "10.105.172.146",
+          "clusterIPs": [
+            "10.105.172.146"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "app-port",
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            },
+            {
+              "name": "msync-port",
+              "port": 6060,
+              "protocol": "TCP",
+              "targetPort": 6060
+            }
+          ],
+          "selector": {
+            "app": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd13"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd2\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000}],\"selector\":{\"app\":\"192c16b5-dd3b-4630-8d6b-bc54a6260bd2\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-09T14:23:01Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd2",
+          "namespace": "default",
+          "resourceVersion": "126090628",
+          "uid": "0459c05f-0797-459c-978e-ee570f80ea5f"
+        },
+        "spec": {
+          "clusterIP": "10.110.66.1",
+          "clusterIPs": [
+            "10.110.66.1"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app": "192c16b5-dd3b-4630-8d6b-bc54a6260bd2"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd20\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"name\":\"app-port\",\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000},{\"name\":\"msync-port\",\"port\":6060,\"protocol\":\"TCP\",\"targetPort\":6060}],\"selector\":{\"app\":\"pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd20\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-11T11:55:49Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd20",
+          "namespace": "default",
+          "resourceVersion": "126940994",
+          "uid": "6bceb842-8ae0-4b79-a981-c48eceb71d19"
+        },
+        "spec": {
+          "clusterIP": "10.106.107.169",
+          "clusterIPs": [
+            "10.106.107.169"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "app-port",
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            },
+            {
+              "name": "msync-port",
+              "port": 6060,
+              "protocol": "TCP",
+              "targetPort": 6060
+            }
+          ],
+          "selector": {
+            "app": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd20"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd21\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"name\":\"app-port\",\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000},{\"name\":\"msync-port\",\"port\":6060,\"protocol\":\"TCP\",\"targetPort\":6060}],\"selector\":{\"app\":\"pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd21\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-11T12:07:57Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd21",
+          "namespace": "default",
+          "resourceVersion": "126944814",
+          "uid": "66c127a2-cef5-444b-8177-d4a6d3f87073"
+        },
+        "spec": {
+          "clusterIP": "10.104.147.138",
+          "clusterIPs": [
+            "10.104.147.138"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "app-port",
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            },
+            {
+              "name": "msync-port",
+              "port": 6060,
+              "protocol": "TCP",
+              "targetPort": 6060
+            }
+          ],
+          "selector": {
+            "app": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd21"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd22\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"name\":\"app-port\",\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000},{\"name\":\"msync-port\",\"port\":6060,\"protocol\":\"TCP\",\"targetPort\":6060}],\"selector\":{\"app\":\"pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd22\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-11T12:25:59Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd22",
+          "namespace": "default",
+          "resourceVersion": "126950492",
+          "uid": "32b5fa85-8338-4365-a8bf-372a50f3a6f0"
+        },
+        "spec": {
+          "clusterIP": "10.105.52.95",
+          "clusterIPs": [
+            "10.105.52.95"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "app-port",
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            },
+            {
+              "name": "msync-port",
+              "port": 6060,
+              "protocol": "TCP",
+              "targetPort": 6060
+            }
+          ],
+          "selector": {
+            "app": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd22"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd23\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"name\":\"app-port\",\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000},{\"name\":\"msync-port\",\"port\":6060,\"protocol\":\"TCP\",\"targetPort\":6060}],\"selector\":{\"app\":\"pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd23\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-11T12:55:38Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd23",
+          "namespace": "default",
+          "resourceVersion": "126959750",
+          "uid": "c4b0d29e-06a9-487e-be5f-b9ca451d9531"
+        },
+        "spec": {
+          "clusterIP": "10.108.195.185",
+          "clusterIPs": [
+            "10.108.195.185"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "app-port",
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            },
+            {
+              "name": "msync-port",
+              "port": 6060,
+              "protocol": "TCP",
+              "targetPort": 6060
+            }
+          ],
+          "selector": {
+            "app": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd23"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "creationTimestamp": "2024-08-14T10:58:02Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd25",
+          "namespace": "default",
+          "resourceVersion": "128269590",
+          "uid": "86bb9b08-2cfd-4729-a9d1-22b70a8cc923"
+        },
+        "spec": {
+          "clusterIP": "10.103.191.171",
+          "clusterIPs": [
+            "10.103.191.171"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "app-port",
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3001
+            },
+            {
+              "name": "msync-port",
+              "port": 6060,
+              "protocol": "TCP",
+              "targetPort": 6062
+            }
+          ],
+          "selector": {
+            "app": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd25"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "creationTimestamp": "2024-08-15T22:28:05Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd26",
+          "namespace": "default",
+          "resourceVersion": "128934381",
+          "uid": "72e95ca4-0b7a-4078-b506-11b627a255f8"
+        },
+        "spec": {
+          "clusterIP": "10.103.225.78",
+          "clusterIPs": [
+            "10.103.225.78"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "app-port",
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3001
+            },
+            {
+              "name": "msync-port",
+              "port": 6060,
+              "protocol": "TCP",
+              "targetPort": 6062
+            }
+          ],
+          "selector": {
+            "app": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd26"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "creationTimestamp": "2024-08-17T14:31:48Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd27",
+          "namespace": "default",
+          "resourceVersion": "129684024",
+          "uid": "4dd5884d-d7ae-4877-9d5f-e613492db1b5"
+        },
+        "spec": {
+          "clusterIP": "10.100.17.147",
+          "clusterIPs": [
+            "10.100.17.147"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "app-port",
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3001
+            },
+            {
+              "name": "msync-port",
+              "port": 6060,
+              "protocol": "TCP",
+              "targetPort": 6062
+            }
+          ],
+          "selector": {
+            "app": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd27"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "creationTimestamp": "2024-08-17T14:41:51Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd28",
+          "namespace": "default",
+          "resourceVersion": "129687229",
+          "uid": "28387406-414f-4871-ae96-b8ef8769c5b0"
+        },
+        "spec": {
+          "clusterIP": "10.107.18.77",
+          "clusterIPs": [
+            "10.107.18.77"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "app-port",
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3001
+            },
+            {
+              "name": "msync-port",
+              "port": 6060,
+              "protocol": "TCP",
+              "targetPort": 6062
+            }
+          ],
+          "selector": {
+            "app": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd28"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "creationTimestamp": "2024-08-17T17:46:35Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd29",
+          "namespace": "default",
+          "resourceVersion": "129744867",
+          "uid": "a10242f2-c5fc-48de-b0b0-d819849c63ae"
+        },
+        "spec": {
+          "clusterIP": "10.102.129.236",
+          "clusterIPs": [
+            "10.102.129.236"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "app-port",
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3001
+            },
+            {
+              "name": "msync-port",
+              "port": 6060,
+              "protocol": "TCP",
+              "targetPort": 6062
+            }
+          ],
+          "selector": {
+            "app": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd29"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd3\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000}],\"selector\":{\"app\":\"192c16b5-dd3b-4630-8d6b-bc54a6260bd3\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-09T14:29:36Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd3",
+          "namespace": "default",
+          "resourceVersion": "126092735",
+          "uid": "d91d1c7c-8163-49b4-aa02-bfd55a28752b"
+        },
+        "spec": {
+          "clusterIP": "10.102.125.150",
+          "clusterIPs": [
+            "10.102.125.150"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app": "192c16b5-dd3b-4630-8d6b-bc54a6260bd3"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "creationTimestamp": "2024-08-17T22:57:52Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd30",
+          "namespace": "default",
+          "resourceVersion": "129841933",
+          "uid": "81b8d16b-94f5-4e6c-83ab-01bdc0a65c9f"
+        },
+        "spec": {
+          "clusterIP": "10.100.15.102",
+          "clusterIPs": [
+            "10.100.15.102"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "app-port",
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3001
+            },
+            {
+              "name": "msync-port",
+              "port": 6060,
+              "protocol": "TCP",
+              "targetPort": 6062
+            }
+          ],
+          "selector": {
+            "app": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd30"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "creationTimestamp": "2024-08-18T16:57:59Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd31",
+          "namespace": "default",
+          "resourceVersion": "130178669",
+          "uid": "300dbfec-d077-4075-9e2e-6b74dd7374ba"
+        },
+        "spec": {
+          "clusterIP": "10.106.69.156",
+          "clusterIPs": [
+            "10.106.69.156"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "app-port",
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3001
+            },
+            {
+              "name": "msync-port",
+              "port": 6060,
+              "protocol": "TCP",
+              "targetPort": 6062
+            }
+          ],
+          "selector": {
+            "app": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd31"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd4\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000}],\"selector\":{\"app\":\"192c16b5-dd3b-4630-8d6b-bc54a6260bd4\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-09T14:34:10Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd4",
+          "namespace": "default",
+          "resourceVersion": "126094195",
+          "uid": "83cad67c-a854-4621-9455-f21c533b2403"
+        },
+        "spec": {
+          "clusterIP": "10.107.99.204",
+          "clusterIPs": [
+            "10.107.99.204"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app": "192c16b5-dd3b-4630-8d6b-bc54a6260bd4"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd5\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000}],\"selector\":{\"app\":\"192c16b5-dd3b-4630-8d6b-bc54a6260bd5\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-09T14:36:00Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd5",
+          "namespace": "default",
+          "resourceVersion": "126094801",
+          "uid": "8af6869b-2eed-4f9f-bca4-f93701ac8972"
+        },
+        "spec": {
+          "clusterIP": "10.98.179.215",
+          "clusterIPs": [
+            "10.98.179.215"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app": "192c16b5-dd3b-4630-8d6b-bc54a6260bd5"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd6\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000}],\"selector\":{\"app\":\"192c16b5-dd3b-4630-8d6b-bc54a6260bd6\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-09T14:40:49Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd6",
+          "namespace": "default",
+          "resourceVersion": "126096329",
+          "uid": "5f8f2326-cc3f-444d-a9cf-ed21a12868af"
+        },
+        "spec": {
+          "clusterIP": "10.103.119.175",
+          "clusterIPs": [
+            "10.103.119.175"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app": "192c16b5-dd3b-4630-8d6b-bc54a6260bd6"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd7\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000}],\"selector\":{\"app\":\"192c16b5-dd3b-4630-8d6b-bc54a6260bd7\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-09T15:15:46Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd7",
+          "namespace": "default",
+          "resourceVersion": "126107283",
+          "uid": "d65540c6-23fd-478f-a335-c2111f0b979d"
+        },
+        "spec": {
+          "clusterIP": "10.103.45.12",
+          "clusterIPs": [
+            "10.103.45.12"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app": "192c16b5-dd3b-4630-8d6b-bc54a6260bd7"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd8\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000}],\"selector\":{\"app\":\"192c16b5-dd3b-4630-8d6b-bc54a6260bd8\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-09T15:20:13Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bd8",
+          "namespace": "default",
+          "resourceVersion": "126108713",
+          "uid": "f980fed1-17ea-4352-ab84-ecf9fe3af138"
+        },
+        "spec": {
+          "clusterIP": "10.101.7.7",
+          "clusterIPs": [
+            "10.101.7.7"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app": "192c16b5-dd3b-4630-8d6b-bc54a6260bd8"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"svc-192c16b5-dd3b-4630-8d6b-bc54a6260bdd\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"port\":3000,\"protocol\":\"TCP\",\"targetPort\":3000}],\"selector\":{\"app\":\"192c16b5-dd3b-4630-8d6b-bc54a6260bdd\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-09T14:15:00Z",
+          "name": "svc-192c16b5-dd3b-4630-8d6b-bc54a6260bdd",
+          "namespace": "default",
+          "resourceVersion": "126088065",
+          "uid": "16f290fa-599d-4a5f-9540-88a168690c8c"
+        },
+        "spec": {
+          "clusterIP": "10.109.25.134",
+          "clusterIPs": [
+            "10.109.25.134"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app": "192c16b5-dd3b-4630-8d6b-bc54a6260bdd"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"authv3-dev\"},\"name\":\"authv3-dev\",\"namespace\":\"development\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":8080}],\"selector\":{\"app\":\"authv3-dev\"}}}\n"
+          },
+          "creationTimestamp": "2024-04-14T16:41:48Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "authv3-dev"
+          },
+          "name": "authv3-dev",
+          "namespace": "development",
+          "resourceVersion": "80487561",
+          "uid": "e084277c-dafc-43be-bfcb-d41f05bba97c"
+        },
+        "spec": {
+          "clusterIP": "10.111.13.168",
+          "clusterIPs": [
+            "10.111.13.168"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 8080
+            }
+          ],
+          "selector": {
+            "app": "authv3-dev"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"backshopingdev\"},\"name\":\"backshopingdev\",\"namespace\":\"development\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":8080}],\"selector\":{\"app\":\"backshopingdev\"}}}\n"
+          },
+          "creationTimestamp": "2024-04-23T16:33:18Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "backshopingdev"
+          },
+          "name": "backshopingdev",
+          "namespace": "development",
+          "resourceVersion": "83909744",
+          "uid": "c5aa5e89-a061-44e9-a4a1-14b172145143"
+        },
+        "spec": {
+          "clusterIP": "10.96.218.144",
+          "clusterIPs": [
+            "10.96.218.144"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 8080
+            }
+          ],
+          "selector": {
+            "app": "backshopingdev"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"backstoredev\"},\"name\":\"backstoredev\",\"namespace\":\"development\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":8080}],\"selector\":{\"app\":\"backstoredev\"}}}\n"
+          },
+          "creationTimestamp": "2024-04-29T16:52:06Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "backstoredev"
+          },
+          "name": "backstoredev",
+          "namespace": "development",
+          "resourceVersion": "86213662",
+          "uid": "db7d25c0-c588-4154-9539-1f3cd368c0a4"
+        },
+        "spec": {
+          "clusterIP": "10.100.12.117",
+          "clusterIPs": [
+            "10.100.12.117"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 8080
+            }
+          ],
+          "selector": {
+            "app": "backstoredev"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"general-functions-dev\"},\"name\":\"general-functions-dev\",\"namespace\":\"development\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":3000}],\"selector\":{\"app\":\"general-functions-dev\"}}}\n"
+          },
+          "creationTimestamp": "2023-10-10T16:11:53Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "general-functions-dev"
+          },
+          "name": "general-functions-dev",
+          "namespace": "development",
+          "resourceVersion": "24357693",
+          "uid": "dec85c70-e862-46a6-8a1d-645e16aec449"
+        },
+        "spec": {
+          "clusterIP": "10.99.240.128",
+          "clusterIPs": [
+            "10.99.240.128"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app": "general-functions-dev"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"generalf-dev\"},\"name\":\"generalf-dev\",\"namespace\":\"development\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":8080}],\"selector\":{\"app\":\"generalf-dev\"}}}\n"
+          },
+          "creationTimestamp": "2024-05-30T17:48:17Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "generalf-dev"
+          },
+          "name": "generalf-dev",
+          "namespace": "development",
+          "resourceVersion": "98483109",
+          "uid": "14460373-93e9-4e50-b528-b7b98563d556"
+        },
+        "spec": {
+          "clusterIP": "10.105.82.128",
+          "clusterIPs": [
+            "10.105.82.128"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 8080
+            }
+          ],
+          "selector": {
+            "app": "generalf-dev"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"grafanaleo-dev\"},\"name\":\"grafanaleo-dev\",\"namespace\":\"development\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":5000}],\"selector\":{\"app\":\"grafanaleo-dev\"}}}\n"
+          },
+          "creationTimestamp": "2023-08-16T15:11:32Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "grafanaleo-dev"
+          },
+          "name": "grafanaleo-dev",
+          "namespace": "development",
+          "resourceVersion": "6048210",
+          "uid": "bed9196c-a7ff-4290-bb83-792290a29bdd"
+        },
+        "spec": {
+          "clusterIP": "10.96.233.25",
+          "clusterIPs": [
+            "10.96.233.25"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 5000
+            }
+          ],
+          "selector": {
+            "app": "grafanaleo-dev"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"incident-dev\"},\"name\":\"incident-dev\",\"namespace\":\"development\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":3000}],\"selector\":{\"app\":\"incident-dev\"}}}\n"
+          },
+          "creationTimestamp": "2023-08-17T12:35:58Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "incident-dev"
+          },
+          "name": "incident-dev",
+          "namespace": "development",
+          "resourceVersion": "6344861",
+          "uid": "61834a27-9805-4e71-950c-1424d996dca8"
+        },
+        "spec": {
+          "clusterIP": "10.108.37.77",
+          "clusterIPs": [
+            "10.108.37.77"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app": "incident-dev"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"newtect-flask-dev\"},\"name\":\"newtect-flask-dev\",\"namespace\":\"development\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":5000}],\"selector\":{\"app\":\"newtect-flask-dev\"}}}\n"
+          },
+          "creationTimestamp": "2024-03-18T20:40:10Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "newtect-flask-dev"
+          },
+          "name": "newtect-flask-dev",
+          "namespace": "development",
+          "resourceVersion": "71118434",
+          "uid": "1c57a3ad-121a-4cc2-811e-9521062b11a6"
+        },
+        "spec": {
+          "clusterIP": "10.97.137.246",
+          "clusterIPs": [
+            "10.97.137.246"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 5000
+            }
+          ],
+          "selector": {
+            "app": "newtect-flask-dev"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"orchestatorv2-dev\"},\"name\":\"orchestatorv2-dev\",\"namespace\":\"development\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":3000}],\"selector\":{\"app\":\"orchestatorv2-dev\"}}}\n"
+          },
+          "creationTimestamp": "2024-02-11T00:13:41Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "orchestatorv2-dev"
+          },
+          "name": "orchestatorv2-dev",
+          "namespace": "development",
+          "resourceVersion": "62652636",
+          "uid": "b8bbf59b-a094-4d85-86f2-28c42e346c4d"
+        },
+        "spec": {
+          "clusterIP": "10.98.130.11",
+          "clusterIPs": [
+            "10.98.130.11"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app": "orchestatorv2-dev"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"orchestatorv3-dev\"},\"name\":\"orchestatorv3-dev\",\"namespace\":\"development\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":8080}],\"selector\":{\"app\":\"orchestatorv3-dev\"}}}\n"
+          },
+          "creationTimestamp": "2024-04-14T22:05:32Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "orchestatorv3-dev"
+          },
+          "name": "orchestatorv3-dev",
+          "namespace": "development",
+          "resourceVersion": "80576377",
+          "uid": "ca7fee40-a7c5-44d5-9b6b-f73877502a40"
+        },
+        "spec": {
+          "clusterIP": "10.104.199.238",
+          "clusterIPs": [
+            "10.104.199.238"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 8080
+            }
+          ],
+          "selector": {
+            "app": "orchestatorv3-dev"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"python-dev\"},\"name\":\"python-dev\",\"namespace\":\"development\"},\"spec\":{\"ports\":[{\"port\":5000,\"protocol\":\"TCP\",\"targetPort\":5000}],\"selector\":{\"app\":\"python-dev\"},\"type\":\"LoadBalancer\"}}\n",
+            "metallb.universe.tf/ip-allocated-from-pool": "external-pool"
+          },
+          "creationTimestamp": "2023-08-12T19:45:59Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "python-dev"
+          },
+          "name": "python-dev",
+          "namespace": "development",
+          "resourceVersion": "4782226",
+          "uid": "caf320d3-0833-404c-a315-b4bc2ca88439"
+        },
+        "spec": {
+          "allocateLoadBalancerNodePorts": true,
+          "clusterIP": "10.102.191.110",
+          "clusterIPs": [
+            "10.102.191.110"
+          ],
+          "externalTrafficPolicy": "Cluster",
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "nodePort": 30185,
+              "port": 5000,
+              "protocol": "TCP",
+              "targetPort": 5000
+            }
+          ],
+          "selector": {
+            "app": "python-dev"
+          },
+          "sessionAffinity": "None",
+          "type": "LoadBalancer"
+        },
+        "status": {
+          "loadBalancer": {
+            "ingress": [
+              {
+                "ip": "192.168.50.2"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"ses-dev\"},\"name\":\"ses-dev\",\"namespace\":\"development\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":5000}],\"selector\":{\"app\":\"ses-dev\"}}}\n"
+          },
+          "creationTimestamp": "2023-10-30T17:22:20Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "ses-dev"
+          },
+          "name": "ses-dev",
+          "namespace": "development",
+          "resourceVersion": "30095762",
+          "uid": "ab014bdc-3a62-4523-8728-a916e2d4091b"
+        },
+        "spec": {
+          "clusterIP": "10.107.193.141",
+          "clusterIPs": [
+            "10.107.193.141"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 5000
+            }
+          ],
+          "selector": {
+            "app": "ses-dev"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"sesback-dev\"},\"name\":\"sesback-dev\",\"namespace\":\"development\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":8080}],\"selector\":{\"app\":\"sesback-dev\"}}}\n"
+          },
+          "creationTimestamp": "2024-06-27T17:01:36Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "sesback-dev"
+          },
+          "name": "sesback-dev",
+          "namespace": "development",
+          "resourceVersion": "109170072",
+          "uid": "97625ae3-098b-4ea3-9418-eaaf5f73aac0"
+        },
+        "spec": {
+          "clusterIP": "10.111.50.40",
+          "clusterIPs": [
+            "10.111.50.40"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 8080
+            }
+          ],
+          "selector": {
+            "app": "sesback-dev"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"starlink-flask-dev\"},\"name\":\"starlink-flask-dev\",\"namespace\":\"development\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":8000}],\"selector\":{\"app\":\"starlink-flask-dev\"}}}\n"
+          },
+          "creationTimestamp": "2023-09-01T18:25:01Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "starlink-flask-dev"
+          },
+          "name": "starlink-flask-dev",
+          "namespace": "development",
+          "resourceVersion": "11428730",
+          "uid": "ea6cdbbc-68ae-43ae-8555-e9733e84231f"
+        },
+        "spec": {
+          "clusterIP": "10.97.173.166",
+          "clusterIPs": [
+            "10.97.173.166"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 8000
+            }
+          ],
+          "selector": {
+            "app": "starlink-flask-dev"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"support\"},\"name\":\"support\",\"namespace\":\"development\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":80}],\"selector\":{\"app\":\"support\"}}}\n"
+          },
+          "creationTimestamp": "2023-11-21T13:51:21Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "support"
+          },
+          "name": "support",
+          "namespace": "development",
+          "resourceVersion": "36232738",
+          "uid": "fc263ed9-2059-4c77-b7b1-adc3fbba36b3"
+        },
+        "spec": {
+          "clusterIP": "10.99.110.164",
+          "clusterIPs": [
+            "10.99.110.164"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 80
+            }
+          ],
+          "selector": {
+            "app": "support"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"support-dev\"},\"name\":\"support-dev\",\"namespace\":\"development\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":80}],\"selector\":{\"app\":\"support-dev\"}}}\n"
+          },
+          "creationTimestamp": "2023-10-12T21:29:36Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "support-dev"
+          },
+          "name": "support-dev",
+          "namespace": "development",
+          "resourceVersion": "25089888",
+          "uid": "17bf3cd8-a257-4a50-99f9-88a95a312d73"
+        },
+        "spec": {
+          "clusterIP": "10.100.50.49",
+          "clusterIPs": [
+            "10.100.50.49"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 80
+            }
+          ],
+          "selector": {
+            "app": "support-dev"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"viasat-dev\"},\"name\":\"viasat-dev\",\"namespace\":\"development\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":8080}],\"selector\":{\"app\":\"viasat-dev\"}}}\n"
+          },
+          "creationTimestamp": "2024-08-21T21:04:40Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "viasat-dev"
+          },
+          "name": "viasat-dev",
+          "namespace": "development",
+          "resourceVersion": "131606998",
+          "uid": "b2774779-6ea5-42ca-bbe8-17cc1eb64d18"
+        },
+        "spec": {
+          "clusterIP": "10.110.154.5",
+          "clusterIPs": [
+            "10.110.154.5"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 8080
+            }
+          ],
+          "selector": {
+            "app": "viasat-dev"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"app.kubernetes.io/version\":\"2.12.1\",\"control-plane\":\"elastic-operator\"},\"name\":\"elastic-webhook-server\",\"namespace\":\"elastic-system\"},\"spec\":{\"ports\":[{\"name\":\"https\",\"port\":443,\"targetPort\":9443}],\"selector\":{\"control-plane\":\"elastic-operator\"}}}\n"
+          },
+          "creationTimestamp": "2024-04-03T22:51:23Z",
+          "labels": {
+            "app.kubernetes.io/version": "2.12.1",
+            "control-plane": "elastic-operator"
+          },
+          "name": "elastic-webhook-server",
+          "namespace": "elastic-system",
+          "resourceVersion": "76376925",
+          "uid": "6f66e115-4eb8-4c29-8a0c-75debdf5d972"
+        },
+        "spec": {
+          "clusterIP": "10.107.251.53",
+          "clusterIPs": [
+            "10.107.251.53"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "https",
+              "port": 443,
+              "protocol": "TCP",
+              "targetPort": 9443
+            }
+          ],
+          "selector": {
+            "control-plane": "elastic-operator"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "meta.helm.sh/release-name": "cert-manager",
+            "meta.helm.sh/release-namespace": "ingress"
+          },
+          "creationTimestamp": "2023-08-10T22:06:32Z",
+          "labels": {
+            "app": "cert-manager",
+            "app.kubernetes.io/component": "controller",
+            "app.kubernetes.io/instance": "cert-manager",
+            "app.kubernetes.io/managed-by": "Helm",
+            "app.kubernetes.io/name": "cert-manager",
+            "app.kubernetes.io/version": "v1.12.3",
+            "helm.sh/chart": "cert-manager-v1.12.3"
+          },
+          "name": "cert-manager",
+          "namespace": "ingress",
+          "resourceVersion": "4135653",
+          "uid": "bae09282-0995-43ce-a03d-c46d40f65be0"
+        },
+        "spec": {
+          "clusterIP": "10.97.129.255",
+          "clusterIPs": [
+            "10.97.129.255"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "tcp-prometheus-servicemonitor",
+              "port": 9402,
+              "protocol": "TCP",
+              "targetPort": 9402
+            }
+          ],
+          "selector": {
+            "app.kubernetes.io/component": "controller",
+            "app.kubernetes.io/instance": "cert-manager",
+            "app.kubernetes.io/name": "cert-manager"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "meta.helm.sh/release-name": "cert-manager",
+            "meta.helm.sh/release-namespace": "ingress"
+          },
+          "creationTimestamp": "2023-08-10T22:06:32Z",
+          "labels": {
+            "app": "webhook",
+            "app.kubernetes.io/component": "webhook",
+            "app.kubernetes.io/instance": "cert-manager",
+            "app.kubernetes.io/managed-by": "Helm",
+            "app.kubernetes.io/name": "webhook",
+            "app.kubernetes.io/version": "v1.12.3",
+            "helm.sh/chart": "cert-manager-v1.12.3"
+          },
+          "name": "cert-manager-webhook",
+          "namespace": "ingress",
+          "resourceVersion": "4135657",
+          "uid": "6f83b223-c050-4c0d-8e36-a817b923dc54"
+        },
+        "spec": {
+          "clusterIP": "10.102.4.136",
+          "clusterIPs": [
+            "10.102.4.136"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "https",
+              "port": 443,
+              "protocol": "TCP",
+              "targetPort": "https"
+            }
+          ],
+          "selector": {
+            "app.kubernetes.io/component": "webhook",
+            "app.kubernetes.io/instance": "cert-manager",
+            "app.kubernetes.io/name": "webhook"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "meta.helm.sh/release-name": "metalb",
+            "meta.helm.sh/release-namespace": "ingress"
+          },
+          "creationTimestamp": "2023-08-10T09:55:28Z",
+          "labels": {
+            "app.kubernetes.io/instance": "metalb",
+            "app.kubernetes.io/managed-by": "Helm",
+            "app.kubernetes.io/name": "metallb",
+            "app.kubernetes.io/version": "v0.13.10",
+            "helm.sh/chart": "metallb-0.13.10"
+          },
+          "name": "metallb-webhook-service",
+          "namespace": "ingress",
+          "resourceVersion": "3959537",
+          "uid": "946115fe-fb57-41ea-8b78-c8f79e0e8b66"
+        },
+        "spec": {
+          "clusterIP": "10.104.196.109",
+          "clusterIPs": [
+            "10.104.196.109"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 443,
+              "protocol": "TCP",
+              "targetPort": 9443
+            }
+          ],
+          "selector": {
+            "app.kubernetes.io/component": "controller",
+            "app.kubernetes.io/instance": "metalb",
+            "app.kubernetes.io/name": "metallb"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "meta.helm.sh/release-name": "traefik",
+            "meta.helm.sh/release-namespace": "ingress",
+            "metallb.universe.tf/ip-allocated-from-pool": "external-pool"
+          },
+          "creationTimestamp": "2023-08-11T11:56:49Z",
+          "labels": {
+            "app.kubernetes.io/instance": "traefik-ingress",
+            "app.kubernetes.io/managed-by": "Helm",
+            "app.kubernetes.io/name": "traefik",
+            "helm.sh/chart": "traefik-24.0.0"
+          },
+          "name": "traefik",
+          "namespace": "ingress",
+          "resourceVersion": "5333146",
+          "uid": "5d1c6bab-ca17-4ae1-ad4e-269de5adefd1"
+        },
+        "spec": {
+          "allocateLoadBalancerNodePorts": true,
+          "clusterIP": "10.108.14.246",
+          "clusterIPs": [
+            "10.108.14.246"
+          ],
+          "externalIPs": [
+            "192.168.29.22"
+          ],
+          "externalTrafficPolicy": "Cluster",
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "loadBalancerSourceRanges": [
+            "192.168.50.0/24"
+          ],
+          "ports": [
+            {
+              "name": "metrics",
+              "nodePort": 31666,
+              "port": 9100,
+              "protocol": "TCP",
+              "targetPort": "metrics"
+            },
+            {
+              "name": "web",
+              "nodePort": 31705,
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": "web"
+            },
+            {
+              "name": "websecure",
+              "nodePort": 30253,
+              "port": 443,
+              "protocol": "TCP",
+              "targetPort": "websecure"
+            }
+          ],
+          "selector": {
+            "app.kubernetes.io/instance": "traefik-ingress",
+            "app.kubernetes.io/name": "traefik"
+          },
+          "sessionAffinity": "None",
+          "type": "LoadBalancer"
+        },
+        "status": {
+          "loadBalancer": {
+            "ingress": [
+              {
+                "ip": "192.168.50.0"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "meta.helm.sh/release-name": "kong",
+            "meta.helm.sh/release-namespace": "kong"
+          },
+          "creationTimestamp": "2023-08-12T01:44:21Z",
+          "labels": {
+            "app.kubernetes.io/component": "server",
+            "app.kubernetes.io/instance": "kong",
+            "app.kubernetes.io/managed-by": "Helm",
+            "app.kubernetes.io/name": "kong",
+            "helm.sh/chart": "kong-9.4.3"
+          },
+          "name": "kong",
+          "namespace": "kong",
+          "resourceVersion": "4743010",
+          "uid": "8472ab8a-3258-4139-9e84-406ae099dc75"
+        },
+        "spec": {
+          "clusterIP": "10.103.216.97",
+          "clusterIPs": [
+            "10.103.216.97"
+          ],
+          "externalIPs": [
+            "192.168.29.29"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "http-proxy",
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": "http-proxy"
+            },
+            {
+              "name": "https-proxy",
+              "port": 443,
+              "protocol": "TCP",
+              "targetPort": "https-proxy"
+            },
+            {
+              "name": "http-admin",
+              "port": 8001,
+              "protocol": "TCP",
+              "targetPort": "http-admin"
+            },
+            {
+              "name": "https-admin",
+              "port": 8444,
+              "protocol": "TCP",
+              "targetPort": "https-admin"
+            }
+          ],
+          "selector": {
+            "app.kubernetes.io/component": "server",
+            "app.kubernetes.io/instance": "kong",
+            "app.kubernetes.io/name": "kong"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "meta.helm.sh/release-name": "kong",
+            "meta.helm.sh/release-namespace": "kong",
+            "prometheus.io/path": "/metrics",
+            "prometheus.io/port": "9119",
+            "prometheus.io/scrape": "true"
+          },
+          "creationTimestamp": "2023-08-14T11:37:01Z",
+          "labels": {
+            "app.kubernetes.io/component": "server",
+            "app.kubernetes.io/instance": "kong",
+            "app.kubernetes.io/managed-by": "Helm",
+            "app.kubernetes.io/name": "kong",
+            "helm.sh/chart": "kong-9.4.3"
+          },
+          "name": "kong-metrics",
+          "namespace": "kong",
+          "resourceVersion": "5333334",
+          "uid": "164152c1-a337-4321-b4ce-b965db562831"
+        },
+        "spec": {
+          "clusterIP": "10.100.247.44",
+          "clusterIPs": [
+            "10.100.247.44"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "http-metrics",
+              "port": 9119,
+              "protocol": "TCP",
+              "targetPort": "http-metrics"
+            }
+          ],
+          "selector": {
+            "app.kubernetes.io/component": "server",
+            "app.kubernetes.io/instance": "kong",
+            "app.kubernetes.io/name": "kong"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "meta.helm.sh/release-name": "kong",
+            "meta.helm.sh/release-namespace": "kong"
+          },
+          "creationTimestamp": "2023-08-12T01:44:21Z",
+          "labels": {
+            "app.kubernetes.io/component": "primary",
+            "app.kubernetes.io/instance": "kong",
+            "app.kubernetes.io/managed-by": "Helm",
+            "app.kubernetes.io/name": "postgresql",
+            "helm.sh/chart": "postgresql-12.6.5"
+          },
+          "name": "kong-postgresql",
+          "namespace": "kong",
+          "resourceVersion": "4531514",
+          "uid": "b06818d8-c645-4d0e-8612-e34abb60d1d2"
+        },
+        "spec": {
+          "clusterIP": "10.96.210.9",
+          "clusterIPs": [
+            "10.96.210.9"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "tcp-postgresql",
+              "port": 5432,
+              "protocol": "TCP",
+              "targetPort": "tcp-postgresql"
+            }
+          ],
+          "selector": {
+            "app.kubernetes.io/component": "primary",
+            "app.kubernetes.io/instance": "kong",
+            "app.kubernetes.io/name": "postgresql"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "meta.helm.sh/release-name": "kong",
+            "meta.helm.sh/release-namespace": "kong"
+          },
+          "creationTimestamp": "2023-08-12T01:44:21Z",
+          "labels": {
+            "app.kubernetes.io/component": "primary",
+            "app.kubernetes.io/instance": "kong",
+            "app.kubernetes.io/managed-by": "Helm",
+            "app.kubernetes.io/name": "postgresql",
+            "helm.sh/chart": "postgresql-12.6.5",
+            "service.alpha.kubernetes.io/tolerate-unready-endpoints": "true"
+          },
+          "name": "kong-postgresql-hl",
+          "namespace": "kong",
+          "resourceVersion": "4531512",
+          "uid": "8f75db67-c80c-402d-981a-6cef1b3b8bed"
+        },
+        "spec": {
+          "clusterIP": "None",
+          "clusterIPs": [
+            "None"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "tcp-postgresql",
+              "port": 5432,
+              "protocol": "TCP",
+              "targetPort": "tcp-postgresql"
+            }
+          ],
+          "publishNotReadyAddresses": true,
+          "selector": {
+            "app.kubernetes.io/component": "primary",
+            "app.kubernetes.io/instance": "kong",
+            "app.kubernetes.io/name": "postgresql"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "meta.helm.sh/release-name": "cilium",
+            "meta.helm.sh/release-namespace": "kube-system"
+          },
+          "creationTimestamp": "2023-07-30T18:08:10Z",
+          "labels": {
+            "app.kubernetes.io/managed-by": "Helm",
+            "app.kubernetes.io/name": "hubble-peer",
+            "app.kubernetes.io/part-of": "cilium",
+            "k8s-app": "cilium"
+          },
+          "name": "hubble-peer",
+          "namespace": "kube-system",
+          "resourceVersion": "1105",
+          "uid": "d2883995-578f-46d3-8ca6-019f2b773b88"
+        },
+        "spec": {
+          "clusterIP": "10.110.43.116",
+          "clusterIPs": [
+            "10.110.43.116"
+          ],
+          "internalTrafficPolicy": "Local",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "peer-service",
+              "port": 443,
+              "protocol": "TCP",
+              "targetPort": 4244
+            }
+          ],
+          "selector": {
+            "k8s-app": "cilium"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "prometheus.io/port": "9153",
+            "prometheus.io/scrape": "true"
+          },
+          "creationTimestamp": "2023-07-30T18:01:46Z",
+          "labels": {
+            "k8s-app": "kube-dns",
+            "kubernetes.io/cluster-service": "true",
+            "kubernetes.io/name": "CoreDNS"
+          },
+          "name": "kube-dns",
+          "namespace": "kube-system",
+          "resourceVersion": "273",
+          "uid": "33a91885-9621-4392-8a4e-751ab29efd54"
+        },
+        "spec": {
+          "clusterIP": "10.96.0.10",
+          "clusterIPs": [
+            "10.96.0.10"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "dns",
+              "port": 53,
+              "protocol": "UDP",
+              "targetPort": 53
+            },
+            {
+              "name": "dns-tcp",
+              "port": 53,
+              "protocol": "TCP",
+              "targetPort": 53
+            },
+            {
+              "name": "metrics",
+              "port": 9153,
+              "protocol": "TCP",
+              "targetPort": 9153
+            }
+          ],
+          "selector": {
+            "k8s-app": "kube-dns"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "meta.helm.sh/release-name": "metrics-server",
+            "meta.helm.sh/release-namespace": "kube-system"
+          },
+          "creationTimestamp": "2023-08-14T11:28:18Z",
+          "labels": {
+            "app.kubernetes.io/instance": "metrics-server",
+            "app.kubernetes.io/managed-by": "Helm",
+            "app.kubernetes.io/name": "metrics-server",
+            "app.kubernetes.io/version": "0.6.4",
+            "helm.sh/chart": "metrics-server-3.11.0"
+          },
+          "name": "metrics-server",
+          "namespace": "kube-system",
+          "resourceVersion": "5331178",
+          "uid": "3f69aeac-ba78-4d95-a75c-daa131d362c1"
+        },
+        "spec": {
+          "clusterIP": "10.103.219.37",
+          "clusterIPs": [
+            "10.103.219.37"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "https",
+              "port": 443,
+              "protocol": "TCP",
+              "targetPort": "https"
+            }
+          ],
+          "selector": {
+            "app.kubernetes.io/instance": "metrics-server",
+            "app.kubernetes.io/name": "metrics-server"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "creationTimestamp": "2024-05-05T22:18:21Z",
+          "labels": {
+            "app": "mydb-service"
+          },
+          "name": "mydb-service",
+          "namespace": "local",
+          "resourceVersion": "88584029",
+          "uid": "67cbba08-ab7e-4b81-9364-a96101a1271a"
+        },
+        "spec": {
+          "clusterIP": "10.103.193.140",
+          "clusterIPs": [
+            "10.103.193.140"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 5432,
+              "protocol": "TCP",
+              "targetPort": 5432
+            }
+          ],
+          "selector": {
+            "app": "mydb-service"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "creationTimestamp": "2024-05-06T01:09:56Z",
+          "name": "service-7ba54d4e-5b4f-46c2-9225-069f524ab4ae",
+          "namespace": "local",
+          "resourceVersion": "88629609",
+          "uid": "ab2a3ae0-859d-4c85-8dd3-79294bed2439"
+        },
+        "spec": {
+          "clusterIP": "10.103.158.53",
+          "clusterIPs": [
+            "10.103.158.53"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 80
+            }
+          ],
+          "selector": {
+            "app": "7ba54d4e-5b4f-46c2-9225-069f524ab4ae"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "creationTimestamp": "2024-05-06T04:58:49Z",
+          "name": "service-a1d1c518-5ad9-48dc-80b6-be2881b00aba",
+          "namespace": "local",
+          "resourceVersion": "88690761",
+          "uid": "7dbee90f-938a-47f7-9da0-151b88376523"
+        },
+        "spec": {
+          "clusterIP": "10.109.31.234",
+          "clusterIPs": [
+            "10.109.31.234"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 80
+            }
+          ],
+          "selector": {
+            "app": "a1d1c518-5ad9-48dc-80b6-be2881b00aba"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "creationTimestamp": "2024-05-05T22:27:16Z",
+          "name": "service-ff165799-396e-449f-b3d3-4c5a1379a341",
+          "namespace": "local",
+          "resourceVersion": "88586452",
+          "uid": "b1c903fd-a067-4f9d-bc38-4aa7cdb71c14"
+        },
+        "spec": {
+          "clusterIP": "10.98.14.91",
+          "clusterIPs": [
+            "10.98.14.91"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 80
+            }
+          ],
+          "selector": {
+            "app": "ff165799-396e-449f-b3d3-4c5a1379a341"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "creationTimestamp": "2024-08-18T21:28:32Z",
+          "name": "svc-2260bbad-c622-41ce-3510-42fc7cd36529",
+          "namespace": "local",
+          "resourceVersion": "130263106",
+          "uid": "83ed6297-bb53-49d5-9004-40e6c13ed8e8"
+        },
+        "spec": {
+          "clusterIP": "10.108.40.102",
+          "clusterIPs": [
+            "10.108.40.102"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "app-port",
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3001
+            },
+            {
+              "name": "msync-port",
+              "port": 6060,
+              "protocol": "TCP",
+              "targetPort": 6062
+            }
+          ],
+          "selector": {
+            "app": "svc-2260bbad-c622-41ce-3510-42fc7cd36529"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "creationTimestamp": "2024-08-18T21:50:23Z",
+          "name": "svc-2260bbad-c622-41ce-3510-42fc7cd36531",
+          "namespace": "local",
+          "resourceVersion": "130269956",
+          "uid": "0619afdd-33c1-49ab-b554-7126f5ae52cf"
+        },
+        "spec": {
+          "clusterIP": "10.111.188.49",
+          "clusterIPs": [
+            "10.111.188.49"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "app-port",
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3001
+            },
+            {
+              "name": "msync-port",
+              "port": 6060,
+              "protocol": "TCP",
+              "targetPort": 6062
+            }
+          ],
+          "selector": {
+            "app": "svc-2260bbad-c622-41ce-3510-42fc7cd36531"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "creationTimestamp": "2024-08-18T23:50:52Z",
+          "name": "svc-a5317d09-c858-8b2d-14dc-7b91fe901ce123",
+          "namespace": "local",
+          "resourceVersion": "130307553",
+          "uid": "49528ce9-354b-4240-8257-68f049835030"
+        },
+        "spec": {
+          "clusterIP": "10.97.64.174",
+          "clusterIPs": [
+            "10.97.64.174"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 9999
+            }
+          ],
+          "selector": {
+            "app": "svc-a5317d09-c858-8b2d-14dc-7b91fe901ce123"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "creationTimestamp": "2024-08-18T17:26:13Z",
+          "name": "svc-a5317d09-c858-8b2d-14dc-7b91fe901ce6",
+          "namespace": "local",
+          "resourceVersion": "130187509",
+          "uid": "307a41ca-472d-4491-be46-1a6071609014"
+        },
+        "spec": {
+          "clusterIP": "10.100.30.206",
+          "clusterIPs": [
+            "10.100.30.206"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "app-port",
+              "port": 3000,
+              "protocol": "TCP",
+              "targetPort": 3001
+            },
+            {
+              "name": "msync-port",
+              "port": 6060,
+              "protocol": "TCP",
+              "targetPort": 6062
+            }
+          ],
+          "selector": {
+            "app": "svc-a5317d09-c858-8b2d-14dc-7b91fe901ce6"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"apiaws-prod\"},\"name\":\"apiaws-prod\",\"namespace\":\"production\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":80}],\"selector\":{\"app\":\"apiaws-prod\"}}}\n"
+          },
+          "creationTimestamp": "2024-07-29T14:36:58Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "apiaws-prod"
+          },
+          "name": "apiaws-prod",
+          "namespace": "production",
+          "resourceVersion": "121228652",
+          "uid": "5bad32d1-4ead-4a39-a22b-dcadfb70e5b5"
+        },
+        "spec": {
+          "clusterIP": "10.97.64.60",
+          "clusterIPs": [
+            "10.97.64.60"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 80
+            }
+          ],
+          "selector": {
+            "app": "apiaws-prod"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"authv3\"},\"name\":\"authv3\",\"namespace\":\"production\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":8080}],\"selector\":{\"app\":\"authv3\"}}}\n"
+          },
+          "creationTimestamp": "2024-04-24T09:26:46Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "authv3"
+          },
+          "name": "authv3",
+          "namespace": "production",
+          "resourceVersion": "84177549",
+          "uid": "97d805e2-2796-4db0-b589-9e4db51dc89e"
+        },
+        "spec": {
+          "clusterIP": "10.98.114.54",
+          "clusterIPs": [
+            "10.98.114.54"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 8080
+            }
+          ],
+          "selector": {
+            "app": "authv3"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"backshoping\"},\"name\":\"backshoping\",\"namespace\":\"production\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":8080}],\"selector\":{\"app\":\"backshoping\"}}}\n"
+          },
+          "creationTimestamp": "2024-05-22T16:47:15Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "backshoping"
+          },
+          "name": "backshoping",
+          "namespace": "production",
+          "resourceVersion": "95277421",
+          "uid": "a8d4aa2a-ef05-48b0-80e6-d0ac1e8857f5"
+        },
+        "spec": {
+          "clusterIP": "10.107.168.120",
+          "clusterIPs": [
+            "10.107.168.120"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 8080
+            }
+          ],
+          "selector": {
+            "app": "backshoping"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"backstore\"},\"name\":\"backstore\",\"namespace\":\"production\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":8080}],\"selector\":{\"app\":\"backstore\"}}}\n"
+          },
+          "creationTimestamp": "2024-05-22T16:47:15Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "backstore"
+          },
+          "name": "backstore",
+          "namespace": "production",
+          "resourceVersion": "95277431",
+          "uid": "eb9b88c1-21b2-4445-bf9e-d8bfa90a8140"
+        },
+        "spec": {
+          "clusterIP": "10.96.96.104",
+          "clusterIPs": [
+            "10.96.96.104"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 8080
+            }
+          ],
+          "selector": {
+            "app": "backstore"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "meta.helm.sh/release-name": "dataview",
+            "meta.helm.sh/release-namespace": "production"
+          },
+          "creationTimestamp": "2024-02-18T22:31:16Z",
+          "labels": {
+            "app.kubernetes.io/instance": "dataview",
+            "app.kubernetes.io/managed-by": "Helm",
+            "app.kubernetes.io/name": "grafana",
+            "app.kubernetes.io/version": "10.3.1",
+            "helm.sh/chart": "grafana-7.3.0"
+          },
+          "name": "dataview-grafana",
+          "namespace": "production",
+          "resourceVersion": "61736129",
+          "uid": "ef74c9b0-b8ce-4463-87d3-33ef69d64bd8"
+        },
+        "spec": {
+          "clusterIP": "10.101.49.90",
+          "clusterIPs": [
+            "10.101.49.90"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "service",
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app.kubernetes.io/instance": "dataview",
+            "app.kubernetes.io/name": "grafana"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "meta.helm.sh/release-name": "dataview",
+            "meta.helm.sh/release-namespace": "production"
+          },
+          "creationTimestamp": "2024-02-18T22:31:16Z",
+          "labels": {
+            "app.kubernetes.io/instance": "dataview",
+            "app.kubernetes.io/managed-by": "Helm",
+            "app.kubernetes.io/name": "grafana-image-renderer",
+            "app.kubernetes.io/version": "10.3.1",
+            "helm.sh/chart": "grafana-7.3.0"
+          },
+          "name": "dataview-grafana-image-renderer",
+          "namespace": "production",
+          "resourceVersion": "61736131",
+          "uid": "af434a82-bb12-481d-935b-fead06c0e5f7"
+        },
+        "spec": {
+          "clusterIP": "10.101.228.147",
+          "clusterIPs": [
+            "10.101.228.147"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "http",
+              "port": 8081,
+              "protocol": "TCP",
+              "targetPort": 8081
+            }
+          ],
+          "selector": {
+            "app.kubernetes.io/instance": "dataview",
+            "app.kubernetes.io/name": "grafana-image-renderer"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"general-functions\"},\"name\":\"general-functions\",\"namespace\":\"production\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":3000}],\"selector\":{\"app\":\"general-functions\"}}}\n"
+          },
+          "creationTimestamp": "2023-11-02T21:11:12Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "general-functions"
+          },
+          "name": "general-functions",
+          "namespace": "production",
+          "resourceVersion": "30982608",
+          "uid": "b9401d4b-e251-4fdc-a8e5-349590ad1ad6"
+        },
+        "spec": {
+          "clusterIP": "10.105.235.147",
+          "clusterIPs": [
+            "10.105.235.147"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app": "general-functions"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"generalf\"},\"name\":\"generalf\",\"namespace\":\"production\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":8080}],\"selector\":{\"app\":\"generalf\"}}}\n"
+          },
+          "creationTimestamp": "2024-06-04T21:43:43Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "generalf"
+          },
+          "name": "generalf",
+          "namespace": "production",
+          "resourceVersion": "100536945",
+          "uid": "0f9e8487-2f47-441d-9a72-6ac96f5e3019"
+        },
+        "spec": {
+          "clusterIP": "10.96.101.114",
+          "clusterIPs": [
+            "10.96.101.114"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 8080
+            }
+          ],
+          "selector": {
+            "app": "generalf"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"grafanaleo\"},\"name\":\"grafanaleo\",\"namespace\":\"production\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":5000}],\"selector\":{\"app\":\"grafanaleo\"}}}\n"
+          },
+          "creationTimestamp": "2023-10-05T01:16:15Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "grafanaleo"
+          },
+          "name": "grafanaleo",
+          "namespace": "production",
+          "resourceVersion": "22490003",
+          "uid": "f435b83b-7ded-4dcb-a185-682e543421e9"
+        },
+        "spec": {
+          "clusterIP": "10.111.98.44",
+          "clusterIPs": [
+            "10.111.98.44"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 5000
+            }
+          ],
+          "selector": {
+            "app": "grafanaleo"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"influx-prd\"},\"name\":\"influx-prd\",\"namespace\":\"production\"},\"spec\":{\"ports\":[{\"port\":5000,\"protocol\":\"TCP\",\"targetPort\":5000}],\"selector\":{\"app\":\"influx-prd\"},\"type\":\"LoadBalancer\"}}\n",
+            "metallb.universe.tf/ip-allocated-from-pool": "external-pool"
+          },
+          "creationTimestamp": "2023-08-17T12:46:38Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "influx-prd"
+          },
+          "name": "influx-prd",
+          "namespace": "production",
+          "resourceVersion": "6347357",
+          "uid": "0b0b689d-4650-4b54-b7a2-1b6a7bf0e3e3"
+        },
+        "spec": {
+          "allocateLoadBalancerNodePorts": true,
+          "clusterIP": "10.99.3.162",
+          "clusterIPs": [
+            "10.99.3.162"
+          ],
+          "externalTrafficPolicy": "Cluster",
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "nodePort": 32353,
+              "port": 5000,
+              "protocol": "TCP",
+              "targetPort": 5000
+            }
+          ],
+          "selector": {
+            "app": "influx-prd"
+          },
+          "sessionAffinity": "None",
+          "type": "LoadBalancer"
+        },
+        "status": {
+          "loadBalancer": {
+            "ingress": [
+              {
+                "ip": "192.168.50.5"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"laravel360-prd\"},\"name\":\"laravel360-prd\",\"namespace\":\"production\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":80}],\"selector\":{\"app\":\"laravel360-prd\"},\"type\":\"LoadBalancer\"}}\n",
+            "metallb.universe.tf/ip-allocated-from-pool": "external-pool"
+          },
+          "creationTimestamp": "2023-08-12T19:45:59Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "laravel360-prd"
+          },
+          "name": "laravel360-prd",
+          "namespace": "production",
+          "resourceVersion": "4782215",
+          "uid": "db84d71b-b641-448c-8407-3d67ef4e08d9"
+        },
+        "spec": {
+          "allocateLoadBalancerNodePorts": true,
+          "clusterIP": "10.108.167.198",
+          "clusterIPs": [
+            "10.108.167.198"
+          ],
+          "externalTrafficPolicy": "Cluster",
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "nodePort": 30669,
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 80
+            }
+          ],
+          "selector": {
+            "app": "laravel360-prd"
+          },
+          "sessionAffinity": "None",
+          "type": "LoadBalancer"
+        },
+        "status": {
+          "loadBalancer": {
+            "ingress": [
+              {
+                "ip": "192.168.50.1"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"newapi-production\"},\"name\":\"newapi-production\",\"namespace\":\"production\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":80}],\"selector\":{\"app\":\"newapi-production\"}}}\n"
+          },
+          "creationTimestamp": "2024-07-29T14:36:58Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "newapi-production"
+          },
+          "name": "newapi-production",
+          "namespace": "production",
+          "resourceVersion": "121228644",
+          "uid": "bbef373f-261a-412c-a5a2-c2fc2c2971ff"
+        },
+        "spec": {
+          "clusterIP": "10.103.56.13",
+          "clusterIPs": [
+            "10.103.56.13"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 80
+            }
+          ],
+          "selector": {
+            "app": "newapi-production"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"onpremise-prd\"},\"name\":\"onpremise-prd\",\"namespace\":\"production\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":80}],\"selector\":{\"app\":\"onpremise-prd\"}}}\n"
+          },
+          "creationTimestamp": "2023-08-12T23:24:17Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "onpremise-prd"
+          },
+          "name": "onpremise-prd",
+          "namespace": "production",
+          "resourceVersion": "4832938",
+          "uid": "846a69bd-8c43-4f8a-951b-61e9eca098f5"
+        },
+        "spec": {
+          "clusterIP": "10.110.118.176",
+          "clusterIPs": [
+            "10.110.118.176"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 80
+            }
+          ],
+          "selector": {
+            "app": "onpremise-prd"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"orchestatorv2-production\"},\"name\":\"orchestatorv2-production\",\"namespace\":\"production\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":3000}],\"selector\":{\"app\":\"orchestatorv2-production\"}}}\n"
+          },
+          "creationTimestamp": "2024-02-27T23:59:22Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "orchestatorv2-production"
+          },
+          "name": "orchestatorv2-production",
+          "namespace": "production",
+          "resourceVersion": "64677339",
+          "uid": "f999df4e-23e2-4415-a0d4-efc20abc9478"
+        },
+        "spec": {
+          "clusterIP": "10.100.74.128",
+          "clusterIPs": [
+            "10.100.74.128"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app": "orchestatorv2-production"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"orchestatorv3\"},\"name\":\"orchestatorv3\",\"namespace\":\"production\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":8080}],\"selector\":{\"app\":\"orchestatorv3\"}}}\n"
+          },
+          "creationTimestamp": "2024-04-24T09:15:33Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "orchestatorv3"
+          },
+          "name": "orchestatorv3",
+          "namespace": "production",
+          "resourceVersion": "84174387",
+          "uid": "ea68d372-2e58-48fc-8b44-49d927f9caa1"
+        },
+        "spec": {
+          "clusterIP": "10.101.225.54",
+          "clusterIPs": [
+            "10.101.225.54"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 8080
+            }
+          ],
+          "selector": {
+            "app": "orchestatorv3"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"python-prd\"},\"name\":\"python-prd\",\"namespace\":\"production\"},\"spec\":{\"ports\":[{\"port\":5000,\"protocol\":\"TCP\",\"targetPort\":5000}],\"selector\":{\"app\":\"python-prd\"},\"type\":\"LoadBalancer\"}}\n",
+            "metallb.universe.tf/ip-allocated-from-pool": "external-pool"
+          },
+          "creationTimestamp": "2023-08-12T19:45:59Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "python-prd"
+          },
+          "name": "python-prd",
+          "namespace": "production",
+          "resourceVersion": "4782258",
+          "uid": "3d442a5f-872d-4505-bf74-035b226eb7c8"
+        },
+        "spec": {
+          "allocateLoadBalancerNodePorts": true,
+          "clusterIP": "10.106.91.174",
+          "clusterIPs": [
+            "10.106.91.174"
+          ],
+          "externalTrafficPolicy": "Cluster",
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "nodePort": 31455,
+              "port": 5000,
+              "protocol": "TCP",
+              "targetPort": 5000
+            }
+          ],
+          "selector": {
+            "app": "python-prd"
+          },
+          "sessionAffinity": "None",
+          "type": "LoadBalancer"
+        },
+        "status": {
+          "loadBalancer": {
+            "ingress": [
+              {
+                "ip": "192.168.50.3"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"ses\"},\"name\":\"ses\",\"namespace\":\"production\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":5000}],\"selector\":{\"app\":\"ses\"}}}\n"
+          },
+          "creationTimestamp": "2023-11-17T14:03:12Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "ses"
+          },
+          "name": "ses",
+          "namespace": "production",
+          "resourceVersion": "35111916",
+          "uid": "a8dd59d2-4fc8-41a1-8dba-dd9d42506b3c"
+        },
+        "spec": {
+          "clusterIP": "10.97.13.157",
+          "clusterIPs": [
+            "10.97.13.157"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 5000
+            }
+          ],
+          "selector": {
+            "app": "ses"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"sesnest\"},\"name\":\"sesnest\",\"namespace\":\"production\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":3000}],\"selector\":{\"app\":\"sesnest\"}}}\n"
+          },
+          "creationTimestamp": "2023-10-30T22:55:42Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "sesnest"
+          },
+          "name": "sesnest",
+          "namespace": "production",
+          "resourceVersion": "30164802",
+          "uid": "eb682e21-fbdd-4b7c-9927-947e05bfc29d"
+        },
+        "spec": {
+          "clusterIP": "10.103.232.26",
+          "clusterIPs": [
+            "10.103.232.26"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 3000
+            }
+          ],
+          "selector": {
+            "app": "sesnest"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"argocd.argoproj.io/instance\":\"sgmn-prod\"},\"name\":\"sgmn-prod\",\"namespace\":\"production\"},\"spec\":{\"ports\":[{\"port\":80,\"protocol\":\"TCP\",\"targetPort\":80}],\"selector\":{\"app\":\"sgmn-prod\"}}}\n"
+          },
+          "creationTimestamp": "2023-08-13T01:31:20Z",
+          "labels": {
+            "argocd.argoproj.io/instance": "sgmn-prod"
+          },
+          "name": "sgmn-prod",
+          "namespace": "production",
+          "resourceVersion": "4862268",
+          "uid": "1c756da5-deed-4f76-a0e5-026f529bdd86"
+        },
+        "spec": {
+          "clusterIP": "10.107.178.235",
+          "clusterIPs": [
+            "10.107.178.235"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 80
+            }
+          ],
+          "selector": {
+            "app": "sgmn-prod"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "creationTimestamp": "2023-07-30T18:23:27Z",
+          "labels": {
+            "app": "admission-webhook",
+            "openebs.io/component-name": "admission-webhook-svc",
+            "openebs.io/version": "2.12.2"
+          },
+          "name": "admission-server-svc",
+          "namespace": "storage",
+          "ownerReferences": [
+            {
+              "apiVersion": "apps/v1",
+              "blockOwnerDeletion": true,
+              "controller": true,
+              "kind": "Deployment",
+              "name": "openebs-admission-server",
+              "uid": "fe2db811-d220-4cf4-a586-27b3391b8004"
+            }
+          ],
+          "resourceVersion": "3939",
+          "uid": "cc6c9817-8380-4059-97a8-10f1099f1e3b"
+        },
+        "spec": {
+          "clusterIP": "10.104.39.112",
+          "clusterIPs": [
+            "10.104.39.112"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 443,
+              "protocol": "TCP",
+              "targetPort": 8443
+            }
+          ],
+          "selector": {
+            "app": "admission-webhook"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "meta.helm.sh/release-name": "my-redis-2",
+            "meta.helm.sh/release-namespace": "storage"
+          },
+          "creationTimestamp": "2024-07-30T15:40:06Z",
+          "labels": {
+            "app.kubernetes.io/instance": "my-redis-2",
+            "app.kubernetes.io/managed-by": "Helm",
+            "app.kubernetes.io/name": "redis",
+            "app.kubernetes.io/version": "7.2.5",
+            "helm.sh/chart": "redis-19.6.4"
+          },
+          "name": "my-redis-2-headless",
+          "namespace": "storage",
+          "resourceVersion": "121634563",
+          "uid": "bb24dc56-a51a-4711-bcc7-4eb1b84364f9"
+        },
+        "spec": {
+          "clusterIP": "None",
+          "clusterIPs": [
+            "None"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "tcp-redis",
+              "port": 6379,
+              "protocol": "TCP",
+              "targetPort": "redis"
+            }
+          ],
+          "selector": {
+            "app.kubernetes.io/instance": "my-redis-2",
+            "app.kubernetes.io/name": "redis"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "meta.helm.sh/release-name": "my-redis-2",
+            "meta.helm.sh/release-namespace": "storage"
+          },
+          "creationTimestamp": "2024-07-30T15:40:06Z",
+          "labels": {
+            "app.kubernetes.io/component": "master",
+            "app.kubernetes.io/instance": "my-redis-2",
+            "app.kubernetes.io/managed-by": "Helm",
+            "app.kubernetes.io/name": "redis",
+            "app.kubernetes.io/version": "7.2.5",
+            "helm.sh/chart": "redis-19.6.4"
+          },
+          "name": "my-redis-2-master",
+          "namespace": "storage",
+          "resourceVersion": "121634571",
+          "uid": "99db5f1e-f0fe-4016-a14b-5753ff0cca43"
+        },
+        "spec": {
+          "clusterIP": "10.96.80.23",
+          "clusterIPs": [
+            "10.96.80.23"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "tcp-redis",
+              "port": 6379,
+              "protocol": "TCP",
+              "targetPort": "redis"
+            }
+          ],
+          "selector": {
+            "app.kubernetes.io/component": "master",
+            "app.kubernetes.io/instance": "my-redis-2",
+            "app.kubernetes.io/name": "redis"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "meta.helm.sh/release-name": "my-redis-2",
+            "meta.helm.sh/release-namespace": "storage"
+          },
+          "creationTimestamp": "2024-07-30T15:40:06Z",
+          "labels": {
+            "app.kubernetes.io/component": "replica",
+            "app.kubernetes.io/instance": "my-redis-2",
+            "app.kubernetes.io/managed-by": "Helm",
+            "app.kubernetes.io/name": "redis",
+            "app.kubernetes.io/version": "7.2.5",
+            "helm.sh/chart": "redis-19.6.4"
+          },
+          "name": "my-redis-2-replicas",
+          "namespace": "storage",
+          "resourceVersion": "121634566",
+          "uid": "ec2ace62-22ff-4d2e-92a6-205fd9342d94"
+        },
+        "spec": {
+          "clusterIP": "10.96.138.255",
+          "clusterIPs": [
+            "10.96.138.255"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "tcp-redis",
+              "port": 6379,
+              "protocol": "TCP",
+              "targetPort": "redis"
+            }
+          ],
+          "selector": {
+            "app.kubernetes.io/component": "replica",
+            "app.kubernetes.io/instance": "my-redis-2",
+            "app.kubernetes.io/name": "redis"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "meta.helm.sh/release-name": "my-redis",
+            "meta.helm.sh/release-namespace": "storage"
+          },
+          "creationTimestamp": "2024-07-30T15:37:02Z",
+          "labels": {
+            "app.kubernetes.io/instance": "my-redis",
+            "app.kubernetes.io/managed-by": "Helm",
+            "app.kubernetes.io/name": "redis",
+            "app.kubernetes.io/version": "7.2.5",
+            "helm.sh/chart": "redis-19.6.4"
+          },
+          "name": "my-redis-headless",
+          "namespace": "storage",
+          "resourceVersion": "121633499",
+          "uid": "37f2c82f-e0d0-4ee6-b871-58e599eac24a"
+        },
+        "spec": {
+          "clusterIP": "None",
+          "clusterIPs": [
+            "None"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "tcp-redis",
+              "port": 6379,
+              "protocol": "TCP",
+              "targetPort": "redis"
+            }
+          ],
+          "selector": {
+            "app.kubernetes.io/instance": "my-redis",
+            "app.kubernetes.io/name": "redis"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "meta.helm.sh/release-name": "my-redis",
+            "meta.helm.sh/release-namespace": "storage"
+          },
+          "creationTimestamp": "2024-07-30T15:37:03Z",
+          "labels": {
+            "app.kubernetes.io/component": "master",
+            "app.kubernetes.io/instance": "my-redis",
+            "app.kubernetes.io/managed-by": "Helm",
+            "app.kubernetes.io/name": "redis",
+            "app.kubernetes.io/version": "7.2.5",
+            "helm.sh/chart": "redis-19.6.4"
+          },
+          "name": "my-redis-master",
+          "namespace": "storage",
+          "resourceVersion": "121633505",
+          "uid": "c3d3b951-b703-47a9-b9dc-189be488dbeb"
+        },
+        "spec": {
+          "clusterIP": "10.96.213.168",
+          "clusterIPs": [
+            "10.96.213.168"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "tcp-redis",
+              "port": 6379,
+              "protocol": "TCP",
+              "targetPort": "redis"
+            }
+          ],
+          "selector": {
+            "app.kubernetes.io/component": "master",
+            "app.kubernetes.io/instance": "my-redis",
+            "app.kubernetes.io/name": "redis"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "meta.helm.sh/release-name": "my-redis",
+            "meta.helm.sh/release-namespace": "storage"
+          },
+          "creationTimestamp": "2024-07-30T15:37:03Z",
+          "labels": {
+            "app.kubernetes.io/component": "replica",
+            "app.kubernetes.io/instance": "my-redis",
+            "app.kubernetes.io/managed-by": "Helm",
+            "app.kubernetes.io/name": "redis",
+            "app.kubernetes.io/version": "7.2.5",
+            "helm.sh/chart": "redis-19.6.4"
+          },
+          "name": "my-redis-replicas",
+          "namespace": "storage",
+          "resourceVersion": "121633510",
+          "uid": "1d038f54-1d7f-4723-8c9c-a52242626955"
+        },
+        "spec": {
+          "clusterIP": "10.102.78.94",
+          "clusterIPs": [
+            "10.102.78.94"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "tcp-redis",
+              "port": 6379,
+              "protocol": "TCP",
+              "targetPort": "redis"
+            }
+          ],
+          "selector": {
+            "app.kubernetes.io/component": "replica",
+            "app.kubernetes.io/instance": "my-redis",
+            "app.kubernetes.io/name": "redis"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "meta.helm.sh/release-name": "nextcloud",
+            "meta.helm.sh/release-namespace": "storage"
+          },
+          "creationTimestamp": "2024-04-10T20:53:42Z",
+          "labels": {
+            "app.kubernetes.io/component": "app",
+            "app.kubernetes.io/instance": "nextcloud",
+            "app.kubernetes.io/managed-by": "Helm",
+            "app.kubernetes.io/name": "nextcloud",
+            "helm.sh/chart": "nextcloud-4.6.5"
+          },
+          "name": "nextcloud",
+          "namespace": "storage",
+          "resourceVersion": "79025065",
+          "uid": "00ea6fed-7e9a-466b-8907-5d2de7d92f20"
+        },
+        "spec": {
+          "clusterIP": "10.107.39.239",
+          "clusterIPs": [
+            "10.107.39.239"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "http",
+              "port": 8080,
+              "protocol": "TCP",
+              "targetPort": 80
+            }
+          ],
+          "selector": {
+            "app.kubernetes.io/component": "app",
+            "app.kubernetes.io/instance": "nextcloud",
+            "app.kubernetes.io/name": "nextcloud"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "meta.helm.sh/release-name": "openebs",
+            "meta.helm.sh/release-namespace": "storage"
+          },
+          "creationTimestamp": "2023-07-30T18:23:13Z",
+          "labels": {
+            "app": "openebs",
+            "app.kubernetes.io/managed-by": "Helm",
+            "chart": "openebs-3.10.0",
+            "heritage": "Helm",
+            "openebs.io/component-name": "maya-apiserver-svc",
+            "release": "openebs"
+          },
+          "name": "openebs-apiservice",
+          "namespace": "storage",
+          "resourceVersion": "121486772",
+          "uid": "a1d1c6dc-ffd0-453c-b3db-21e7c3bc2328"
+        },
+        "spec": {
+          "clusterIP": "10.107.94.175",
+          "clusterIPs": [
+            "10.107.94.175"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "api",
+              "port": 5656,
+              "protocol": "TCP",
+              "targetPort": 5656
+            }
+          ],
+          "selector": {
+            "app": "openebs",
+            "component": "apiserver",
+            "release": "openebs"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"app\":\"openebs-cstor-admission-server\"},\"name\":\"openebs-cstor-admission-server\",\"namespace\":\"storage\"},\"spec\":{\"ports\":[{\"port\":443,\"protocol\":\"TCP\",\"targetPort\":443}],\"selector\":{\"app\":\"openebs-cstor-admission-server\"},\"type\":\"ClusterIP\"}}\n"
+          },
+          "creationTimestamp": "2024-07-30T07:58:18Z",
+          "labels": {
+            "app": "openebs-cstor-admission-server",
+            "openebs.io/component-name": "cstor-admission-webhook",
+            "openebs.io/version": "3.6.0"
+          },
+          "name": "openebs-cstor-admission-server",
+          "namespace": "storage",
+          "ownerReferences": [
+            {
+              "apiVersion": "apps/v1",
+              "blockOwnerDeletion": true,
+              "controller": true,
+              "kind": "Deployment",
+              "name": "openebs-cstor-admission-server",
+              "uid": "bd11e06e-d199-46d0-a44d-c3a8d0898c95"
+            }
+          ],
+          "resourceVersion": "121490746",
+          "uid": "70bfe360-a44b-44d8-b386-fc09595b8a80"
+        },
+        "spec": {
+          "clusterIP": "10.111.41.207",
+          "clusterIPs": [
+            "10.111.41.207"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 443,
+              "protocol": "TCP",
+              "targetPort": 443
+            }
+          ],
+          "selector": {
+            "app": "openebs-cstor-admission-server"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "meta.helm.sh/release-name": "openebs",
+            "meta.helm.sh/release-namespace": "storage"
+          },
+          "creationTimestamp": "2024-07-30T07:58:15Z",
+          "labels": {
+            "app.kubernetes.io/managed-by": "Helm",
+            "chart": "cstor-3.6.0",
+            "component": "cvc-operator",
+            "heritage": "Helm",
+            "name": "cvc-operator",
+            "openebs.io/component-name": "cvc-operator-svc",
+            "openebs.io/version": "3.6.0",
+            "release": "openebs"
+          },
+          "name": "openebs-cstor-cvc-operator-svc",
+          "namespace": "storage",
+          "resourceVersion": "121489973",
+          "uid": "f509f506-18f9-4640-b75d-23d426452587"
+        },
+        "spec": {
+          "clusterIP": "10.105.122.148",
+          "clusterIPs": [
+            "10.105.122.148"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "name": "api",
+              "port": 5757,
+              "protocol": "TCP",
+              "targetPort": 5757
+            }
+          ],
+          "selector": {
+            "name": "cvc-operator"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      }
+    ],
+    "kind": "List",
+    "metadata": {
+      "resourceVersion": ""
+    }
+  }
+}

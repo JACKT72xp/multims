@@ -1,0 +1,27 @@
+{
+  "namespace": "default",
+  "pod_name": "pod-try-msync",
+  "security_details": {
+    "namespace": "default",
+    "pod_name": "pod-try-msync",
+    "security_details": {
+      "ControllerOwner": "Orphaned",
+      "HasShellAccess": false,
+      "InsecureNetworkCapabilities": true,
+      "PrivilegedMode": "Unknown",
+      "RunningAsRoot": "Unknown"
+    },
+    "timestamp": "2024-09-15T11:50:09.391354+02:00",
+    "violations": [
+      "Container nginx-proxy in pod pod-try-msync (namespace: default) does not have resource limits or requests set",
+      "Container application-container in pod pod-try-msync (namespace: default) does not have resource limits or requests set",
+      "Container msync-container in pod pod-try-msync (namespace: default) does not have resource limits or requests set"
+    ]
+  },
+  "timestamp": "2024-09-15T11:50:09.391383+02:00",
+  "violations": [
+    "Container nginx-proxy in pod pod-try-msync (namespace: default) does not have resource limits or requests set",
+    "Container application-container in pod pod-try-msync (namespace: default) does not have resource limits or requests set",
+    "Container msync-container in pod pod-try-msync (namespace: default) does not have resource limits or requests set"
+  ]
+}

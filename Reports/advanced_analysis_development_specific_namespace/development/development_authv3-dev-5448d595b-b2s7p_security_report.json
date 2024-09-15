@@ -1,0 +1,20 @@
+{
+  "namespace": "development",
+  "pod_name": "authv3-dev-5448d595b-b2s7p",
+  "security_details": {
+    "namespace": "development",
+    "pod_name": "authv3-dev-5448d595b-b2s7p",
+    "security_details": {
+      "ControllerOwner": "ReplicaSet",
+      "HasShellAccess": true,
+      "InsecureNetworkCapabilities": true,
+      "PrivilegedMode": "Unknown",
+      "RunningAsRoot": "Unknown"
+    },
+    "timestamp": "2024-09-15T11:52:42.641988+02:00",
+    "violations": [
+      "Container authv3-dev in pod authv3-dev-5448d595b-b2s7p (namespace: development) does not have resource limits or requests set"
+    ]
+  },
+  "timestamp": "2024-09-15T11:52:42.642024+02:00"
+}

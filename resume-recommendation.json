@@ -1,0 +1,1564 @@
+{
+  "ingress_recommendations": [
+    {
+      "name": "cm-acme-http-solver-cnmrb",
+      "namespace": "default",
+      "has_tls": false,
+      "is_secure": false,
+      "suggestion": "Enable SSL/TLS and review annotations for security."
+    },
+    {
+      "name": "nombre-ingress-api-kubernetes",
+      "namespace": "default",
+      "has_tls": true,
+      "is_secure": true,
+      "suggestion": ""
+    },
+    {
+      "name": "python-dev-ingress",
+      "namespace": "development",
+      "has_tls": true,
+      "is_secure": true,
+      "suggestion": ""
+    },
+    {
+      "name": "support",
+      "namespace": "development",
+      "has_tls": true,
+      "is_secure": true,
+      "suggestion": ""
+    },
+    {
+      "name": "support-dev",
+      "namespace": "development",
+      "has_tls": true,
+      "is_secure": true,
+      "suggestion": ""
+    },
+    {
+      "name": "kong",
+      "namespace": "kong",
+      "has_tls": true,
+      "is_secure": true,
+      "suggestion": ""
+    },
+    {
+      "name": "apiaws-prod",
+      "namespace": "production",
+      "has_tls": true,
+      "is_secure": true,
+      "suggestion": ""
+    },
+    {
+      "name": "graphics-prd",
+      "namespace": "production",
+      "has_tls": true,
+      "is_secure": true,
+      "suggestion": ""
+    },
+    {
+      "name": "influx-prd",
+      "namespace": "production",
+      "has_tls": true,
+      "is_secure": true,
+      "suggestion": ""
+    },
+    {
+      "name": "laravel360-prd",
+      "namespace": "production",
+      "has_tls": true,
+      "is_secure": true,
+      "suggestion": ""
+    },
+    {
+      "name": "newapi-production",
+      "namespace": "production",
+      "has_tls": true,
+      "is_secure": true,
+      "suggestion": ""
+    },
+    {
+      "name": "onpremise-prd",
+      "namespace": "production",
+      "has_tls": true,
+      "is_secure": true,
+      "suggestion": ""
+    },
+    {
+      "name": "python-prd-ingress",
+      "namespace": "production",
+      "has_tls": true,
+      "is_secure": true,
+      "suggestion": ""
+    },
+    {
+      "name": "nextcloud",
+      "namespace": "storage",
+      "has_tls": true,
+      "is_secure": true,
+      "suggestion": ""
+    }
+  ],
+  "pod_recommendations": [
+    {
+      "name": "cm-acme-http-solver-thgcp",
+      "namespace": "default",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd23",
+      "namespace": "default",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": true,
+      "security_issues": [
+        "Pod is orphaned (no owner references)."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd25",
+      "namespace": "default",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": true,
+      "security_issues": [
+        "Pod is orphaned (no owner references)."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd26",
+      "namespace": "default",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": true,
+      "security_issues": [
+        "Pod is orphaned (no owner references)."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd28",
+      "namespace": "default",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": true,
+      "security_issues": [
+        "Pod is orphaned (no owner references)."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd29",
+      "namespace": "default",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": true,
+      "security_issues": [
+        "Pod is orphaned (no owner references)."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd30",
+      "namespace": "default",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": true,
+      "security_issues": [
+        "Pod is orphaned (no owner references)."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd31",
+      "namespace": "default",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": true,
+      "security_issues": [
+        "Pod is orphaned (no owner references)."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "pod-try-msync",
+      "namespace": "default",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": true,
+      "security_issues": [
+        "Pod is orphaned (no owner references)."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "app-devspace-66548b5bf-szl8c",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "authv3-dev-5448d595b-b2s7p",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "backshopingdev-7ffc74bbfb-kn65j",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "backstoredev-5db94f5499-v52n5",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "general-functions-dev-567958d968-4cb9f",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "generalf-dev-696679db86-xmwjh",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "grafanaleo-dev-5846959cdb-xcbtb",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "incident-dev-949f4b549-dvqtw",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "incident-dev-d5f47546b-d29km",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "newtect-flask-dev-5fb559458d-8px2h",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "orchestatorv2-dev-55f7d985f-sfkgp",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "orchestatorv2-dev-55f7d985f-xnlmw",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "orchestatorv3-dev-6f6d648697-7bdlv",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "python-dev-58bcd44bc5-jhfkq",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "ses-dev-5ff7867859-dnmfr",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "ses-dev-8597c95b8b-k2q79",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "sesback-dev-59676ccbb4-zz7hz",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "ssh-ubuntu",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": true,
+      "security_issues": [
+        "Pod is orphaned (no owner references)."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "starlink-flask-dev-dfc6f78f4-j25vz",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "starlink-flask-dev-f779cf8d9-89dr6",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "support-69c7db9464-lh2pm",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "support-888659c65-grrbj",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "support-dev-555cfb6cbb-tgf9c",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "support-dev-5fcd9575b5-v7hpr",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "viasat-dev-7ffb4b6674-bvc87",
+      "namespace": "development",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "elastic-operator-0",
+      "namespace": "elastic-system",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "cert-manager-9558cb8f8-rmrfp",
+      "namespace": "ingress",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "cert-manager-cainjector-5bd5cf45b9-cz9qz",
+      "namespace": "ingress",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "cert-manager-webhook-776558b9d9-kln5b",
+      "namespace": "ingress",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "metalb-metallb-controller-5d7669dff6-kc98f",
+      "namespace": "ingress",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "metalb-metallb-speaker-2rkbs",
+      "namespace": "ingress",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "traefik-4fjfm",
+      "namespace": "ingress",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "traefik-7l9zk",
+      "namespace": "ingress",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "traefik-p725t",
+      "namespace": "ingress",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "traefik-v28tc",
+      "namespace": "ingress",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "traefik-xgdz8",
+      "namespace": "ingress",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "kong-5h94m",
+      "namespace": "kong",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "kong-7b2bw",
+      "namespace": "kong",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "kong-bzx4h",
+      "namespace": "kong",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "kong-ds97p",
+      "namespace": "kong",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "kong-postgresql-0",
+      "namespace": "kong",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "kong-zpxs9",
+      "namespace": "kong",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "cilium-br7xq",
+      "namespace": "kube-system",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "cilium-c4bmv",
+      "namespace": "kube-system",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "cilium-jrjwt",
+      "namespace": "kube-system",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "cilium-jszv6",
+      "namespace": "kube-system",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "cilium-operator-76c55fc6b6-zl8l5",
+      "namespace": "kube-system",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "cilium-rvsbf",
+      "namespace": "kube-system",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "coredns-5d78c9869d-4jzbp",
+      "namespace": "kube-system",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "coredns-5d78c9869d-v9vv2",
+      "namespace": "kube-system",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "etcd-knode5",
+      "namespace": "kube-system",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "ksync-2pwbg",
+      "namespace": "kube-system",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "ksync-98k88",
+      "namespace": "kube-system",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "ksync-nlqns",
+      "namespace": "kube-system",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "ksync-pctd4",
+      "namespace": "kube-system",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "ksync-pz9rk",
+      "namespace": "kube-system",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "kube-apiserver-knode5",
+      "namespace": "kube-system",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "kube-controller-manager-knode5",
+      "namespace": "kube-system",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "kube-proxy-4qfdr",
+      "namespace": "kube-system",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "kube-proxy-bvfbw",
+      "namespace": "kube-system",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "kube-proxy-jf5d8",
+      "namespace": "kube-system",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "kube-proxy-jhm7p",
+      "namespace": "kube-system",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "kube-proxy-ppd25",
+      "namespace": "kube-system",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "kube-scheduler-knode5",
+      "namespace": "kube-system",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "metrics-server-79989dd84-swwkh",
+      "namespace": "kube-system",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "mydb-pod",
+      "namespace": "local",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": true,
+      "security_issues": [
+        "Pod is orphaned (no owner references)."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "pod-2260bbad-c622-41ce-3510-42fc7cd36529",
+      "namespace": "local",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": true,
+      "security_issues": [
+        "Pod is orphaned (no owner references)."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "pod-2260bbad-c622-41ce-3510-42fc7cd36531",
+      "namespace": "local",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": true,
+      "security_issues": [
+        "Pod is orphaned (no owner references)."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "pod-a5317d09-c858-8b2d-14dc-7b91fe901ce123",
+      "namespace": "local",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": true,
+      "security_issues": [
+        "Pod is orphaned (no owner references)."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "pod-a5317d09-c858-8b2d-14dc-7b91fe901ce6",
+      "namespace": "local",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": true,
+      "security_issues": [
+        "Pod is orphaned (no owner references)."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "apiaws-prod-86bb6974bc-mlbnw",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "authv3-698764d769-tj94c",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "authv3-698764d769-vzt4c",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "backshoping-5599cff468-5dgmw",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "backshoping-5599cff468-zlptt",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "backstore-7586d8c74f-2hkbr",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "backstore-7586d8c74f-hbcqx",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "dataview-grafana-99f4b68d9-8rv5f",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "dataview-grafana-image-renderer-5c85bb95cc-5rtck",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "general-functions-74f8f9f9d-hfrf7",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "generalf-7c6d9566cc-b29xv",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "generalf-7c6d9566cc-dmntt",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "grafanaleo-79876d47c7-qw9z7",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "influx-prd-7f7d77fd48-lllp4",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "laravel360-prd-64f76cbdd9-5tz88",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "laravel360-prd-84885644d6-gbxsb",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "newapi-production-864669bc47-rjmtz",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "newapi-production-ff9967bbb-6c48s",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "newapi-production-ff9967bbb-v66kc",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "onpremise-prd-86cc44d-sm5nm",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "orchestatorv2-production-845f7fd6cd-lsmg6",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "orchestatorv2-production-845f7fd6cd-ph2st",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "orchestatorv2-production-845f7fd6cd-tzpk9",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "orchestatorv2-production-845f7fd6cd-xr2jn",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "orchestatorv3-76bdbf87d7-5snxh",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "orchestatorv3-76bdbf87d7-rtf5d",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "python-prd-6474b754f5-n2l7h",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "python-prd-8558b7598b-747d2",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "ses-57cfb557fb-jtbz4",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "ses-74cc68fdf5-vvrnc",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "sesnest-56ff8db9d7-62qkw",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "sesnest-979f985d6-fj2tj",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "sgmn-prod-d688c7d89-nn4v4",
+      "namespace": "production",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "my-redis-2-master-0",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "my-redis-2-replicas-0",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "my-redis-master-0",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "my-redis-replicas-0",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "my-redis-replicas-1",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "nextcloud-6884989bd9-kfhdz",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "openebs-admission-server-6d68db7bff-6srd7",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "openebs-apiserver-6c8f669f78-pkbpb",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "openebs-cstor-admission-server-845bdcf45f-vrtjq",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "openebs-cstor-csi-controller-0",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "openebs-cstor-csi-node-4djnv",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "openebs-cstor-csi-node-8vcm6",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "openebs-cstor-csi-node-ftgkl",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "openebs-cstor-csi-node-t8ztl",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "openebs-cstor-csi-node-tdznc",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "openebs-cstor-cspc-operator-65c7b7b478-sl2vk",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "openebs-cstor-cvc-operator-6b5dd6bf79-5bfc4",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "openebs-localpv-provisioner-65465bf49d-9cvp4",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "openebs-ndm-77htx",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "openebs-ndm-dzqv6",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "openebs-ndm-operator-69f86b9c6b-8vxql",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "openebs-ndm-pt42z",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "openebs-ndm-rn8t7",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "openebs-ndm-z5tv2",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": true,
+      "orphaned": false,
+      "security_issues": [
+        "Pod is using host network."
+      ],
+      "suggestion": "Review pod securityContext and limit privileges."
+    },
+    {
+      "name": "openebs-provisioner-7f555ff694-6nhp7",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    },
+    {
+      "name": "openebs-snapshot-operator-76b55654c7-gtlgv",
+      "namespace": "storage",
+      "is_privileged": false,
+      "has_root_access": false,
+      "host_network": false,
+      "orphaned": false,
+      "security_issues": null,
+      "suggestion": ""
+    }
+  ]
+}

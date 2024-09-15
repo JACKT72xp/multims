@@ -1,0 +1,23 @@
+{
+  "namespace": "kong",
+  "pod_name": "kong-7b2bw",
+  "security_details": {
+    "namespace": "kong",
+    "pod_name": "kong-7b2bw",
+    "security_details": {
+      "ControllerOwner": "DaemonSet",
+      "HasShellAccess": true,
+      "InsecureNetworkCapabilities": true,
+      "PrivilegedMode": "Unknown",
+      "RunningAsRoot": false
+    },
+    "timestamp": "2024-09-15T11:51:21.587386+02:00",
+    "violations": [
+      "Container kong in pod kong-7b2bw (namespace: kong) does not have resource limits or requests set"
+    ]
+  },
+  "timestamp": "2024-09-15T11:51:21.587442+02:00",
+  "violations": [
+    "Container kong in pod kong-7b2bw (namespace: kong) does not have resource limits or requests set"
+  ]
+}

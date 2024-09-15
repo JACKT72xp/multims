@@ -1,0 +1,23 @@
+{
+  "namespace": "kong",
+  "pod_name": "kong-ds97p",
+  "security_details": {
+    "namespace": "kong",
+    "pod_name": "kong-ds97p",
+    "security_details": {
+      "ControllerOwner": "DaemonSet",
+      "HasShellAccess": true,
+      "InsecureNetworkCapabilities": true,
+      "PrivilegedMode": "Unknown",
+      "RunningAsRoot": false
+    },
+    "timestamp": "2024-09-15T11:51:27.313271+02:00",
+    "violations": [
+      "Container kong in pod kong-ds97p (namespace: kong) does not have resource limits or requests set"
+    ]
+  },
+  "timestamp": "2024-09-15T11:51:27.313295+02:00",
+  "violations": [
+    "Container kong in pod kong-ds97p (namespace: kong) does not have resource limits or requests set"
+  ]
+}

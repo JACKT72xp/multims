@@ -1,0 +1,23 @@
+{
+  "namespace": "kong",
+  "pod_name": "kong-bzx4h",
+  "security_details": {
+    "namespace": "kong",
+    "pod_name": "kong-bzx4h",
+    "security_details": {
+      "ControllerOwner": "DaemonSet",
+      "HasShellAccess": true,
+      "InsecureNetworkCapabilities": true,
+      "PrivilegedMode": "Unknown",
+      "RunningAsRoot": false
+    },
+    "timestamp": "2024-09-15T11:51:24.451869+02:00",
+    "violations": [
+      "Container kong in pod kong-bzx4h (namespace: kong) does not have resource limits or requests set"
+    ]
+  },
+  "timestamp": "2024-09-15T11:51:24.451936+02:00",
+  "violations": [
+    "Container kong in pod kong-bzx4h (namespace: kong) does not have resource limits or requests set"
+  ]
+}

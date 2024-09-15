@@ -1,0 +1,20 @@
+{
+  "namespace": "development",
+  "pod_name": "app-devspace-66548b5bf-szl8c",
+  "security_details": {
+    "namespace": "development",
+    "pod_name": "app-devspace-66548b5bf-szl8c",
+    "security_details": {
+      "ControllerOwner": "ReplicaSet",
+      "HasShellAccess": true,
+      "InsecureNetworkCapabilities": true,
+      "PrivilegedMode": "Unknown",
+      "RunningAsRoot": "Unknown"
+    },
+    "timestamp": "2024-09-15T11:52:11.957375+02:00",
+    "violations": [
+      "Container container-0 in pod app-devspace-66548b5bf-szl8c (namespace: development) does not have resource limits or requests set"
+    ]
+  },
+  "timestamp": "2024-09-15T11:52:11.957434+02:00"
+}
