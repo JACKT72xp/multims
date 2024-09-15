@@ -17,8 +17,8 @@ jobs:
       - name: Obtener el último tag
         id: get_last_tag
         run: |
-          # Obtener el último tag, si no hay ninguno, comenzar desde v1.6.35
-          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.6.35")
+          # Obtener el último tag, si no hay ninguno, comenzar desde v1.6.37
+          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.6.37")
           
           # Dividir el tag en partes (Mayor.Minor.Patch)
           IFS='.' read -r -a parts <<< "${last_tag//v/}"
@@ -140,7 +140,7 @@ jobs:
           tag_name: ${{ steps.tag_and_release.outputs.new_tag }}
           files: build/*
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       - name: Print SHA256 for copying
         run: |
