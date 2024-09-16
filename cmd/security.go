@@ -68,17 +68,28 @@ func mainMenu() {
 	option, _ := reader.ReadString('\n')
 	option = strings.TrimSpace(option)
 
+	// Obtener el contexto de Kubernetes desde la configuración
 	context, _ := GetKubeContext()
+
+	// Elegir el scope (namespace, nodo o todo el clúster)
+	scope, isNamespaceScope := chooseScope()
+
+	// Definir el tipo de análisis según el scope
+	analysisType := "entire_cluster"
+	if isNamespaceScope {
+		analysisType = "namespace"
+	}
 
 	switch option {
 	case "1":
-		security.BasicAnalysisMenu(mainMenu)
+		// Análisis básico
+		security.BasicAnalysis(scope, analysisType)
 	case "2":
-		security.AdvancedAnalysisMenu(mainMenu)
+		// Análisis avanzado
+		security.AdvancedAnalysis(scope, analysisType)
 	case "3":
-		// Llama a la función para manejar el análisis con herramientas de terceros
-		scope, isNamespaceScope := chooseScope()                                    // Ahora también obtiene el valor booleano
-		security.ThirdPartyToolAnalysis(context, scope, isNamespaceScope, mainMenu) // Pasa el valor booleano
+		// Análisis con herramientas de terceros
+		security.ThirdPartyToolAnalysis(context, scope, analysisType) // Eliminamos el parámetro `mainMenu`
 	case "4":
 		fmt.Println("Exiting application. Goodbye!")
 		os.Exit(0)
@@ -87,7 +98,6 @@ func mainMenu() {
 		mainMenu()
 	}
 }
-
 func chooseScope() (string, bool) {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -148,47 +158,47 @@ var basicCmd = &cobra.Command{
 	},
 }
 
-// Comando para el análisis avanzado
-var advancedCmd = &cobra.Command{
-	Use:   "advanced",
-	Short: "Run an advanced Kubernetes security analysis",
-	Long:  `This will perform an advanced security scan that includes checking for OWASP best practices and scanning container images.`,
-	Example: `
-  # Run an advanced analysis for the entire cluster
-  multims security advanced --entire-cluster
+// // Comando para el análisis avanzado
+// var advancedCmd = &cobra.Command{
+// 	Use:   "advanced",
+// 	Short: "Run an advanced Kubernetes security analysis",
+// 	Long:  `This will perform an advanced security scan that includes checking for OWASP best practices and scanning container images.`,
+// 	Example: `
+//   # Run an advanced analysis for the entire cluster
+//   multims security advanced --entire-cluster
 
-  # Run an advanced analysis for a specific namespace
-  multims security advanced --namespace default`,
-	Run: func(cmd *cobra.Command, args []string) {
-		security.AdvancedAnalysisMenu(mainMenu)
-	},
-}
+//   # Run an advanced analysis for a specific namespace
+//   multims security advanced --namespace default`,
+// 	Run: func(cmd *cobra.Command, args []string) {
+// 		security.AdvancedAnalysisMenu(mainMenu)
+// 	},
+// }
 
-// Comando para las herramientas de terceros
-var thirdPartyCmd = &cobra.Command{
-	Use:   "third-party",
-	Short: "Run third-party security tools",
-	Long:  `This will allow you to run third-party tools like Trivy, Kube-bench, and Kube-hunter for additional security scanning.`,
-	Example: `
-  # Run Trivy scan for vulnerabilities
-  multims security third-party --tool trivy`,
-	Run: func(cmd *cobra.Command, args []string) {
-		security.ThirdPartyMenu(mainMenu)
-	},
-}
+// // Comando para las herramientas de terceros
+// var thirdPartyCmd = &cobra.Command{
+// 	Use:   "third-party",
+// 	Short: "Run third-party security tools",
+// 	Long:  `This will allow you to run third-party tools like Trivy, Kube-bench, and Kube-hunter for additional security scanning.`,
+// 	Example: `
+//   # Run Trivy scan for vulnerabilities
+//   multims security third-party --tool trivy`,
+// 	Run: func(cmd *cobra.Command, args []string) {
+// 		security.ThirdPartyMenu(mainMenu)
+// 	},
+// }
 
-func init() {
-	// Añadir subcomandos para el comando security
-	securityCmd.AddCommand(basicCmd)
-	securityCmd.AddCommand(advancedCmd)
-	securityCmd.AddCommand(thirdPartyCmd)
+// func init() {
+// 	// Añadir subcomandos para el comando security
+// 	securityCmd.AddCommand(basicCmd)
+// 	securityCmd.AddCommand(advancedCmd)
+// 	securityCmd.AddCommand(thirdPartyCmd)
 
-	// Definir flags específicos para cada tipo de análisis
-	basicCmd.Flags().Bool("entire-cluster", false, "Run basic analysis on the entire cluster")
-	basicCmd.Flags().String("namespace", "", "Run basic analysis on a specific namespace")
+// 	// Definir flags específicos para cada tipo de análisis
+// 	basicCmd.Flags().Bool("entire-cluster", false, "Run basic analysis on the entire cluster")
+// 	basicCmd.Flags().String("namespace", "", "Run basic analysis on a specific namespace")
 
-	advancedCmd.Flags().Bool("entire-cluster", false, "Run advanced analysis on the entire cluster")
-	advancedCmd.Flags().String("namespace", "", "Run advanced analysis on a specific namespace")
+// 	advancedCmd.Flags().Bool("entire-cluster", false, "Run advanced analysis on the entire cluster")
+// 	advancedCmd.Flags().String("namespace", "", "Run advanced analysis on a specific namespace")
 
-	thirdPartyCmd.Flags().String("tool", "", "Specify the third-party tool to use (e.g., trivy, kube-hunter, kube-bench)")
-}
+// 	thirdPartyCmd.Flags().String("tool", "", "Specify the third-party tool to use (e.g., trivy, kube-hunter, kube-bench)")
+// }

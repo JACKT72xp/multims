@@ -113,9 +113,9 @@ func BasicAnalysis(target string, analysisType string) {
 			errorLog = append(errorLog, fmt.Sprintf("Error fetching namespaces: %v", err))
 			// Continuar con el análisis incluso si hay error obteniendo namespaces
 		}
-	} else if analysisType == "specific_namespace" {
+	} else if analysisType == "namespace" {
 		namespaces = []string{target}
-	} else if analysisType == "specific_node" {
+	} else if analysisType == "node" {
 		namespaces, err = getNamespacesFromNode(target)
 		if err != nil {
 			fmt.Println("Error fetching namespaces for node:", err)

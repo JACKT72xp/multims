@@ -1,0 +1,18 @@
+{
+  "namespace": "default",
+  "pod_name": "cm-acme-http-solver-thgcp",
+  "security_details": {
+    "namespace": "default",
+    "pod_name": "cm-acme-http-solver-thgcp",
+    "security_details": {
+      "ControllerOwner": "Challenge",
+      "HasShellAccess": false,
+      "InsecureNetworkCapabilities": true,
+      "PrivilegedMode": "Unknown",
+      "RunningAsRoot": "Unknown"
+    },
+    "timestamp": "2024-09-16T12:48:11.070688+02:00",
+    "violations": null
+  },
+  "timestamp": "2024-09-16T12:48:11.070708+02:00"
+}

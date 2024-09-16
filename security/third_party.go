@@ -2,7 +2,6 @@ package security
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -190,21 +189,20 @@ type TrivyReport struct {
 	} `json:"Vulnerabilities"`
 }
 
-func ThirdPartyToolAnalysis(context string, scope string, isNamespaceScope bool, returnToMenu func()) {
+func ThirdPartyToolAnalysis(context string, scope string, analysisType string) {
 	// Preguntar al usuario qué herramienta de terceros desea usar
 	tool := chooseThirdPartyTool()
 
 	// Dependiendo de la herramienta seleccionada, ejecutar el comando correspondiente
 	switch tool {
 	case "trivy":
-		RunTrivy(context, scope, isNamespaceScope) // Llamada corregida con el argumento adicional
+		RunTrivy(context, scope, analysisType) // Llamada corregida con el análisis tipo
 	case "kube-hunter":
-		runKubeHunter(scope)
+		runKubeHunter(scope) // Asegurarse de que también maneje el analysisType
 	case "kube-bench":
-		runKubeBench(scope)
+		runKubeBench(scope) // Asegurarse de que también maneje el analysisType
 	default:
-		fmt.Println("Invalid tool choice. Returning to main menu.")
-		returnToMenu()
+		fmt.Println("Invalid tool choice. Please try again.")
 	}
 }
 
@@ -248,46 +246,73 @@ func generateMarkdownReport(report TrivyReport) []byte {
 	return []byte(mdContent)
 }
 
-// Ejecutar Trivy con el alcance especificado y guardar el resultado en un archivo Markdown
-func RunTrivy(context string, scope string, isNamespaceScope bool) {
-	fmt.Printf("Running Trivy analysis for %s...\n", scope)
+func RunTrivy(context string, scope string, analysisType string) {
+	fmt.Printf("Running Trivy analysis for %s (%s)...\n", scope, analysisType)
 
 	var cmd *exec.Cmd
 
-	// Si es un análisis para el namespace, utilizar el comando adecuado.
-	if isNamespaceScope {
-		cmd = exec.Command("trivy", "k8s", context, "--include-namespaces", scope, "--format", "json", "--timeout", "60m")
-	} else {
-		cmd = exec.Command("trivy", "k8s", context, "--format", "json", "--timeout", "60m")
+	// Seleccionar el comando adecuado según el tipo de análisis (namespace o clúster completo)
+	switch analysisType {
+	case "namespace":
+		cmd = exec.Command("trivy", "k8s", context, "--include-namespaces", scope, "--report", "summary", "--timeout", "60m")
+	case "entire_cluster":
+		cmd = exec.Command("trivy", "k8s", context, "--report", "summary", "--timeout", "60m")
+	case "node":
+		cmd = exec.Command("trivy", "k8s", context, "--node", scope, "--report", "summary", "--timeout", "60m")
+	default:
+		fmt.Println("Invalid analysis type. Exiting.")
+		return
 	}
 
-	// Capturar salida combinada (stdout y stderr) para depuración
+	// Capturar salida combinada (stdout y stderr)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		fmt.Printf("Error running Trivy: %v\nOutput: %s\n", err, string(output))
 		return
 	}
 
-	// Parsear la salida de JSON
-	var report TrivyReport
-	err = json.Unmarshal(output, &report)
+	// Filtrar la salida para capturar solo el resumen
+	summary := extractSummary(string(output))
+
+	// Crear el directorio "reports" si no existe
+	reportDir := "Reports"
+	err = os.MkdirAll(reportDir, os.ModePerm)
 	if err != nil {
-		fmt.Printf("Error parsing Trivy JSON output: %v\n", err)
+		fmt.Printf("Error creating reports directory: %v\n", err)
 		return
 	}
 
-	// Crear el archivo de resumen Markdown
+	// Crear el archivo de resumen en Markdown o texto plano
 	currentTime := time.Now()
 	fileName := fmt.Sprintf("trivy_report_%s_%02d%02d%02d.md", scope, currentTime.Hour(), currentTime.Minute(), currentTime.Second())
 
-	// Guardar el archivo en formato Markdown
-	err = ioutil.WriteFile(filepath.Join("reports", fileName), generateMarkdownReport(report), 0644)
+	// Guardar solo el resumen en un archivo dentro del directorio "reports"
+	err = ioutil.WriteFile(filepath.Join(reportDir, fileName), []byte(summary), 0644)
 	if err != nil {
 		fmt.Printf("Error saving Trivy report to file: %v\n", err)
 		return
 	}
 
-	fmt.Printf("Trivy analysis completed. Report saved as %s\n", fileName)
+	fmt.Printf("Trivy analysis completed. Summary report saved as %s\n", filepath.Join(reportDir, fileName))
+}
+
+func extractSummary(output string) string {
+	var summaryBuilder strings.Builder
+	inSummary := false
+
+	// Filtrar el output para solo tomar las líneas del resumen
+	lines := strings.Split(output, "\n")
+	for _, line := range lines {
+		if strings.Contains(line, "Summary Report") {
+			inSummary = true
+		}
+
+		if inSummary {
+			summaryBuilder.WriteString(line + "\n")
+		}
+	}
+
+	return summaryBuilder.String()
 }
 
 // Ejecutar Trivy con el alcance especificado

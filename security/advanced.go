@@ -1,7 +1,6 @@
 package security
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -154,47 +153,47 @@ func AdvancedPodSecurityAnalysis(pod Pod) {
 }
 
 // BasicAnalysisMenu permite al usuario seleccionar si el análisis será para un nodo, namespace o el clúster completo
-func AdvancedAnalysisMenu(returnToMenuFunc func()) {
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Println("\nDo you want to analyze an entire cluster, a specific node, or a namespace for advanced?")
-	fmt.Println("1. Entire cluster")
-	fmt.Println("2. Specific node")
-	fmt.Println("3. Specific namespace")
+// func AdvancedAnalysisMenu(returnToMenuFunc func()) {
+// 	reader := bufio.NewReader(os.Stdin)
+// 	fmt.Println("\nDo you want to analyze an entire cluster, a specific node, or a namespace for advanced?")
+// 	fmt.Println("1. Entire cluster")
+// 	fmt.Println("2. Specific node")
+// 	fmt.Println("3. Specific namespace")
 
-	fmt.Print("\nChoose an option: ")
-	option, _ := reader.ReadString('\n')
-	option = strings.TrimSpace(option)
+// 	fmt.Print("\nChoose an option: ")
+// 	option, _ := reader.ReadString('\n')
+// 	option = strings.TrimSpace(option)
 
-	var target string
-	var analysisType string
+// 	var target string
+// 	var analysisType string
 
-	switch option {
-	case "1":
-		target = "entire_cluster"
-		analysisType = "entire_cluster"
-	case "2":
-		fmt.Print("\nEnter the node name: ")
-		nodeName, _ := reader.ReadString('\n')
-		target = strings.TrimSpace(nodeName)
-		analysisType = "specific_node"
-	case "3":
-		namespace, err := GetNamespaceSelection() // Obtener la selección del namespace
-		if err != nil {
-			fmt.Println("Error selecting namespace:", err)
-			returnToMenuFunc() // Volver al menú si hay un error
-			return
-		}
-		target = namespace
-		analysisType = "specific_namespace"
-	default:
-		fmt.Println("Invalid option. Returning to main menu.")
-		returnToMenuFunc()
-		return
-	}
+// 	switch option {
+// 	case "1":
+// 		target = "entire_cluster"
+// 		analysisType = "entire_cluster"
+// 	case "2":
+// 		fmt.Print("\nEnter the node name: ")
+// 		nodeName, _ := reader.ReadString('\n')
+// 		target = strings.TrimSpace(nodeName)
+// 		analysisType = "specific_node"
+// 	case "3":
+// 		namespace, err := GetNamespaceSelection() // Obtener la selección del namespace
+// 		if err != nil {
+// 			fmt.Println("Error selecting namespace:", err)
+// 			returnToMenuFunc() // Volver al menú si hay un error
+// 			return
+// 		}
+// 		target = namespace
+// 		analysisType = "specific_namespace"
+// 	default:
+// 		fmt.Println("Invalid option. Returning to main menu.")
+// 		returnToMenuFunc()
+// 		return
+// 	}
 
-	AdvancedAnalysis(target, analysisType)
-	returnToMenuFunc() // Volver al menú principal
-}
+//		AdvancedAnalysis(target, analysisType)
+//		returnToMenuFunc() // Volver al menú principal
+//	}
 func HasDroppedCapabilities(pod Pod) bool {
 	for _, container := range pod.Spec.Containers {
 		if container.SecurityContext != nil && container.SecurityContext.Capabilities != nil {

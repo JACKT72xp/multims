@@ -1,0 +1,154 @@
+{
+  "analysis_type": "namespace",
+  "pod_security": [
+    {
+      "namespace": "default",
+      "pod_name": "cm-acme-http-solver-thgcp",
+      "security_details": {
+        "ControllerOwner": "Challenge",
+        "HasShellAccess": false,
+        "InsecureNetworkCapabilities": true,
+        "PrivilegedMode": "Unknown",
+        "RunningAsRoot": "Unknown"
+      },
+      "timestamp": "2024-09-16T12:48:11.070688+02:00",
+      "violations": null
+    },
+    {
+      "namespace": "default",
+      "pod_name": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd23",
+      "security_details": {
+        "ControllerOwner": "Orphaned",
+        "HasShellAccess": false,
+        "InsecureNetworkCapabilities": true,
+        "PrivilegedMode": "Unknown",
+        "RunningAsRoot": "Unknown"
+      },
+      "timestamp": "2024-09-16T12:48:18.877457+02:00",
+      "violations": [
+        "Container multims in pod pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd23 (namespace: default) does not have resource limits or requests set"
+      ]
+    },
+    {
+      "namespace": "default",
+      "pod_name": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd25",
+      "security_details": {
+        "ControllerOwner": "Orphaned",
+        "HasShellAccess": false,
+        "InsecureNetworkCapabilities": true,
+        "PrivilegedMode": "Unknown",
+        "RunningAsRoot": "Unknown"
+      },
+      "timestamp": "2024-09-16T12:48:23.240786+02:00",
+      "violations": [
+        "Container nginx-proxy in pod pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd25 (namespace: default) does not have resource limits or requests set",
+        "Container application-container in pod pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd25 (namespace: default) does not have resource limits or requests set",
+        "Container msync-container in pod pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd25 (namespace: default) does not have resource limits or requests set"
+      ]
+    },
+    {
+      "namespace": "default",
+      "pod_name": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd26",
+      "security_details": {
+        "ControllerOwner": "Orphaned",
+        "HasShellAccess": false,
+        "InsecureNetworkCapabilities": true,
+        "PrivilegedMode": "Unknown",
+        "RunningAsRoot": "Unknown"
+      },
+      "timestamp": "2024-09-16T12:48:30.325102+02:00",
+      "violations": [
+        "Container nginx-proxy in pod pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd26 (namespace: default) does not have resource limits or requests set",
+        "Container application-container in pod pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd26 (namespace: default) does not have resource limits or requests set",
+        "Container msync-container in pod pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd26 (namespace: default) does not have resource limits or requests set"
+      ]
+    },
+    {
+      "namespace": "default",
+      "pod_name": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd28",
+      "security_details": {
+        "ControllerOwner": "Orphaned",
+        "HasShellAccess": false,
+        "InsecureNetworkCapabilities": true,
+        "PrivilegedMode": "Unknown",
+        "RunningAsRoot": "Unknown"
+      },
+      "timestamp": "2024-09-16T12:48:37.871516+02:00",
+      "violations": [
+        "Container nginx-proxy in pod pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd28 (namespace: default) does not have resource limits or requests set",
+        "Container application-container in pod pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd28 (namespace: default) does not have resource limits or requests set",
+        "Container msync-container in pod pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd28 (namespace: default) does not have resource limits or requests set"
+      ]
+    },
+    {
+      "namespace": "default",
+      "pod_name": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd29",
+      "security_details": {
+        "ControllerOwner": "Orphaned",
+        "HasShellAccess": false,
+        "InsecureNetworkCapabilities": true,
+        "PrivilegedMode": "Unknown",
+        "RunningAsRoot": "Unknown"
+      },
+      "timestamp": "2024-09-16T12:48:45.661098+02:00",
+      "violations": [
+        "Container nginx-proxy in pod pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd29 (namespace: default) does not have resource limits or requests set",
+        "Container application-container in pod pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd29 (namespace: default) does not have resource limits or requests set",
+        "Container msync-container in pod pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd29 (namespace: default) does not have resource limits or requests set"
+      ]
+    },
+    {
+      "namespace": "default",
+      "pod_name": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd30",
+      "security_details": {
+        "ControllerOwner": "Orphaned",
+        "HasShellAccess": false,
+        "InsecureNetworkCapabilities": true,
+        "PrivilegedMode": "Unknown",
+        "RunningAsRoot": "Unknown"
+      },
+      "timestamp": "2024-09-16T12:48:53.610448+02:00",
+      "violations": [
+        "Container nginx-proxy in pod pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd30 (namespace: default) does not have resource limits or requests set",
+        "Container application-container in pod pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd30 (namespace: default) does not have resource limits or requests set",
+        "Container msync-container in pod pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd30 (namespace: default) does not have resource limits or requests set"
+      ]
+    },
+    {
+      "namespace": "default",
+      "pod_name": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd31",
+      "security_details": {
+        "ControllerOwner": "Orphaned",
+        "HasShellAccess": false,
+        "InsecureNetworkCapabilities": true,
+        "PrivilegedMode": "Unknown",
+        "RunningAsRoot": "Unknown"
+      },
+      "timestamp": "2024-09-16T12:49:00.734096+02:00",
+      "violations": [
+        "Container nginx-proxy in pod pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd31 (namespace: default) does not have resource limits or requests set",
+        "Container application-container in pod pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd31 (namespace: default) does not have resource limits or requests set",
+        "Container msync-container in pod pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd31 (namespace: default) does not have resource limits or requests set"
+      ]
+    },
+    {
+      "namespace": "default",
+      "pod_name": "pod-try-msync",
+      "security_details": {
+        "ControllerOwner": "Orphaned",
+        "HasShellAccess": false,
+        "InsecureNetworkCapabilities": true,
+        "PrivilegedMode": "Unknown",
+        "RunningAsRoot": "Unknown"
+      },
+      "timestamp": "2024-09-16T12:49:07.850932+02:00",
+      "violations": [
+        "Container nginx-proxy in pod pod-try-msync (namespace: default) does not have resource limits or requests set",
+        "Container application-container in pod pod-try-msync (namespace: default) does not have resource limits or requests set",
+        "Container msync-container in pod pod-try-msync (namespace: default) does not have resource limits or requests set"
+      ]
+    }
+  ],
+  "target": "default",
+  "timestamp": "2024-09-16T12:49:12.366074+02:00"
+}

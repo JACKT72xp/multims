@@ -1,0 +1,22 @@
+{
+  "namespace": "default",
+  "pod_name": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd25",
+  "security_details": {
+    "namespace": "default",
+    "pod_name": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd25",
+    "security_details": {
+      "ControllerOwner": "Orphaned",
+      "HasShellAccess": false,
+      "InsecureNetworkCapabilities": true,
+      "PrivilegedMode": "Unknown",
+      "RunningAsRoot": "Unknown"
+    },
+    "timestamp": "2024-09-16T12:48:23.240786+02:00",
+    "violations": [
+      "Container nginx-proxy in pod pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd25 (namespace: default) does not have resource limits or requests set",
+      "Container application-container in pod pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd25 (namespace: default) does not have resource limits or requests set",
+      "Container msync-container in pod pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd25 (namespace: default) does not have resource limits or requests set"
+    ]
+  },
+  "timestamp": "2024-09-16T12:48:23.240844+02:00"
+}

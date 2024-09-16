@@ -1,0 +1,533 @@
+{
+  "analysis_type": "namespace",
+  "errors": [],
+  "exposed_services": {
+    "default": [
+      "NodePort"
+    ]
+  },
+  "high_restarts": null,
+  "ingress_config": {
+    "default": [
+      "TLS configured"
+    ]
+  },
+  "permissions": {
+    "default": [
+      "Resources                                              Non-Resource URLs                     Resource Names   Verbs",
+      "*.*                                                    []                                    []               [*]",
+      "                                                       [*]                                   []               [*]",
+      "pods/exec                                              []                                    []               [create]",
+      "selfsubjectreviews.authentication.k8s.io               []                                    []               [create]",
+      "selfsubjectaccessreviews.authorization.k8s.io          []                                    []               [create]",
+      "selfsubjectrulesreviews.authorization.k8s.io           []                                    []               [create]",
+      "bindings                                               []                                    []               [get list watch]",
+      "configmaps                                             []                                    []               [get list watch]",
+      "endpoints                                              []                                    []               [get list watch]",
+      "events                                                 []                                    []               [get list watch]",
+      "limitranges                                            []                                    []               [get list watch]",
+      "namespaces/status                                      []                                    []               [get list watch]",
+      "namespaces                                             []                                    []               [get list watch]",
+      "persistentvolumeclaims/status                          []                                    []               [get list watch]",
+      "persistentvolumeclaims                                 []                                    []               [get list watch]",
+      "pods/log                                               []                                    []               [get list watch]",
+      "pods/status                                            []                                    []               [get list watch]",
+      "pods                                                   []                                    []               [get list watch]",
+      "replicationcontrollers/scale                           []                                    []               [get list watch]",
+      "replicationcontrollers/status                          []                                    []               [get list watch]",
+      "replicationcontrollers                                 []                                    []               [get list watch]",
+      "resourcequotas/status                                  []                                    []               [get list watch]",
+      "resourcequotas                                         []                                    []               [get list watch]",
+      "serviceaccounts                                        []                                    []               [get list watch]",
+      "services/status                                        []                                    []               [get list watch]",
+      "services                                               []                                    []               [get list watch]",
+      "challenges.acme.cert-manager.io                        []                                    []               [get list watch]",
+      "orders.acme.cert-manager.io                            []                                    []               [get list watch]",
+      "agents.agent.k8s.elastic.co                            []                                    []               [get list watch]",
+      "apmservers.apm.k8s.elastic.co                          []                                    []               [get list watch]",
+      "controllerrevisions.apps                               []                                    []               [get list watch]",
+      "daemonsets.apps/status                                 []                                    []               [get list watch]",
+      "daemonsets.apps                                        []                                    []               [get list watch]",
+      "deployments.apps/scale                                 []                                    []               [get list watch]",
+      "deployments.apps/status                                []                                    []               [get list watch]",
+      "deployments.apps                                       []                                    []               [get list watch]",
+      "replicasets.apps/scale                                 []                                    []               [get list watch]",
+      "replicasets.apps/status                                []                                    []               [get list watch]",
+      "replicasets.apps                                       []                                    []               [get list watch]",
+      "statefulsets.apps/scale                                []                                    []               [get list watch]",
+      "statefulsets.apps/status                               []                                    []               [get list watch]",
+      "statefulsets.apps                                      []                                    []               [get list watch]",
+      "elasticsearchautoscalers.autoscaling.k8s.elastic.co    []                                    []               [get list watch]",
+      "horizontalpodautoscalers.autoscaling/status            []                                    []               [get list watch]",
+      "horizontalpodautoscalers.autoscaling                   []                                    []               [get list watch]",
+      "cronjobs.batch/status                                  []                                    []               [get list watch]",
+      "cronjobs.batch                                         []                                    []               [get list watch]",
+      "jobs.batch/status                                      []                                    []               [get list watch]",
+      "jobs.batch                                             []                                    []               [get list watch]",
+      "beats.beat.k8s.elastic.co                              []                                    []               [get list watch]",
+      "certificaterequests.cert-manager.io                    []                                    []               [get list watch]",
+      "certificates.cert-manager.io                           []                                    []               [get list watch]",
+      "issuers.cert-manager.io                                []                                    []               [get list watch]",
+      "endpointslices.discovery.k8s.io                        []                                    []               [get list watch]",
+      "elasticsearches.elasticsearch.k8s.elastic.co           []                                    []               [get list watch]",
+      "enterprisesearches.enterprisesearch.k8s.elastic.co     []                                    []               [get list watch]",
+      "daemonsets.extensions/status                           []                                    []               [get list watch]",
+      "daemonsets.extensions                                  []                                    []               [get list watch]",
+      "deployments.extensions/scale                           []                                    []               [get list watch]",
+      "deployments.extensions/status                          []                                    []               [get list watch]",
+      "deployments.extensions                                 []                                    []               [get list watch]",
+      "ingresses.extensions/status                            []                                    []               [get list watch]",
+      "ingresses.extensions                                   []                                    []               [get list watch]",
+      "networkpolicies.extensions                             []                                    []               [get list watch]",
+      "replicasets.extensions/scale                           []                                    []               [get list watch]",
+      "replicasets.extensions/status                          []                                    []               [get list watch]",
+      "replicasets.extensions                                 []                                    []               [get list watch]",
+      "replicationcontrollers.extensions/scale                []                                    []               [get list watch]",
+      "kibanas.kibana.k8s.elastic.co                          []                                    []               [get list watch]",
+      "logstashes.logstash.k8s.elastic.co                     []                                    []               [get list watch]",
+      "elasticmapsservers.maps.k8s.elastic.co                 []                                    []               [get list watch]",
+      "nodes.metrics.k8s.io                                   []                                    []               [get list watch]",
+      "pods.metrics.k8s.io                                    []                                    []               [get list watch]",
+      "ingresses.networking.k8s.io/status                     []                                    []               [get list watch]",
+      "ingresses.networking.k8s.io                            []                                    []               [get list watch]",
+      "networkpolicies.networking.k8s.io                      []                                    []               [get list watch]",
+      "poddisruptionbudgets.policy/status                     []                                    []               [get list watch]",
+      "poddisruptionbudgets.policy                            []                                    []               [get list watch]",
+      "stackconfigpolicies.stackconfigpolicy.k8s.elastic.co   []                                    []               [get list watch]",
+      "                                                       [/.well-known/openid-configuration]   []               [get]",
+      "                                                       [/api/*]                              []               [get]",
+      "                                                       [/api]                                []               [get]",
+      "                                                       [/apis/*]                             []               [get]",
+      "                                                       [/apis]                               []               [get]",
+      "                                                       [/healthz]                            []               [get]",
+      "                                                       [/healthz]                            []               [get]",
+      "                                                       [/livez]                              []               [get]",
+      "                                                       [/livez]                              []               [get]",
+      "                                                       [/openapi/*]                          []               [get]",
+      "                                                       [/openapi]                            []               [get]",
+      "                                                       [/openid/v1/jwks]                     []               [get]",
+      "                                                       [/readyz]                             []               [get]",
+      "                                                       [/readyz]                             []               [get]",
+      "                                                       [/version/]                           []               [get]",
+      "                                                       [/version/]                           []               [get]",
+      "                                                       [/version]                            []               [get]",
+      "                                                       [/version]                            []               [get]",
+      ""
+    ]
+  },
+  "pod_status": {
+    "default": [
+      {
+        "container_status": [
+          {
+            "name": "acmesolver",
+            "ready": true,
+            "restartCount": 0
+          }
+        ],
+        "host_ip": "192.168.29.29",
+        "node": "knode12",
+        "phase": "Running",
+        "pod_ip": "10.0.3.116",
+        "pod_name": "cm-acme-http-solver-thgcp",
+        "resources": [
+          {
+            "name": "acmesolver",
+            "resources": {
+              "limits": {
+                "cpu": "100m",
+                "memory": "64Mi"
+              },
+              "requests": {
+                "cpu": "10m",
+                "memory": "64Mi"
+              }
+            }
+          }
+        ],
+        "restart_count": 0,
+        "root_user": false,
+        "start_time": "2024-07-05T21:54:52Z"
+      },
+      {
+        "container_status": [
+          {
+            "name": "multims",
+            "ready": true,
+            "restartCount": 0
+          }
+        ],
+        "host_ip": "192.168.29.24",
+        "node": "knode7",
+        "phase": "Running",
+        "pod_ip": "10.0.0.12",
+        "pod_name": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd23",
+        "resources": [
+          {
+            "name": "multims",
+            "resources": {
+              "limits": null,
+              "requests": null
+            }
+          }
+        ],
+        "restart_count": 0,
+        "root_user": true,
+        "start_time": "2024-08-11T12:55:41Z"
+      },
+      {
+        "container_status": [
+          {
+            "name": "application-container",
+            "ready": true,
+            "restartCount": 0
+          },
+          {
+            "name": "msync-container",
+            "ready": true,
+            "restartCount": 0
+          },
+          {
+            "name": "nginx-proxy",
+            "ready": true,
+            "restartCount": 0
+          }
+        ],
+        "host_ip": "192.168.29.24",
+        "node": "knode7",
+        "phase": "Running",
+        "pod_ip": "10.0.0.137",
+        "pod_name": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd25",
+        "resources": [
+          {
+            "name": "nginx-proxy",
+            "resources": {
+              "limits": null,
+              "requests": null
+            }
+          },
+          {
+            "name": "application-container",
+            "resources": {
+              "limits": null,
+              "requests": null
+            }
+          },
+          {
+            "name": "msync-container",
+            "resources": {
+              "limits": null,
+              "requests": null
+            }
+          }
+        ],
+        "restart_count": 0,
+        "root_user": true,
+        "start_time": "2024-08-14T10:58:05Z"
+      },
+      {
+        "container_status": [
+          {
+            "name": "application-container",
+            "ready": true,
+            "restartCount": 0
+          },
+          {
+            "name": "msync-container",
+            "ready": true,
+            "restartCount": 0
+          },
+          {
+            "name": "nginx-proxy",
+            "ready": true,
+            "restartCount": 0
+          }
+        ],
+        "host_ip": "192.168.29.23",
+        "node": "knode6",
+        "phase": "Running",
+        "pod_ip": "10.0.1.39",
+        "pod_name": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd26",
+        "resources": [
+          {
+            "name": "nginx-proxy",
+            "resources": {
+              "limits": null,
+              "requests": null
+            }
+          },
+          {
+            "name": "application-container",
+            "resources": {
+              "limits": null,
+              "requests": null
+            }
+          },
+          {
+            "name": "msync-container",
+            "resources": {
+              "limits": null,
+              "requests": null
+            }
+          }
+        ],
+        "restart_count": 0,
+        "root_user": true,
+        "start_time": "2024-08-15T22:28:09Z"
+      },
+      {
+        "container_status": [
+          {
+            "name": "application-container",
+            "ready": true,
+            "restartCount": 0
+          },
+          {
+            "name": "msync-container",
+            "ready": true,
+            "restartCount": 0
+          },
+          {
+            "name": "nginx-proxy",
+            "ready": true,
+            "restartCount": 0
+          }
+        ],
+        "host_ip": "192.168.29.23",
+        "node": "knode6",
+        "phase": "Running",
+        "pod_ip": "10.0.1.231",
+        "pod_name": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd28",
+        "resources": [
+          {
+            "name": "nginx-proxy",
+            "resources": {
+              "limits": null,
+              "requests": null
+            }
+          },
+          {
+            "name": "application-container",
+            "resources": {
+              "limits": null,
+              "requests": null
+            }
+          },
+          {
+            "name": "msync-container",
+            "resources": {
+              "limits": null,
+              "requests": null
+            }
+          }
+        ],
+        "restart_count": 0,
+        "root_user": true,
+        "start_time": "2024-08-17T14:41:54Z"
+      },
+      {
+        "container_status": [
+          {
+            "name": "application-container",
+            "ready": true,
+            "restartCount": 0
+          },
+          {
+            "name": "msync-container",
+            "ready": true,
+            "restartCount": 0
+          },
+          {
+            "name": "nginx-proxy",
+            "ready": true,
+            "restartCount": 0
+          }
+        ],
+        "host_ip": "192.168.29.22",
+        "node": "knode5",
+        "phase": "Running",
+        "pod_ip": "10.0.4.89",
+        "pod_name": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd29",
+        "resources": [
+          {
+            "name": "nginx-proxy",
+            "resources": {
+              "limits": null,
+              "requests": null
+            }
+          },
+          {
+            "name": "application-container",
+            "resources": {
+              "limits": null,
+              "requests": null
+            }
+          },
+          {
+            "name": "msync-container",
+            "resources": {
+              "limits": null,
+              "requests": null
+            }
+          }
+        ],
+        "restart_count": 0,
+        "root_user": true,
+        "start_time": "2024-08-17T17:46:40Z"
+      },
+      {
+        "container_status": [
+          {
+            "name": "application-container",
+            "ready": true,
+            "restartCount": 0
+          },
+          {
+            "name": "msync-container",
+            "ready": true,
+            "restartCount": 0
+          },
+          {
+            "name": "nginx-proxy",
+            "ready": true,
+            "restartCount": 0
+          }
+        ],
+        "host_ip": "192.168.29.29",
+        "node": "knode12",
+        "phase": "Running",
+        "pod_ip": "10.0.3.202",
+        "pod_name": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd30",
+        "resources": [
+          {
+            "name": "nginx-proxy",
+            "resources": {
+              "limits": null,
+              "requests": null
+            }
+          },
+          {
+            "name": "application-container",
+            "resources": {
+              "limits": null,
+              "requests": null
+            }
+          },
+          {
+            "name": "msync-container",
+            "resources": {
+              "limits": null,
+              "requests": null
+            }
+          }
+        ],
+        "restart_count": 0,
+        "root_user": true,
+        "start_time": "2024-08-17T22:57:55Z"
+      },
+      {
+        "container_status": [
+          {
+            "name": "application-container",
+            "ready": true,
+            "restartCount": 0
+          },
+          {
+            "name": "msync-container",
+            "ready": true,
+            "restartCount": 0
+          },
+          {
+            "name": "nginx-proxy",
+            "ready": true,
+            "restartCount": 0
+          }
+        ],
+        "host_ip": "192.168.29.26",
+        "node": "knode9",
+        "phase": "Running",
+        "pod_ip": "10.0.2.47",
+        "pod_name": "pod-192c16b5-dd3b-4630-8d6b-bc54a6260bd31",
+        "resources": [
+          {
+            "name": "nginx-proxy",
+            "resources": {
+              "limits": null,
+              "requests": null
+            }
+          },
+          {
+            "name": "application-container",
+            "resources": {
+              "limits": null,
+              "requests": null
+            }
+          },
+          {
+            "name": "msync-container",
+            "resources": {
+              "limits": null,
+              "requests": null
+            }
+          }
+        ],
+        "restart_count": 0,
+        "root_user": true,
+        "start_time": "2024-08-18T16:58:03Z"
+      },
+      {
+        "container_status": [
+          {
+            "name": "application-container",
+            "ready": true,
+            "restartCount": 0
+          },
+          {
+            "name": "msync-container",
+            "ready": true,
+            "restartCount": 1
+          },
+          {
+            "name": "nginx-proxy",
+            "ready": true,
+            "restartCount": 0
+          }
+        ],
+        "host_ip": "192.168.29.23",
+        "node": "knode6",
+        "phase": "Running",
+        "pod_ip": "10.0.1.213",
+        "pod_name": "pod-try-msync",
+        "resources": [
+          {
+            "name": "nginx-proxy",
+            "resources": {
+              "limits": null,
+              "requests": null
+            }
+          },
+          {
+            "name": "application-container",
+            "resources": {
+              "limits": null,
+              "requests": null
+            }
+          },
+          {
+            "name": "msync-container",
+            "resources": {
+              "limits": null,
+              "requests": null
+            }
+          }
+        ],
+        "restart_count": 0,
+        "root_user": true,
+        "start_time": "2024-08-12T10:48:18Z"
+      }
+    ]
+  },
+  "status": "Basic analysis complete",
+  "target": "default",
+  "timestamp": "2024-09-16T12:47:32.762588+02:00"
+}
