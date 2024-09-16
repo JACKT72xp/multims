@@ -2,6 +2,7 @@ package security
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -9,6 +10,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"gopkg.in/yaml.v2"
 )
@@ -175,4 +177,160 @@ func ThirdPartyMenu(returnToMenuFunc func()) {
 
 	fmt.Println("Third-party tool analysis completed.")
 	returnToMenuFunc() // Volver al menú principal
+}
+
+type TrivyReport struct {
+	Target          string `json:"Target"`
+	Vulnerabilities []struct {
+		VulnerabilityID  string `json:"VulnerabilityID"`
+		PkgName          string `json:"PkgName"`
+		InstalledVersion string `json:"InstalledVersion"`
+		Severity         string `json:"Severity"`
+		Description      string `json:"Description"`
+	} `json:"Vulnerabilities"`
+}
+
+func ThirdPartyToolAnalysis(context string, scope string, isNamespaceScope bool, returnToMenu func()) {
+	// Preguntar al usuario qué herramienta de terceros desea usar
+	tool := chooseThirdPartyTool()
+
+	// Dependiendo de la herramienta seleccionada, ejecutar el comando correspondiente
+	switch tool {
+	case "trivy":
+		RunTrivy(context, scope, isNamespaceScope) // Llamada corregida con el argumento adicional
+	case "kube-hunter":
+		runKubeHunter(scope)
+	case "kube-bench":
+		runKubeBench(scope)
+	default:
+		fmt.Println("Invalid tool choice. Returning to main menu.")
+		returnToMenu()
+	}
+}
+
+// chooseThirdPartyTool permite al usuario seleccionar la herramienta de terceros que desea usar
+func chooseThirdPartyTool() string {
+	fmt.Println("Select a third-party tool:")
+	fmt.Println("1. Trivy")
+	fmt.Println("2. Kube-Hunter")
+	fmt.Println("3. Kube-Bench")
+
+	var option string
+	fmt.Print("Choose an option: ")
+	fmt.Scanln(&option)
+
+	switch option {
+	case "1":
+		return "trivy"
+	case "2":
+		return "kube-hunter"
+	case "3":
+		return "kube-bench"
+	default:
+		return ""
+	}
+}
+
+func generateMarkdownReport(report TrivyReport) []byte {
+	mdContent := fmt.Sprintf("# Trivy Report for %s\n\n", report.Target)
+	if len(report.Vulnerabilities) == 0 {
+		mdContent += "## No vulnerabilities found.\n"
+	} else {
+		mdContent += "## Vulnerabilities found:\n"
+		for _, vuln := range report.Vulnerabilities {
+			mdContent += fmt.Sprintf("### Vulnerability ID: %s\n", vuln.VulnerabilityID)
+			mdContent += fmt.Sprintf("- **Package**: %s\n", vuln.PkgName)
+			mdContent += fmt.Sprintf("- **Installed Version**: %s\n", vuln.InstalledVersion)
+			mdContent += fmt.Sprintf("- **Severity**: %s\n", vuln.Severity)
+			mdContent += fmt.Sprintf("- **Description**: %s\n\n", vuln.Description)
+		}
+	}
+	return []byte(mdContent)
+}
+
+// Ejecutar Trivy con el alcance especificado y guardar el resultado en un archivo Markdown
+func RunTrivy(context string, scope string, isNamespaceScope bool) {
+	fmt.Printf("Running Trivy analysis for %s...\n", scope)
+
+	var cmd *exec.Cmd
+
+	// Si es un análisis para el namespace, utilizar el comando adecuado.
+	if isNamespaceScope {
+		cmd = exec.Command("trivy", "k8s", context, "--include-namespaces", scope, "--format", "json", "--timeout", "60m")
+	} else {
+		cmd = exec.Command("trivy", "k8s", context, "--format", "json", "--timeout", "60m")
+	}
+
+	// Capturar salida combinada (stdout y stderr) para depuración
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Printf("Error running Trivy: %v\nOutput: %s\n", err, string(output))
+		return
+	}
+
+	// Parsear la salida de JSON
+	var report TrivyReport
+	err = json.Unmarshal(output, &report)
+	if err != nil {
+		fmt.Printf("Error parsing Trivy JSON output: %v\n", err)
+		return
+	}
+
+	// Crear el archivo de resumen Markdown
+	currentTime := time.Now()
+	fileName := fmt.Sprintf("trivy_report_%s_%02d%02d%02d.md", scope, currentTime.Hour(), currentTime.Minute(), currentTime.Second())
+
+	// Guardar el archivo en formato Markdown
+	err = ioutil.WriteFile(filepath.Join("reports", fileName), generateMarkdownReport(report), 0644)
+	if err != nil {
+		fmt.Printf("Error saving Trivy report to file: %v\n", err)
+		return
+	}
+
+	fmt.Printf("Trivy analysis completed. Report saved as %s\n", fileName)
+}
+
+// Ejecutar Trivy con el alcance especificado
+// Ejecutar Trivy con el alcance especificado y guardar el resultado en un archivo JSON
+
+// func printTrivySummary(report TrivyReport) {
+// 	fmt.Printf("Target: %s\n", report.Target)
+// 	if len(report.Vulnerabilities) == 0 {
+// 		fmt.Println("No vulnerabilities found.")
+// 		return
+// 	}
+
+// 	fmt.Println("Vulnerabilities found:")
+// 	for _, vuln := range report.Vulnerabilities {
+// 		fmt.Printf("- ID: %s\n  Package: %s\n  Version: %s\n  Severity: %s\n  Description: %s\n\n",
+// 			vuln.VulnerabilityID, vuln.PkgName, vuln.InstalledVersion, vuln.Severity, vuln.Description)
+// 	}
+// }
+
+// Ejecutar Kube-Hunter con el alcance especificado
+func runKubeHunter(scope string) {
+	fmt.Printf("Running Kube-Hunter analysis for %s...\n", scope)
+	cmd := exec.Command("kube-hunter", "--remote", scope)
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Printf("Error running Kube-Hunter: %v\nOutput: %s\n", err, string(output))
+		return
+	}
+
+	fmt.Printf("Kube-Hunter Output:\n%s\n", string(output))
+}
+
+// Ejecutar Kube-Bench con el alcance especificado
+func runKubeBench(scope string) {
+	fmt.Printf("Running Kube-Bench analysis for %s...\n", scope)
+	cmd := exec.Command("kube-bench", "--kubeconfig", scope)
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Printf("Error running Kube-Bench: %v\nOutput: %s\n", err, string(output))
+		return
+	}
+
+	fmt.Printf("Kube-Bench Output:\n%s\n", string(output))
 }
