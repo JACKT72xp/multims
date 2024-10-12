@@ -64,10 +64,11 @@ func SelectTechnology() string {
 	return result
 }
 
+// SlectRegistry muestra un prompt para seleccionar el registro de contenedores
 func SlectRegistry() string {
 	prompt := promptui.Select{
 		Label: "Select the container registry to use",
-		Items: []string{"DockerHub", "AWS ECR", "Cancel"},
+		Items: []string{"DockerHub", "AWS ECR", "Sin Registry", "Cancel"},
 	}
 	_, result, err := prompt.Run()
 	if err != nil {

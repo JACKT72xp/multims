@@ -1,23 +1,23 @@
 kubernetesContext: mi-cuenta-publica-context
-registryOrDocker: DockerHub
+registryOrDocker: Sin Registry
 registry: ""
-technology: Python
-namespace: local
+technology: Node-Typescript
+namespace: default
 useDefaultKubeConfig: true
 kubeConfigPath: /Users/jacktorpoco/.kube/config
-uid: 4bc1dce6-ba2e-49e8-83f8-ee3175b73bbb
-appName: /Volumes/DataJack/Bifrost/ms-0022-orchestatorv3
+uid: c6ef9b8d-a57f-4a59-a86c-f0f338f6c198
+appName: multims
 application:
-  start_run: python main.py
-  port: 8080
+  start_run: node index.js
+  port: 3000
 multiservices: []
 database:
-  type: postgres
-  active: true
-  db: postgres
-  user: postgres
-  password: password
-  name: mydb
-  external: true
+  type: ""
+  active: false
+  db: ""
+  user: ""
+  password: ""
+  name: ""
+  external: false
 installationcommands:
 - ""

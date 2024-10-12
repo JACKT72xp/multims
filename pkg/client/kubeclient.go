@@ -45,8 +45,8 @@ func (a *ANSIWriter) Write(p []byte) (int, error) {
 	return len(p), err                // Devuelve la longitud original de p y cualquier error
 }
 
-func SetupKubernetesConnection(kubeconfigPath, contextName string) {
-	// Cargando el archivo kubeconfig y seleccionando un contexto específico
+func SetupKubernetesConnection(kubeconfigPath, contextName, namespace string) {
+	// Cargar el archivo kubeconfig y seleccionar un contexto específico
 	loader := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 		&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfigPath},
 		&clientcmd.ConfigOverrides{CurrentContext: contextName},
@@ -62,13 +62,22 @@ func SetupKubernetesConnection(kubeconfigPath, contextName string) {
 		log.Fatalf("Error creating Kubernetes clientset: %v", err)
 	}
 
-	// Ejemplo de cómo listar los pods en el contexto seleccionado
-	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), v1.ListOptions{})
+	// Intentar listar los pods para verificar permisos
+	pods, err := clientset.CoreV1().Pods(namespace).List(context.TODO(), v1.ListOptions{})
 	if err != nil {
-		log.Fatalf("Error listing pods: %v", err)
+		if errors.IsForbidden(err) {
+			log.Fatalf("No tienes permisos completos en el contexto '%s'.", contextName)
+		} else {
+			log.Fatalf("Error listing pods: %v", err)
+		}
 	}
 
-	fmt.Printf("Connected to context %s, %d pods found\n", contextName, len(pods.Items))
+	// Informar el número de pods en el namespace o en todos los namespaces si no se especifica
+	if namespace == "" {
+		fmt.Printf("Connected to context '%s', total pods found: %d\n", contextName, len(pods.Items))
+	} else {
+		fmt.Printf("Connected to context '%s' in namespace '%s', total pods found: %d\n", contextName, namespace, len(pods.Items))
+	}
 }
 
 // ListNamespaces lista los namespaces disponibles en el cluster

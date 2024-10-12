@@ -12,7 +12,16 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/ecr"
+	"github.com/fatih/color"
 )
+
+// Función para sincronizar con la nube (por ahora, solo devuelve un mensaje)
+func SyncWithCloud(credentials *CloudCredentials) {
+	fmt.Println("Hello, World! from SyncWithCloud")
+}
 
 func SelectNamespace(kubeConfigPath string, ctx string) string {
 	namespace, err := utils.SelectNamespace(kubeConfigPath, ctx)
@@ -30,12 +39,49 @@ func SelectRegistry() string {
 	return utils.SlectRegistry()
 }
 
+// checkECRLogin verifica el token de autorización de AWS ECR
+func checkECRLogin() bool {
+	sess, err := session.NewSession()
+	if err != nil {
+		log.Println("Error creating AWS session:", err)
+		return false
+	}
+
+	svc := ecr.New(sess)
+	_, err = svc.GetAuthorizationToken(&ecr.GetAuthorizationTokenInput{})
+	if err != nil {
+		log.Println("Failed to authenticate to AWS ECR:", err)
+		return false
+	}
+	return true
+}
+
+// HandleRegistryLogin maneja el login al registro seleccionado
 func HandleRegistryLogin(registry string) {
-	switch registry {
-	case "DockerHub":
-		auth.HandleDockerLogin()
-	case "AWS ECR":
-		auth.HandleECRLogin()
+	for {
+		switch registry {
+		case "DockerHub":
+			if auth.HandleDockerLogin() {
+				return // Salir del bucle tras login exitoso
+			}
+			color.Red("❌ Docker Hub login failed. Please try again or choose another option.")
+		case "AWS ECR":
+			if auth.HandleECRLogin() {
+				return // Salir del bucle tras login exitoso
+			}
+			color.Red("❌ AWS ECR login failed. Please try again or choose another option.")
+		case "Sin Registry":
+			color.Cyan("ℹ️  No registry selected. Proceeding without container registry login.")
+			return // Continuar sin seleccionar un registro
+		case "Cancel":
+			color.Yellow("Operation cancelled by the user.")
+			return
+		default:
+			color.Red("❌ Invalid option selected.")
+		}
+
+		// Repetir el proceso de selección del registro
+		registry = SelectRegistry()
 	}
 }
 

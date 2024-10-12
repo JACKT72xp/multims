@@ -20,10 +20,11 @@ func CheckDockerLogin() bool {
 }
 
 // HandleDockerLogin maneja la lógica para asegurarse de que el usuario está logueado en Docker Hub.
-func HandleDockerLogin() {
+func HandleDockerLogin() bool {
 	if !CheckDockerLogin() {
 		log.Println("You need to log in to Docker Hub first.")
-		return
+		return false
 	}
 	log.Println("Logged into Docker Hub successfully.")
+	return true
 }
