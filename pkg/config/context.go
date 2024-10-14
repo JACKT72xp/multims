@@ -49,6 +49,16 @@ type Config struct {
 	RegistryURL          string          `yaml:"registryURL"`
 }
 
+type DatabaseConfig struct {
+	Type     string `yaml:"type"`
+	Active   bool   `yaml:"active"`
+	DB       string `yaml:"db"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	Name     string `yaml:"name"`
+	External bool   `yaml:"external"`
+}
+
 // LoadConfigFromFile loads the configuration from a YAML file
 // LoadConfigFromFile loads the configuration from a YAML file
 // LoadConfigFromFile carga la configuración desde un archivo YAML

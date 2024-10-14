@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"multims/pkg/config"
 	"os"
 	"path/filepath"
 	"text/template"
@@ -123,7 +124,9 @@ func CreateMultimsDirectory() error {
 	return nil
 }
 
-func SaveConfigToFile(technology, registry, context, namespace string, useDefault bool, kubeConfigPath, appName, ecr_docker, input string, port int, uid string) error {
+// func SaveConfigToFile(technology, registry, context, namespace string, useDefault bool, kubeConfigPath, appName, ecr_docker, input string, port int, uid string) error {
+func SaveConfigToFile(technology, registry, context, namespace string, useDefault bool, kubeConfigPath, appName string, ecr_docker string, input string, port int, dbConfig config.DatabaseConfig, installationCommands []string, dir string, uid string) error {
+
 	// Ya no necesitamos generar el uid aquí
 	config := Config{
 		KubernetesContext:    context,

@@ -1,9 +1,17 @@
 package main
 
 import (
-	"multims/cmd" // Este import debe ser capaz de encontrar el archivo init.go dentro del paquete cmd
+	"flag"
+	"multims/cmd"
 )
 
 func main() {
-	cmd.Execute()
+	native := flag.Bool("native", false, "Start as native messaging host")
+	flag.Parse()
+
+	if *native {
+		cmd.StartNativeHost()
+	} else {
+		cmd.Execute()
+	}
 }

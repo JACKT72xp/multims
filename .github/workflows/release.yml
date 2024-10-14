@@ -5,7 +5,7 @@ on:
     branches:
       - master
 env:
-  BASE_VERSION: "v1.6.46" 
+  BASE_VERSION: "v1.6.48" 
   
 jobs:
   tag_and_release:
